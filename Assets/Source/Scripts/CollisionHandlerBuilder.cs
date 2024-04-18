@@ -5,16 +5,14 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
     public static class CollisionHandlerBuilder
     {
-        public static ICollisionHandler Create<T>(T collider, CharacterConfig characterConfig) where T : Collider
+        public static ICollisionHandler Create<T>(T collider, ShapeConfig characterConfig) where T : Collider
         {
-            ICollisionHandler collisionHandler;
-
-            collisionHandler = collider switch
+            ICollisionHandler collisionHandler = collider switch
             {
                 CapsuleCollider capsuleCollider => new CapsuleCollisionHandler(characterConfig, capsuleCollider),
-                SphereCollider sphereCollider => new SphereColliderHandler(characterConfig, sphereCollider),
-                BoxCollider boxCollider => new BoxColliderHandler(characterConfig, boxCollider),
-                _ => throw new NullReferenceException($"There's no handler for {collider.GetType().Name} type")
+                SphereCollider sphereCollider => new SphereCollisionHandler(characterConfig, sphereCollider),
+                BoxCollider boxCollider => new BoxCollisionHandler(characterConfig, boxCollider),
+                _ => throw new MissingReferenceException($"There's no handler for {collider.GetType().Name} type")
             };
 
             return collisionHandler;

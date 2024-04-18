@@ -17,7 +17,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         private float _clipPreventingValue;
         private ICollisionHandler _collisionHandler;
         private WorldConfig _wordlConfig;
-        private CharacterConfig _characterConfig;
+        private ShapeConfig _characterConfig;
         private Rigidbody _rb;
 
         public bool IsGrounded { get; private set; }
@@ -37,7 +37,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         private void Update()
         {
             var vel = _input.Direction * _speed;
-            IsGrounded = _collisionHandler.IsCollide(transform.position, -_characterConfig.CharacterUp, out RaycastHit hit, 2 * _clipPreventingValue);
+            IsGrounded = _collisionHandler.IsCollide(transform.position, -_characterConfig.Up, out RaycastHit hit, 2 * _clipPreventingValue);
 
             if (_applyGravity && IsGrounded == false)
                 vel += _wordlConfig.Gravity;

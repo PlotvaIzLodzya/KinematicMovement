@@ -2,12 +2,12 @@
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
-    public abstract class ColliderHandler<T> : ICollisionHandler where T : Collider
+    public abstract class CollisionHandler<T> : ICollisionHandler where T : Collider
     {
-        protected CharacterConfig Config;
+        protected ShapeConfig Config;
         protected T Collider;
 
-        protected ColliderHandler(CharacterConfig config, T collider)
+        protected CollisionHandler(ShapeConfig config, T collider)
         {
             Config = config;
             Collider = collider;
@@ -16,11 +16,12 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public abstract bool IsCollide(Vector3 pos, Vector3 dir, out RaycastHit hit, float dist);
     }
 
-    public class BoxColliderHandler : ColliderHandler<BoxCollider>
+
+    public class BoxCollisionHandler : CollisionHandler<BoxCollider>
     {
         private Transform _transform;
 
-        public BoxColliderHandler(CharacterConfig config, BoxCollider collider) : base(config, collider)
+        public BoxCollisionHandler(ShapeConfig config, BoxCollider collider) : base(config, collider)
         {
             _transform = collider.transform;
         }
@@ -31,9 +32,9 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         }
     }
 
-    public class SphereColliderHandler : ColliderHandler<SphereCollider>
+    public class SphereCollisionHandler : CollisionHandler<SphereCollider>
     {
-        public SphereColliderHandler(CharacterConfig config, SphereCollider collider) : base(config, collider)
+        public SphereCollisionHandler(ShapeConfig config, SphereCollider collider) : base(config, collider)
         {
         }
 
@@ -44,9 +45,9 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
     }
 
 
-    public class CapsuleCollisionHandler: ColliderHandler<CapsuleCollider>
+    public class CapsuleCollisionHandler : CollisionHandler<CapsuleCollider>
     {
-        public CapsuleCollisionHandler(CharacterConfig config, CapsuleCollider collider) : base(config, collider)
+        public CapsuleCollisionHandler(ShapeConfig config, CapsuleCollider collider) : base(config, collider)
         {
         }
 
@@ -57,8 +58,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 
         private bool CapsuleCast(Vector3 pos, Vector3 dir, out RaycastHit hit, float dist)
         {
-            var p1 = pos + Collider.center + Config.CharacterUp * -Collider.height * 0.5f;
-            var p2 = p1 + Config.CharacterUp * Collider.height;
+            var p1 = pos + Collider.center + Config.Up * -Collider.height * 0.5f;
+            var p2 = p1 + Config.Up * Collider.height;
 
             return Physics.CapsuleCast(p1, p2, Collider.radius, dir, out hit, dist);
         }

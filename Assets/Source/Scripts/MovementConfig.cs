@@ -2,13 +2,13 @@
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 {
-    public class CharacterConfig
+    public class ShapeConfig
     {
-        public Vector3 CharacterUp { get; private set; }
+        public Vector3 Up { get; private set; }
 
-        public CharacterConfig(Vector3 characterUp)
+        public ShapeConfig(Vector3 characterUp)
         {
-            CharacterUp = characterUp;
+            Up = characterUp;
         }
     }
 
