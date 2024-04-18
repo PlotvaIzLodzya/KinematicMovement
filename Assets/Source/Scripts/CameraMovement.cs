@@ -1,27 +1,31 @@
+using PlotvaIzLodzya.Player;
 using UnityEngine;
 
-public class CameraMovement : MonoBehaviour
+namespace PlotvaIzLodzya.Movement
 {
-    [SerializeField] private Transform _followedObject;
-    [SerializeField] private PlayerInput _playerInput;
-    [SerializeField] private float _maxDistance;
-
-    private void Update()
+    public class CameraMovement : MonoBehaviour
     {
-        var mouseDelta = new Vector3(_playerInput.MouseDelta.x, 0, _playerInput.MouseDelta.y);
-        transform.position += (Vector3)_playerInput.MouseDelta;
+        [SerializeField] private Transform _followedObject;
+        [SerializeField] private PlayerInput _playerInput;
+        [SerializeField] private float _maxDistance;
 
-        transform.position = Clamp(_maxDistance);
-    }
+        private void Update()
+        {
+            var mouseDelta = new Vector3(_playerInput.MouseDelta.x, 0, _playerInput.MouseDelta.y);
+            transform.position += (Vector3)_playerInput.MouseDelta;
 
-    private Vector3 Clamp( float maxDistance)
-    {
-        var dir = (_followedObject.position - transform.position).normalized;
+            transform.position = Clamp(_maxDistance);
+        }
 
-        dir *= maxDistance;
+        private Vector3 Clamp(float maxDistance)
+        {
+            var dir = (_followedObject.position - transform.position).normalized;
 
-        var pos = _followedObject.position - dir;
+            dir *= maxDistance;
 
-        return pos;
+            var pos = _followedObject.position - dir;
+
+            return pos;
+        }
     }
 }
