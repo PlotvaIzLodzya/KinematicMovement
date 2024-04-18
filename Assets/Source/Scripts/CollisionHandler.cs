@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
@@ -9,8 +10,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 
         protected CollisionHandler(ShapeConfig config, T collider)
         {
-            Config = config;
-            Collider = collider;
+            Config = config ?? throw new NullReferenceException($"Config is null"); ;
+            Collider = collider ?? throw new NullReferenceException($"Collider is null");
         }
 
         public abstract bool IsCollide(Vector3 pos, Vector3 dir, out RaycastHit hit, float dist);
