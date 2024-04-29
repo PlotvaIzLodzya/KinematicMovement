@@ -5,7 +5,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
     public static class CollisionHandlerBuilder
     {
-        public static ICollisionHandler Create<T>(T collider, ShapeConfig characterConfig) where T : Collider
+        public static ICollisionHandler Create<T>(T collider, CollisionConfig characterConfig) where T : Collider
         {
             ICollisionHandler collisionHandler = collider switch
             {

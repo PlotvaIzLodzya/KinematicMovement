@@ -1,11 +1,8 @@
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 {
-
-
     public interface IMovable
     {
         void Move(Vector3 velocity);
@@ -14,21 +11,20 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
     public class Movement : MonoBehaviour, IMovable
     {
         [SerializeField] private PlayerInput _input;
-        [SerializeField] private LayerMask _collisionMask;
         [SerializeField] private float _speed = 2f;
         [SerializeField] private float _maxSlopeAngle = 45f;
         [SerializeField] private bool _applyGravity;
-        [SerializeField] private Vector3 _exteranalForce;
+        [SerializeField] private CollisionConfig _collisionConfig;
 
         private int _collideDepth;
-        private float _clipPreventingValue;
+        private Vector3 _exteranalForce;
         private ICollisionHandler _collisionHandler;
         private WorldConfig _wordlConfig;
-        private ShapeConfig _characterConfig;
         private Rigidbody _rb;
         private Transform _transform;
 
-        public bool IsGrounded { get; private set; }
+        public MovementState State { get; private set; }
+        public bool IsGrounded => State.Grounded.IsInState;
 
         private void Awake()
         {
@@ -36,15 +32,15 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             _rb = GetComponent<Rigidbody>();
             _rb.isKinematic = true;
             _wordlConfig = new (Vector3.down*14f, Vector3.up);
-            _characterConfig = new(Vector3.up);
             var collider = GetComponent<Collider>();
-            _collisionHandler = CollisionHandlerBuilder.Create(collider, _characterConfig);
-            _clipPreventingValue = 0.015f;
+            _collisionHandler = CollisionHandlerBuilder.Create(collider, _collisionConfig);
+            State = new(_collisionHandler);
             _collideDepth = 5;
         }
 
         private void Update()
         {
+            State.Update();
             var vel = _input.Direction * _speed;
 
             if (_applyGravity)
@@ -52,16 +48,13 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
             vel += _exteranalForce;
 
-            IsGrounded = _collisionHandler.IsCollide(transform.position, -_characterConfig.Up, out RaycastHit hit, 2 * _clipPreventingValue);
-
             if (IsGrounded)
-                vel = SnapVelocityToSurface(vel, hit.normal);
+                vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
 
             Move(vel);
 
             if (Input.GetKeyDown(KeyCode.Space))
                 Jump();
-
         }
 
         public void Jump()
@@ -75,7 +68,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             _transform.position += vel;
         }
 
-        private Vector3 SnapVelocityToSurface(Vector3 vel, Vector3 normal) 
+        private Vector3 ProjectVelocityOnSurface(Vector3 vel, Vector3 normal) 
         {
             vel.y = 0;
             vel = ProjectOnSurface(vel, normal);
@@ -94,14 +87,14 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             if (currentDepth >= _collideDepth)
                 return Vector3.zero;
 
-            float dist = vel.magnitude + _clipPreventingValue;
+            float dist = vel.magnitude + _collisionConfig.ClipPreventingValue;
             var dir = vel.normalized;
 
             RaycastHit hit;
 
             if (_collisionHandler.IsCollide(currentPos, dir, out hit, dist))
             {
-                var velToNextStep = dir * (hit.distance - _clipPreventingValue);
+                var velToNextStep = dir * (hit.distance - _collisionConfig.ClipPreventingValue);
                 var leftOverVel = vel - velToNextStep;
 
                 var nextPos = currentPos + velToNextStep;
@@ -120,7 +113,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             return vel;
         }
 
-        private bool IsTooSteepSlope(float angle)
+        private bool IsSlopeTooSteep(float angle)
         {
             return angle >= _maxSlopeAngle;
         }
@@ -130,9 +123,9 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             if (IsGrounded == false)
                 return projectedleftOverVel;
 
-            if (IsTooSteepSlope(slopeAngle))
+            if (IsSlopeTooSteep(slopeAngle))
             {
-                projectedleftOverVel = ScaleByHorizontalVelocity(vel, projectedleftOverVel, surfaceNormal);
+                projectedleftOverVel = ScaleHorizontalVelocity(vel, projectedleftOverVel, surfaceNormal);
             }
             else
             {
@@ -143,11 +136,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             return projectedleftOverVel;
         }
 
-        public Vector3 ScaleByHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)
+        public Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)
         {
-            projectedVel.y = vel.y;
             vel.y = 0;
             surfaceNormal.y = 0;
+            projectedVel.y = vel.y;
             float scale = 1 + Vector3.Dot(vel.normalized, surfaceNormal.normalized);
 
             var scaledVel = projectedVel * scale;

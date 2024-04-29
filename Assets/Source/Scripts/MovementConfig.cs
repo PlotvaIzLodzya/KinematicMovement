@@ -1,14 +1,21 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 {
-    public class ShapeConfig
+    [Serializable]
+    public class CollisionConfig
     {
-        public Vector3 Up { get; private set; }
+        public float ClipPreventingValue => 0.015f;
 
-        public ShapeConfig(Vector3 characterUp)
+        [field: SerializeField] public Vector3 Up { get; private set; }
+        [field: SerializeField] public LayerMask CollisionMask { get; private set; }
+
+
+        public CollisionConfig(Vector3 characterUp, LayerMask collisionMask)
         {
             Up = characterUp;
+            CollisionMask = collisionMask;
         }
     }
 
