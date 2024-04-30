@@ -1,6 +1,5 @@
 ﻿using System;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
@@ -20,6 +19,26 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public virtual bool IsCollide(Vector3 dir, out RaycastHit hit, float dist)
         {
             return IsCollide(Collider.transform.position, dir, out hit, dist);
+        }
+
+        public bool IsCollideUp(out RaycastHit hit, float dist)
+        {
+            return IsCollide(Collider.transform.up, out hit, dist);
+        }
+
+        public bool IsCollideDown(out RaycastHit hit, float dist)
+        {
+            return IsCollide(-Collider.transform.up, out hit, dist);
+        }
+
+        public bool IsColideLeft(out RaycastHit hit, float dist)
+        {
+            return IsCollide(-Collider.transform.right, out hit, dist);
+        }
+
+        public bool IsCollideRight(out RaycastHit hit, float dist)
+        {
+            return IsCollide(Collider.transform.right, out hit, dist);
         }
     }
 

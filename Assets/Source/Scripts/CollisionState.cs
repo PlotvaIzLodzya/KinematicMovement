@@ -27,6 +27,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
             CollisionInfo = new CollisionInfo()
             {
+                IsCollide = IsInState,
                 Hit = hit,
             };
 

@@ -34,7 +34,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             _wordlConfig = new (Vector3.down*14f, Vector3.up);
             var collider = GetComponent<Collider>();
             _collisionHandler = CollisionHandlerBuilder.Create(collider, _collisionConfig);
-            State = new(_collisionHandler);
+            State = new(_collisionHandler, transform);
             _collideDepth = 5;
         }
 
