@@ -22,12 +22,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         public void Update(Vector3 direction)
         {
             var wasInState = IsInState;
-            IsInState = _collisionHandler.IsCollide(direction, out RaycastHit hit, 2 * _collisionHandler.Config.ClipPreventingValue);
+            IsInState = _collisionHandler.IsCollide(direction, out HitInfo hit, 2 * _collisionHandler.Config.ClipPreventingValue);
             IsEnterState = false;
 
             CollisionInfo = new CollisionInfo()
             {
-                IsCollide = IsInState,
                 Hit = hit,
             };
 

@@ -20,7 +20,6 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         private Vector3 _exteranalForce;
         private ICollisionHandler _collisionHandler;
         private WorldConfig _wordlConfig;
-        private Rigidbody _rb;
         private Transform _transform;
 
         public MovementState State { get; private set; }
@@ -29,11 +28,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         private void Awake()
         {
             _transform = transform;
-            _rb = GetComponent<Rigidbody>();
-            _rb.isKinematic = true;
             _wordlConfig = new (Vector3.down*14f, Vector3.up);
-            var collider = GetComponent<Collider>();
-            _collisionHandler = CollisionHandlerBuilder.Create(collider, _collisionConfig);
+            _collisionHandler = CollisionHandlerBuilder.Create(this, _collisionConfig);
             State = new(_collisionHandler, transform);
             _collideDepth = 5;
         }
@@ -47,10 +43,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
                 vel += _wordlConfig.Gravity;
 
             vel += _exteranalForce;
-
-            if (IsGrounded)
-                vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
-
+            vel = SnapToSurface(vel);
+            
             Move(vel);
 
             if (Input.GetKeyDown(KeyCode.Space))
@@ -66,6 +60,17 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         {
             vel = CollideAndSlide_recursive(vel * Time.deltaTime, _transform.position);
             _transform.position += vel;
+        }
+
+        private Vector3 SnapToSurface(Vector3 vel)
+        {
+            State.HaveCollision(vel.normalized, out HitInfo hit);
+            float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
+
+            if (IsGrounded && IsSlopeTooSteep(angle) == false)
+                vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
+
+            return vel;
         }
 
         private Vector3 ProjectVelocityOnSurface(Vector3 vel, Vector3 normal) 
@@ -90,9 +95,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             float dist = vel.magnitude + _collisionConfig.ClipPreventingValue;
             var dir = vel.normalized;
 
-            RaycastHit hit;
-
-            if (_collisionHandler.IsCollide(currentPos, dir, out hit, dist))
+            if (_collisionHandler.IsCollide(currentPos, dir, out HitInfo hit, dist))
             {
                 var velToNextStep = dir * (hit.distance - _collisionConfig.ClipPreventingValue);
                 var leftOverVel = vel - velToNextStep;

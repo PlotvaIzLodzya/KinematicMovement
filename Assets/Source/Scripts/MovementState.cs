@@ -45,11 +45,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             BackSide.Update(-_transform.forward);
         }
 
-        public bool HaveCollision(Vector3 dir)
+        public bool HaveCollision(Vector3 dir, out HitInfo hit)
         {
             _collisionCheck.Update(dir);
-
-            return _collisionCheck.CollisionInfo.IsCollide;
+            hit = _collisionCheck.CollisionInfo.Hit;
+            return _collisionCheck.CollisionInfo.Hit.HaveHit;
         }
     }
 }
