@@ -62,31 +62,6 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             _transform.position += vel;
         }
 
-        private Vector3 SnapToSurface(Vector3 vel)
-        {
-            State.HaveCollision(vel.normalized, out HitInfo hit);
-            float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
-
-            if (IsGrounded && IsSlopeTooSteep(angle) == false)
-                vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
-
-            return vel;
-        }
-
-        private Vector3 ProjectVelocityOnSurface(Vector3 vel, Vector3 normal) 
-        {
-            vel.y = 0;
-            vel = ProjectOnSurface(vel, normal);
-            return vel;
-        }
-
-        private Vector3 ProjectOnSurface(Vector3 vector, Vector3 normal)
-        {
-            vector = Vector3.ProjectOnPlane(vector, normal).normalized * vector.magnitude;
-
-            return vector;
-        }
-
         private Vector3 CollideAndSlide_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0)
         {
             if (currentDepth >= _collideDepth)
@@ -104,7 +79,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
                 float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
 
-                var projectedleftOverVel = ProjectOnSurface(leftOverVel, hit.normal).normalized * leftOverVel.magnitude;
+                
+                var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hit.normal);
 
                 projectedleftOverVel = HandleSlope(angle, vel, projectedleftOverVel, hit.normal);
 
@@ -139,7 +115,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             return projectedleftOverVel;
         }
 
-        public Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)
+        private Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)
         {
             vel.y = 0;
             surfaceNormal.y = 0;
@@ -151,6 +127,23 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             return scaledVel;
         }
 
+        private Vector3 SnapToSurface(Vector3 vel)
+        {
+            State.HaveCollision(vel.normalized, out HitInfo hit);
+            float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
+
+            if (IsGrounded && IsSlopeTooSteep(angle) == false)
+                vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
+
+            return vel;
+        }
+
+        private Vector3 ProjectVelocityOnSurface(Vector3 vel, Vector3 normal)
+        {
+            vel.y = 0;
+            vel = Vector3.ProjectOnPlane(vel, normal);
+            return vel;
+        }
     }
 }
 
