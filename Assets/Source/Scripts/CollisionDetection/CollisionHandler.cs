@@ -169,8 +169,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         
         private bool CapsuleCast(Vector3 pos, Vector3 dir, out HitInfo hit, float dist)
         {
-            var p1 = pos + Collider.center + Config.Up * -Collider.height * 0.5f;
-            var p2 = p1 + Config.Up * Collider.height;
+            var p1 = pos + Collider.center + Config.ObjectUp * -Collider.height * 0.5f;
+            var p2 = p1 + Config.ObjectUp * Collider.height;
             var isCollide = Physics.CapsuleCast(p1, p2, Collider.radius, dir, out RaycastHit raycastHit, dist, Config.CollisionMask);
             hit = raycastHit.ToHitInfo();
             return isCollide;

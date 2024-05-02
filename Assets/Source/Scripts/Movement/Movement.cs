@@ -1,8 +1,8 @@
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
+using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
 using UnityEngine;
-using System;
 
-namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
+namespace PlotvaIzLodzya.Player.Movement
 {
     public interface IMovable
     {
@@ -110,6 +110,13 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             return angle >= MovementConfig.MaxSlopeAngle;
         }
 
+        private bool IsOnTooSteepSlope()
+        {
+            var angle = GetAngleToSurface(-_collisionConfig.ObjectUp);
+
+            return IsSlopeTooSteep(angle);
+        }
+
         private Vector3 HandleSlope(float slopeAngle, Vector3 vel, Vector3 projectedleftOverVel, Vector3 surfaceNormal)
         {
             if (IsGrounded == false)
@@ -126,13 +133,6 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             }
 
             return projectedleftOverVel;
-        }
-
-        private bool IsOnTooSteepSlope()
-        {
-            var angle = GetAngleToSurface(-_collisionConfig.Up);
-
-            return IsSlopeTooSteep(angle);
         }
 
         private Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)

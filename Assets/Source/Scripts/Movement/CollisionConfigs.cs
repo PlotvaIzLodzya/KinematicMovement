@@ -8,13 +8,13 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
     {
         public float ClipPreventingValue => 0.015f;
 
-        [field: SerializeField] public Vector3 Up { get; private set; }
+        [field: SerializeField] public Vector3 ObjectUp { get; private set; }
         [field: SerializeField] public LayerMask CollisionMask { get; private set; }
 
 
         public CollisionConfig(Vector3 characterUp, LayerMask collisionMask)
         {
-            Up = characterUp;
+            ObjectUp = characterUp;
             CollisionMask = collisionMask;
         }
     }
