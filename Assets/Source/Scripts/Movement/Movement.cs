@@ -35,7 +35,7 @@ namespace PlotvaIzLodzya.Player.Movement
             _transform = transform;
             _wordlConfig = new (Vector3.down*14f, Vector3.up);
             _collisionHandler = CollisionHandlerBuilder.Create(gameObject, _collisionConfig);
-            State = new(_collisionHandler, transform);
+            State = new(_collisionHandler, _transform);
             _collideDepth = 5;
         }
 
@@ -112,7 +112,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private bool IsOnTooSteepSlope()
         {
-            var angle = GetAngleToSurface(-_collisionConfig.ObjectUp);
+            var angle = GetSurfaceAngle(-_collisionConfig.ObjectUp);
 
             return IsSlopeTooSteep(angle);
         }
@@ -149,7 +149,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private Vector3 SnapToSurface(Vector3 vel)
         {
-            float angle = GetAngleToSurface(vel);
+            float angle = GetSurfaceAngle(vel);
 
             if (IsGrounded && IsSlopeTooSteep(angle) == false)
             {
@@ -167,7 +167,11 @@ namespace PlotvaIzLodzya.Player.Movement
             return vel;
         }
 
-        private float GetAngleToSurface(Vector3 directionToSurface)
+
+        /// <summary>
+        /// Rerturn 0 if there is no surface or is on the ground
+        /// </summary>
+        private float GetSurfaceAngle(Vector3 directionToSurface)
         {
             State.HaveCollision(directionToSurface.normalized, out HitInfo hit);
             float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);

@@ -1,6 +1,6 @@
 using PlotvaIzLodzya.Extensions;
 using PlotvaIzLodzya.Player;
-using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
+using PlotvaIzLodzya.Player.Movement;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -11,7 +11,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _movement = Extensions.GetComponent<Movement>(this);
+        _movement = this.GetComponentNullAwarness<Movement>();
     }
 
     private void Update()
