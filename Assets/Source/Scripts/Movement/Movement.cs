@@ -11,9 +11,14 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
     public class Movement : MonoBehaviour, IMovable
     {
-        [SerializeField] private float _maxSlopeAngle = 45f;
         [SerializeField] private bool _applyGravity;
         [SerializeField] private CollisionConfig _collisionConfig;
+
+        [field: SerializeField] public MovementConfig MovementConfig { get; private set; } = new MovementConfig()
+        {
+            Speed = 15f,
+            MaxSlopeAngle = 45f,
+        };
 
         private int _collideDepth;
         private Vector3 _exteranalForce;
@@ -21,15 +26,13 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         private ICollisionHandler _collisionHandler;
         private Transform _transform;
         private WorldConfig _wordlConfig;
-        private MovementConfig _movementConfig;
 
         public MovementState State { get; private set; }
         public bool IsGrounded => State.Grounded.IsInState;
 
-        public void Init(MovementConfig movementConfig)
+        private void Awake()
         {
             _transform = transform;
-            _movementConfig = movementConfig ?? throw new NullReferenceException($"{nameof(movementConfig)} is null");
             _wordlConfig = new (Vector3.down*14f, Vector3.up);
             _collisionHandler = CollisionHandlerBuilder.Create(gameObject, _collisionConfig);
             State = new(_collisionHandler, transform);
@@ -39,13 +42,15 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         private void Update()
         {
             State.Update();
-            var vel = _direction *_movementConfig.Speed;
+            var vel = _direction * MovementConfig.Speed;
 
             if (_applyGravity)
                 vel += _wordlConfig.Gravity;
 
             vel += _exteranalForce;
-            vel = SnapToSurface(vel);
+
+            if(IsOnTooSteepSlope() == false)
+                vel = SnapToSurface(vel);
             
             Translate(vel);
 
@@ -88,7 +93,6 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
                 float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
 
-                
                 var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hit.normal);
 
                 projectedleftOverVel = HandleSlope(angle, vel, projectedleftOverVel, hit.normal);
@@ -103,7 +107,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
         private bool IsSlopeTooSteep(float angle)
         {
-            return angle >= _maxSlopeAngle;
+            return angle >= MovementConfig.MaxSlopeAngle;
         }
 
         private Vector3 HandleSlope(float slopeAngle, Vector3 vel, Vector3 projectedleftOverVel, Vector3 surfaceNormal)
@@ -124,6 +128,13 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             return projectedleftOverVel;
         }
 
+        private bool IsOnTooSteepSlope()
+        {
+            var angle = GetAngleToSurface(-_collisionConfig.Up);
+
+            return IsSlopeTooSteep(angle);
+        }
+
         private Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)
         {
             vel.y = 0;
@@ -138,12 +149,13 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
         private Vector3 SnapToSurface(Vector3 vel)
         {
-            State.HaveCollision(vel.normalized, out HitInfo hit);
-            float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
+            float angle = GetAngleToSurface(vel);
 
             if (IsGrounded && IsSlopeTooSteep(angle) == false)
+            {
                 vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
-
+            }
+                
             return vel;
         }
 
@@ -153,6 +165,14 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             vel = Vector3.ProjectOnPlane(vel, normal);
 
             return vel;
+        }
+
+        private float GetAngleToSurface(Vector3 directionToSurface)
+        {
+            State.HaveCollision(directionToSurface.normalized, out HitInfo hit);
+            float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
+
+            return angle;
         }
     }
 }
