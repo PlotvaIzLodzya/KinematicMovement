@@ -5,15 +5,16 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
     public static class CollisionHandlerBuilder
     {
-        public static ICollisionHandler Create<T>(T obj, CollisionConfig collisionConfig) where T : MonoBehaviour
+        public static ICollisionHandler Create(GameObject obj, CollisionConfig collisionConfig)
         {
             if(obj == null)
-                throw new ArgumentNullException($"The {typeof(T)} is null");
+                throw new ArgumentNullException($"The {nameof(obj)} is null");
 
             ICollisionHandler handler = CreateHandler(obj, collisionConfig);
 
             return handler;
         }
+
 
         public static ICollisionHandler CreateFrom2D<R>(R collider, CollisionConfig characterConfig) where R : Collider2D
         {
@@ -43,9 +44,9 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
             return collisionHandler;
         }
 
-        private static ICollisionHandler CreateHandler(MonoBehaviour obj, CollisionConfig collisionConfig)
+        private static ICollisionHandler CreateHandler(GameObject obj, CollisionConfig collisionConfig)
         {
-            ICollisionHandler handler = null;
+            ICollisionHandler handler;
             if (obj.TryGetComponent(out Collider collider))
             {
                 handler = CreateFrom3D(collider, collisionConfig);
@@ -56,7 +57,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
             }
             else
             {
-                throw new NullReferenceException($"Cant get collider from {obj.name}");
+                throw new MissingComponentException($"Cant get collider from {obj.name}");
             }
 
             return handler;

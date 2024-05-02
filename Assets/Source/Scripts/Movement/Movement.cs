@@ -1,35 +1,37 @@
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
 using UnityEngine;
+using System;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 {
     public interface IMovable
     {
-        void Move(Vector3 velocity);
+        void Move(Vector3 direction);
     }
 
     public class Movement : MonoBehaviour, IMovable
     {
-        [SerializeField] private PlayerInput _input;
-        [SerializeField] private float _speed = 2f;
         [SerializeField] private float _maxSlopeAngle = 45f;
         [SerializeField] private bool _applyGravity;
         [SerializeField] private CollisionConfig _collisionConfig;
 
         private int _collideDepth;
         private Vector3 _exteranalForce;
+        private Vector3 _direction;
         private ICollisionHandler _collisionHandler;
-        private WorldConfig _wordlConfig;
         private Transform _transform;
+        private WorldConfig _wordlConfig;
+        private MovementConfig _movementConfig;
 
         public MovementState State { get; private set; }
         public bool IsGrounded => State.Grounded.IsInState;
 
-        private void Awake()
+        public void Init(MovementConfig movementConfig)
         {
             _transform = transform;
+            _movementConfig = movementConfig ?? throw new NullReferenceException($"{nameof(movementConfig)} is null");
             _wordlConfig = new (Vector3.down*14f, Vector3.up);
-            _collisionHandler = CollisionHandlerBuilder.Create(this, _collisionConfig);
+            _collisionHandler = CollisionHandlerBuilder.Create(gameObject, _collisionConfig);
             State = new(_collisionHandler, transform);
             _collideDepth = 5;
         }
@@ -37,7 +39,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         private void Update()
         {
             State.Update();
-            var vel = _input.Direction * _speed;
+            var vel = _direction *_movementConfig.Speed;
 
             if (_applyGravity)
                 vel += _wordlConfig.Gravity;
@@ -45,10 +47,12 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             vel += _exteranalForce;
             vel = SnapToSurface(vel);
             
-            Move(vel);
+            Translate(vel);
 
             if (Input.GetKeyDown(KeyCode.Space))
                 Jump();
+
+            _direction = Vector3.zero;
         }
 
         public void Jump()
@@ -56,7 +60,12 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             Debug.Log($"Can jump: {IsGrounded}");
         }
 
-        public void Move(Vector3 vel)
+        public void Move(Vector3 direction)
+        {
+            _direction = direction;
+        }
+
+        private void Translate(Vector3 vel)
         {
             vel = CollideAndSlide_recursive(vel * Time.deltaTime, _transform.position);
             _transform.position += vel;
@@ -142,6 +151,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         {
             vel.y = 0;
             vel = Vector3.ProjectOnPlane(vel, normal);
+
             return vel;
         }
     }

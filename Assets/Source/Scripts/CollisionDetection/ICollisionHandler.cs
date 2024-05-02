@@ -2,7 +2,7 @@
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
-    public static class Extensions
+    public static class RaycastHitExtensions
     {
         public static HitInfo ToHitInfo(this RaycastHit hit)
         {
