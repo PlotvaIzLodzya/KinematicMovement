@@ -16,6 +16,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        _movement.Move(_playerInput.Direction);
+        if(_playerInput.IsAnyDirectionButtonHolded)
+            _movement.Move(_playerInput.Direction);
     }
 }

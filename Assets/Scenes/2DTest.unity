@@ -493,8 +493,10 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 64
   <MovementConfig>k__BackingField:
-    Speed: 15
-    MaxSlopeAngle: 45
+    <Speed>k__BackingField: 15
+    <MaxSlopeAngle>k__BackingField: 45
+    <AcceleartionTime>k__BackingField: 0.1
+    <DecceleartionTime>k__BackingField: 0.1
 --- !u!114 &1925692503
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -4,16 +4,12 @@ using System;
 namespace PlotvaIzLodzya.Player.Movement
 {
     [Serializable]
-    public struct MovementConfig
+    public class MovementConfig
     {
-        public float Speed;
-        public float MaxSlopeAngle;
-
-        public MovementConfig(float speed, float maxSlopeAngle)
-        {
-            Speed = speed;
-            MaxSlopeAngle = maxSlopeAngle;
-        }
+        [field: SerializeField] public float Speed { get; private set; } = 15f;
+        [field: SerializeField] public float MaxSlopeAngle { get; private set; } = 45f;
+        [field: SerializeField] public float AcceleartionTime { get; private set; } = 0.2f;
+        [field: SerializeField] public float DecceleartionTime { get; private set; } = 0.2f;
     }
 }
 

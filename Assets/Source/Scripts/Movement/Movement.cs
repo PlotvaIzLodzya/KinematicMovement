@@ -1,5 +1,5 @@
-using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
+using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement
@@ -14,19 +14,19 @@ namespace PlotvaIzLodzya.Player.Movement
         [SerializeField] private bool _applyGravity;
         [SerializeField] private CollisionConfig _collisionConfig;
 
-        [field: SerializeField] public MovementConfig MovementConfig { get; private set; } = new MovementConfig()
-        {
-            Speed = 15f,
-            MaxSlopeAngle = 45f,
-        };
+        [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
+        private bool _moveRequested;
         private int _collideDepth;
         private Vector3 _exteranalForce;
-        private Vector3 _direction;
+        private Vector3 _currenVelocity;
+        private Vector3 _desiredVelocity;
         private ICollisionHandler _collisionHandler;
         private Transform _transform;
         private WorldConfig _wordlConfig;
+        private Velocity _velocity;
 
+        public float Speed { get; private set; }
         public MovementState State { get; private set; }
         public bool IsGrounded => State.Grounded.IsInState;
 
@@ -36,14 +36,18 @@ namespace PlotvaIzLodzya.Player.Movement
             _wordlConfig = new (Vector3.down*14f, Vector3.up);
             _collisionHandler = CollisionHandlerBuilder.Create(gameObject, _collisionConfig);
             State = new(_collisionHandler, _transform);
+            _velocity = new(MovementConfig);
             _collideDepth = 5;
+            Speed = 0f;
         }
 
         private void Update()
         {
             State.Update();
-            var vel = _direction * MovementConfig.Speed;
-
+            _currenVelocity = _velocity.Calculate(_currenVelocity, _desiredVelocity, _moveRequested);
+            
+            var vel = _currenVelocity;
+            
             if (_applyGravity)
                 vel += _wordlConfig.Gravity;
 
@@ -57,7 +61,8 @@ namespace PlotvaIzLodzya.Player.Movement
             if (Input.GetKeyDown(KeyCode.Space))
                 Jump();
 
-            _direction = Vector3.zero;
+            _desiredVelocity = Vector3.zero;
+            _moveRequested = false;
         }
 
         public void Jump()
@@ -67,7 +72,8 @@ namespace PlotvaIzLodzya.Player.Movement
 
         public void Move(Vector3 direction)
         {
-            _direction = direction;
+            _moveRequested = true;
+            _desiredVelocity = direction * MovementConfig.Speed;
         }
 
         private void Translate(Vector3 vel)
