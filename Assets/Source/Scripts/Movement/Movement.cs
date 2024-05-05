@@ -20,7 +20,7 @@ namespace PlotvaIzLodzya.Player.Movement
         private int _collideDepth;
         private Vector3 _exteranalForce;
         private Vector3 _currenHorizontalVelocity;
-        private Vector3 _currentVerticalSpeed;
+        private Vector3 _currentVerticalVelocity;
         private Vector3 _terminalVerticalSpeed;
         private Vector3 _desiredVelocity;
         private ICollisionHandler _collisionHandler;
@@ -47,14 +47,17 @@ namespace PlotvaIzLodzya.Player.Movement
         private void Update()
         {
             State.Update();
-            _terminalVerticalSpeed = MovementConfig.FallMaxSpeed * Vector3.down;
+            _terminalVerticalSpeed = MovementConfig.FallMaxSpeed * -_wordlConfig.WorldUp;
             var horizontalConfig = MovementConfig.CreateHorizontalConfig(_currenHorizontalVelocity, _desiredVelocity, _moveRequested);
             _currenHorizontalVelocity = _velocity.Calculate(horizontalConfig);
 
             var vel = _currenHorizontalVelocity;
             
             if (_enableGravity)
-                vel = ApplyGravity(vel);
+            {
+                _currentVerticalVelocity = ApplyGravity();
+                vel.y = _currentVerticalVelocity.y;
+            }
             
             vel += _exteranalForce;
 
@@ -73,22 +76,16 @@ namespace PlotvaIzLodzya.Player.Movement
             _desiredVelocity = direction * MovementConfig.Speed;
         }
 
-        private Vector3 ApplyGravity(Vector3 vel)
+        private Vector3 ApplyGravity()
         {
-            var verticalSpeed = -MovementConfig.FallStartSpeed;
+            var vel = -MovementConfig.FallStartSpeed * _wordlConfig.WorldUp;
 
             if (IsGrounded == false)
             {
-                var verticalConfig = MovementConfig.CreateVerticalConfig(_currentVerticalSpeed, _terminalVerticalSpeed);
-                _currentVerticalSpeed = _velocity.Calculate(verticalConfig);
-                verticalSpeed = _currentVerticalSpeed.y;
+                var verticalConfig = MovementConfig.CreateVerticalConfig(_currentVerticalVelocity, _terminalVerticalSpeed);
+                var verticalVelocity = _velocity.Calculate(verticalConfig);
+                vel = verticalVelocity;
             }
-            else
-            {
-                _currentVerticalSpeed.y = -MovementConfig.FallStartSpeed;
-            }
-
-            vel.y = verticalSpeed;
 
             return vel;
         }
