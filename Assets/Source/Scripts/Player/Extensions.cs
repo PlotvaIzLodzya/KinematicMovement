@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using PlotvaIzLodzya.Player.Movement;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace PlotvaIzLodzya.Extensions
 {
@@ -9,5 +11,27 @@ namespace PlotvaIzLodzya.Extensions
             var name = typeof(T).Name;
             return mono.GetComponent<T>() ?? throw new MissingComponentException($"Cant get {name}");
         }
+
+        public static Vector3 ClampMagnitude(this Vector3 value, float minMagnitude)
+        {
+            if(value.sqrMagnitude < minMagnitude*minMagnitude) 
+                return value;
+
+            var dir = value.normalized;
+
+            value = dir * minMagnitude;
+
+            return value;
+        }
+
+        public static Vector3 ClampMagnitude(this Vector3 value, float minMagnitude, float maxMagnitude)
+        {
+            //value = Vector3.ClampMagnitude(value, minMagnitude);
+            value = Vector3.ClampMagnitude(value, maxMagnitude);
+
+            return value;
+        }
+
+
     }
 }

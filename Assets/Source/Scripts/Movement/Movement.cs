@@ -11,7 +11,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
     public class Movement : MonoBehaviour, IMovable
     {
-        [SerializeField] private bool _applyGravity;
+        [SerializeField] private bool _enableGravity;
         [SerializeField] private CollisionConfig _collisionConfig;
 
         [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
@@ -19,7 +19,9 @@ namespace PlotvaIzLodzya.Player.Movement
         private bool _moveRequested;
         private int _collideDepth;
         private Vector3 _exteranalForce;
-        private Vector3 _currenVelocity;
+        private Vector3 _currenHorizontalVelocity;
+        private Vector3 _currentVerticalSpeed;
+        private Vector3 _terminalVerticalSpeed;
         private Vector3 _desiredVelocity;
         private ICollisionHandler _collisionHandler;
         private Transform _transform;
@@ -39,18 +41,21 @@ namespace PlotvaIzLodzya.Player.Movement
             _velocity = new(MovementConfig);
             _collideDepth = 5;
             Speed = 0f;
+
         }
 
         private void Update()
         {
             State.Update();
-            _currenVelocity = _velocity.Calculate(_currenVelocity, _desiredVelocity, _moveRequested);
-            
-            var vel = _currenVelocity;
-            
-            if (_applyGravity)
-                vel += _wordlConfig.Gravity;
+            _terminalVerticalSpeed = MovementConfig.FallMaxSpeed * Vector3.down;
+            var horizontalConfig = MovementConfig.CreateHorizontalConfig(_currenHorizontalVelocity, _desiredVelocity, _moveRequested);
+            _currenHorizontalVelocity = _velocity.Calculate(horizontalConfig);
 
+            var vel = _currenHorizontalVelocity;
+            
+            if (_enableGravity)
+                vel = ApplyGravity(vel);
+            
             vel += _exteranalForce;
 
             if(IsOnTooSteepSlope() == false)
@@ -58,22 +63,34 @@ namespace PlotvaIzLodzya.Player.Movement
             
             Translate(vel);
 
-            if (Input.GetKeyDown(KeyCode.Space))
-                Jump();
-
             _desiredVelocity = Vector3.zero;
             _moveRequested = false;
-        }
-
-        public void Jump()
-        {
-            Debug.Log($"Can jump: {IsGrounded}");
         }
 
         public void Move(Vector3 direction)
         {
             _moveRequested = true;
             _desiredVelocity = direction * MovementConfig.Speed;
+        }
+
+        private Vector3 ApplyGravity(Vector3 vel)
+        {
+            var verticalSpeed = -MovementConfig.FallStartSpeed;
+
+            if (IsGrounded == false)
+            {
+                var verticalConfig = MovementConfig.CreateVerticalConfig(_currentVerticalSpeed, _terminalVerticalSpeed);
+                _currentVerticalSpeed = _velocity.Calculate(verticalConfig);
+                verticalSpeed = _currentVerticalSpeed.y;
+            }
+            else
+            {
+                _currentVerticalSpeed.y = -MovementConfig.FallStartSpeed;
+            }
+
+            vel.y = verticalSpeed;
+
+            return vel;
         }
 
         private void Translate(Vector3 vel)

@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using PlotvaIzLodzya.Extensions;
+using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement
 {
+
     public class Velocity
     {
         private MovementConfig _config;
@@ -11,30 +13,28 @@ namespace PlotvaIzLodzya.Player.Movement
             _config = config;
         }
 
-        public Vector3 Calculate(Vector3 currentVelocity, Vector3 desiredVelocity, bool increase)
+        public Vector3 GetMaxVelocity(Vector3 currentVelocity)
         {
-            var accelerationTime = _config.DecceleartionTime;
-
-            if (increase)
-                accelerationTime = _config.AcceleartionTime;
-
-            currentVelocity = GetVelocity(currentVelocity, desiredVelocity, accelerationTime);
-            return currentVelocity;
+            return currentVelocity.normalized * _config.Speed;
         }
 
-        private Vector3 GetVelocity(Vector3 currentVelocity, Vector3 desiredVelocity, float accelerationTime)
+        public Vector3 Calculate(VelocityConfig config)
         {
-            var acceleration = CalculateAcceleration(_config.Speed, accelerationTime);
+            var acceleration = CalculateAcceleration(config.MinSpeed, config.MaxSpeed, config.AccelerationTime);
+            var velocity = Vector3.MoveTowards(config.CurrentVelocity, config.DesiredVelocity, acceleration * Time.deltaTime);
+            velocity = ClampVelocity(velocity, config.MinSpeed, config.MaxSpeed);
 
-            currentVelocity = Vector3.MoveTowards(currentVelocity, desiredVelocity, acceleration * Time.deltaTime);
-            currentVelocity = Vector3.ClampMagnitude(currentVelocity, _config.Speed);
-
-            return currentVelocity;
+            return velocity;
         }
 
-        private float CalculateAcceleration(float desiredSpeed, float time)
+        private Vector3 ClampVelocity(Vector3 currentVelocity, float min, float max) 
         {
-            return desiredSpeed / time;
+            return currentVelocity.ClampMagnitude(min, max);
+        }
+
+        private float CalculateAcceleration(float startSpeed, float endSpeed, float time)
+        {
+            return (endSpeed - startSpeed) / time;
         }
     }
 }

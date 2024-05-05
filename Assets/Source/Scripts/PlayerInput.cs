@@ -9,6 +9,8 @@ namespace PlotvaIzLodzya.Player
         public Vector2 MouseDelta { get; private set; }
         public bool IsAnyDirectionButtonHolded { get; private set; }
 
+        public bool JumpButtonPressed { get; private set; }
+
         private Camera _camera;
 
         private void Awake()
@@ -24,6 +26,8 @@ namespace PlotvaIzLodzya.Player
             Direction = Vector3.zero;
             MouseDelta = GetMouseDelta();
             var dir = GetDirectionRelativeToCamera();
+
+            JumpButtonPressed = Input.GetKeyDown(KeyCode.Space);
 
             if (IsAnyDirectionButtonHolded)
                 SetDirection(dir);
