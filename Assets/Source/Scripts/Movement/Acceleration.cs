@@ -18,6 +18,18 @@ namespace PlotvaIzLodzya.Player.Movement
             return currentVelocity.normalized * _config.Speed;
         }
 
+        public Vector3 CalculateHorizontal(Vector3 currentVelocity, Vector3 desiredVelocity, bool increase)
+        {
+            var horizontalConfig = _config.CreateHorizontalConfig(currentVelocity, desiredVelocity, increase);
+            return Calculate(horizontalConfig);
+        }
+
+        public Vector3 CalculateVertical(Vector3 currentVelocity, Vector3 desiredVelocity)
+        {
+            var horizontalConfig = _config.CreateVerticalConfig(currentVelocity, desiredVelocity);
+            return Calculate(horizontalConfig);
+        }
+
         public Vector3 Calculate(VelocityConfig config)
         {
             var acceleration = CalculateAcceleration(config.MinSpeed, config.MaxSpeed, config.AccelerationTime);

@@ -48,8 +48,9 @@ namespace PlotvaIzLodzya.Player.Movement
         {
             State.Update();
             _terminalVerticalSpeed = MovementConfig.FallMaxSpeed * -_wordlConfig.WorldUp;
-            var horizontalConfig = MovementConfig.CreateHorizontalConfig(_currenHorizontalVelocity, _desiredVelocity, _moveRequested);
-            _currenHorizontalVelocity = _velocity.Calculate(horizontalConfig);
+
+            
+            _currenHorizontalVelocity = _velocity.CalculateHorizontal(_currenHorizontalVelocity, _desiredVelocity, _moveRequested);
 
             var vel = _currenHorizontalVelocity;
             
@@ -82,8 +83,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
             if (IsGrounded == false)
             {
-                var verticalConfig = MovementConfig.CreateVerticalConfig(_currentVerticalVelocity, _terminalVerticalSpeed);
-                var verticalVelocity = _velocity.Calculate(verticalConfig);
+                var verticalVelocity = _velocity.CalculateVertical(_currentVerticalVelocity, _terminalVerticalSpeed);
                 vel = verticalVelocity;
             }
 

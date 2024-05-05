@@ -689,15 +689,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49f256fe44f4ab741aa12620e44ad6b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _applyGravity: 1
+  _enableGravity: 1
   _collisionConfig:
     <ObjectUp>k__BackingField: {x: 0, y: 1, z: 0}
     <CollisionMask>k__BackingField:
       serializedVersion: 2
       m_Bits: 65
   <MovementConfig>k__BackingField:
-    Speed: 15
-    MaxSlopeAngle: 45
+    <Speed>k__BackingField: 15
+    <MaxSlopeAngle>k__BackingField: 45
+    <AccelerationTime>k__BackingField: 0
+    <DeccelerationTime>k__BackingField: 0
+    <FallStartSpeed>k__BackingField: 10
+    <FallMaxSpeed>k__BackingField: 20
+    <FallAccelerationTime>k__BackingField: 0.3
 --- !u!1 &395118772
 GameObject:
   m_ObjectHideFlags: 0
