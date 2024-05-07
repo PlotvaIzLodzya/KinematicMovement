@@ -495,11 +495,12 @@ MonoBehaviour:
   <MovementConfig>k__BackingField:
     <Speed>k__BackingField: 15
     <MaxSlopeAngle>k__BackingField: 45
-    <AccelerationTime>k__BackingField: 0.2
-    <DeccelerationTime>k__BackingField: 0.2
+    <AccelerationTime>k__BackingField: 0.1
+    <DeccelerationTime>k__BackingField: 0.05
     <FallStartSpeed>k__BackingField: 30
     <FallMaxSpeed>k__BackingField: 45
-    <FallAccelerationTime>k__BackingField: 0.3
+    <JumpHeight>k__BackingField: 2
+    <JumpTime>k__BackingField: 0.2
 --- !u!114 &1925692503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -641,7 +642,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!1 &2076904451
 GameObject:
   m_ObjectHideFlags: 0

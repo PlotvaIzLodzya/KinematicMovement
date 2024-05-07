@@ -1,5 +1,6 @@
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
+using System;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement
@@ -19,7 +20,7 @@ namespace PlotvaIzLodzya.Player.Movement
         private bool _moveRequested;
         private int _collideDepth;
         private Vector3 _exteranalForce;
-        private Vector3 _currenHorizontalVelocity;
+        private Vector3 _currentHorizontalVelocity;
         private Vector3 _currentVerticalVelocity;
         private Vector3 _desiredVelocity;
         private ICollisionHandler _collisionHandler;
@@ -46,20 +47,21 @@ namespace PlotvaIzLodzya.Player.Movement
         {
             State.Update();
 
-            _currenHorizontalVelocity = _velocity.CalculateHorizontal(_currenHorizontalVelocity, _desiredVelocity, _moveRequested);
+            _currentHorizontalVelocity = _velocity.CalculateHorizontal(_currentHorizontalVelocity, _desiredVelocity, _moveRequested);
 
-            var vel = _currenHorizontalVelocity;
+            var vel = _currentHorizontalVelocity;
             
-            if (_enableGravity)
-            {
-                _currentVerticalVelocity = ApplyGravity();
-                vel.y = _currentVerticalVelocity.y;
-            }
             
             vel += _exteranalForce;
 
             if (IsOnTooSteepSlope() == false)
                 vel = AlignToSurface(vel);
+
+            if (_enableGravity && IsGrounded == false)
+            {
+                _currentVerticalVelocity = ApplyGravity();
+                vel.y += _currentVerticalVelocity.y;
+            }
 
             Translate(vel);
 
@@ -120,7 +122,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
                 projectedleftOverVel = HandleSlope(angle, vel, projectedleftOverVel, hit.normal);
 
-                vel = velToNextStep + CollideAndSlide_recursive(projectedleftOverVel, nextPos, currentDepth + 1);
+                vel = velToNextStep + CollideAndSlide_recursive(projectedleftOverVel, nextPos, ++currentDepth);
 
                 return vel;
             }
@@ -172,9 +174,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private Vector3 AlignToSurface(Vector3 vel)
         {
-            float angle = GetSurfaceAngle(vel);
-
-            if (IsGrounded && IsSlopeTooSteep(angle) == false)
+            if (IsGrounded)
             {
                 vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
             }
@@ -186,7 +186,6 @@ namespace PlotvaIzLodzya.Player.Movement
         {
             vel.y = 0;
             vel = Vector3.ProjectOnPlane(vel, normal);
-
             return vel;
         }
 

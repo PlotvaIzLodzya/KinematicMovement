@@ -6,7 +6,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
     [Serializable]
     public class CollisionConfig
     {
-        public float ClipPreventingValue => 0.015f;
+        public float ClipPreventingValue => 0.02f;
 
         [field: SerializeField] public Vector3 ObjectUp { get; private set; }
         [field: SerializeField] public LayerMask CollisionMask { get; private set; }

@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
+        Application.targetFrameRate = 144;
         _movement = this.GetComponentNullAwarness<Movement>();
     }
 
