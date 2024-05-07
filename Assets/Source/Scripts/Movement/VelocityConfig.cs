@@ -8,8 +8,7 @@ namespace PlotvaIzLodzya.Player.Movement
         public Vector3 DesiredVelocity;
         public float MinSpeed;
         public float MaxSpeed;
-        public float Acceleartion;
-        public float AccelerationTime;
+        public float Acceleration;
     }
 }
 

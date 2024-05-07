@@ -40,7 +40,6 @@ namespace PlotvaIzLodzya.Player.Movement
             _velocity = new(MovementConfig);
             _collideDepth = 5;
             Speed = 0f;
-
         }
 
         private void Update()

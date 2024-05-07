@@ -8,12 +8,10 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerInput _playerInput;
 
     private Movement _movement;
-    private Jump _jump;
 
     private void Awake()
     {
         _movement = this.GetComponentNullAwarness<Movement>();
-        
     }
 
     private void Update()
