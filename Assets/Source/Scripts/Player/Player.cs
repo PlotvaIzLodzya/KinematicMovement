@@ -9,10 +9,11 @@ public class Player : MonoBehaviour
 
     private Movement _movement;
     private Jump _jump;
+
     private void Awake()
     {
         _movement = this.GetComponentNullAwarness<Movement>();
-        _jump = new(_movement);
+        
     }
 
     private void Update()
@@ -21,6 +22,6 @@ public class Player : MonoBehaviour
             _movement.Move(_playerInput.Direction);
 
         if (_playerInput.JumpButtonPressed)
-            _jump.Perform();
+            _movement.Jump();
     }
 }

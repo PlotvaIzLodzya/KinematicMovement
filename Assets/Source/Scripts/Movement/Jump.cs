@@ -1,14 +1,20 @@
-﻿using UnityEngine;
+﻿using PlotvaIzLodzya.Extensions;
+using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement
 {
-    public class Jump
+    public class Jump: MonoBehaviour
     {
         private Movement _movement;
 
-        public Jump(Movement movement)
+        private void Awake()
         {
-            _movement = movement;
+            _movement = this.GetComponentNullAwarness<Movement>();
+        }
+
+        private void Update()
+        {
+            
         }
 
         public void Perform()

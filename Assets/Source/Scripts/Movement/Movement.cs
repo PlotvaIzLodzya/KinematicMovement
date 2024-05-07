@@ -21,7 +21,6 @@ namespace PlotvaIzLodzya.Player.Movement
         private Vector3 _exteranalForce;
         private Vector3 _currenHorizontalVelocity;
         private Vector3 _currentVerticalVelocity;
-        private Vector3 _terminalVerticalSpeed;
         private Vector3 _desiredVelocity;
         private ICollisionHandler _collisionHandler;
         private Transform _transform;
@@ -30,7 +29,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         public float Speed { get; private set; }
         public MovementState State { get; private set; }
-        public bool IsGrounded => State.Grounded.IsInState;
+        public bool IsGrounded { get; private set; }
 
         private void Awake()
         {
@@ -47,9 +46,7 @@ namespace PlotvaIzLodzya.Player.Movement
         private void Update()
         {
             State.Update();
-            _terminalVerticalSpeed = MovementConfig.FallMaxSpeed * -_wordlConfig.WorldUp;
 
-            
             _currenHorizontalVelocity = _velocity.CalculateHorizontal(_currenHorizontalVelocity, _desiredVelocity, _moveRequested);
 
             var vel = _currenHorizontalVelocity;
@@ -62,13 +59,14 @@ namespace PlotvaIzLodzya.Player.Movement
             
             vel += _exteranalForce;
 
-            if(IsOnTooSteepSlope() == false)
-                vel = SnapToSurface(vel);
-            
+            if (IsOnTooSteepSlope() == false)
+                vel = AlignToSurface(vel);
+
             Translate(vel);
 
             _desiredVelocity = Vector3.zero;
             _moveRequested = false;
+            IsGrounded = State.Grounded.IsInState;
         }
 
         public void Move(Vector3 direction)
@@ -77,16 +75,22 @@ namespace PlotvaIzLodzya.Player.Movement
             _desiredVelocity = direction * MovementConfig.Speed;
         }
 
+        public void Jump()
+        {
+            IsGrounded = false;
+
+            _currentVerticalVelocity.y = MovementConfig.GetJumpSpeed(); 
+        }
+
         private Vector3 ApplyGravity()
         {
-            var vel = -MovementConfig.FallStartSpeed * _wordlConfig.WorldUp;
-
-            if (IsGrounded == false)
+            var terminalVerticalVelocity = MovementConfig.FallMaxSpeed * -_wordlConfig.WorldUp;
+            if (IsGrounded)
             {
-                var verticalVelocity = _velocity.CalculateVertical(_currentVerticalVelocity, _terminalVerticalSpeed);
-                vel = verticalVelocity;
+                terminalVerticalVelocity = MovementConfig.FallStartSpeed * -_wordlConfig.WorldUp;
             }
 
+            var vel = _velocity.CalculateVertical(_currentVerticalVelocity, terminalVerticalVelocity);
             return vel;
         }
 
@@ -167,7 +171,7 @@ namespace PlotvaIzLodzya.Player.Movement
             return scaledVel;
         }
 
-        private Vector3 SnapToSurface(Vector3 vel)
+        private Vector3 AlignToSurface(Vector3 vel)
         {
             float angle = GetSurfaceAngle(vel);
 
