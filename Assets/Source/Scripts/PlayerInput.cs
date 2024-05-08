@@ -82,7 +82,6 @@ namespace PlotvaIzLodzya.Player
         private void SetDirection(Vector3 direction)
         {
             Direction = direction.normalized;
-
             DirectionRelativeToCamera = GetDirectionRelativeToCamera(direction).normalized;
         }
 

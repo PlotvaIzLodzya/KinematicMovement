@@ -44,6 +44,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         CollisionConfig Config { get;}
         bool IsCollide(Vector3 pos, Vector3 dir, out HitInfo hit, float dist);
         bool IsCollide(Vector3 dir, out HitInfo hit, float dist);
+        bool IsCollide(Vector3 pos);
     }
 }
 

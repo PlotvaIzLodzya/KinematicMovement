@@ -49,8 +49,9 @@ namespace PlotvaIzLodzya.Player.Movement
 
             _currentHorizontalVelocity = _velocity.CalculateHorizontal(_currentHorizontalVelocity, _desiredVelocity, _moveRequested);
 
+
+
             var vel = _currentHorizontalVelocity;
-            
             
             vel += _exteranalForce;
 
@@ -85,20 +86,25 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private Vector3 ApplyGravity()
         {
-            var terminalVerticalVelocity = MovementConfig.FallMaxSpeed * -_wordlConfig.WorldUp;
+            var terminalFallSpeed = MovementConfig.FallMaxSpeed;
             if (IsGrounded)
             {
-                terminalVerticalVelocity = MovementConfig.FallStartSpeed * -_wordlConfig.WorldUp;
+                terminalFallSpeed = MovementConfig.FallStartSpeed;
             }
-
-            var vel = _velocity.CalculateVertical(_currentVerticalVelocity, terminalVerticalVelocity);
+            var terminalVelocity = terminalFallSpeed * -_wordlConfig.WorldUp;
+            var vel = _velocity.CalculateVertical(_currentVerticalVelocity, terminalVelocity);
             return vel;
         }
 
         private void Translate(Vector3 vel)
         {
+            var previousPos = _transform.position;
             vel = CollideAndSlide_recursive(vel * Time.deltaTime, _transform.position);
+
             _transform.position += vel;
+
+            if(_collisionHandler.IsCollide(_transform.position))
+                _transform.position = previousPos;
         }
 
         private Vector3 CollideAndSlide_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0)
@@ -107,6 +113,7 @@ namespace PlotvaIzLodzya.Player.Movement
                 return Vector3.zero;
 
             float dist = vel.magnitude + _collisionConfig.ClipPreventingValue;
+
             var dir = vel.normalized;
 
             if (_collisionHandler.IsCollide(currentPos, dir, out HitInfo hit, dist))

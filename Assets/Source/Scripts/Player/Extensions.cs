@@ -1,6 +1,4 @@
-﻿using PlotvaIzLodzya.Player.Movement;
-using Unity.VisualScripting;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PlotvaIzLodzya.Extensions
 {
@@ -14,7 +12,7 @@ namespace PlotvaIzLodzya.Extensions
 
         public static Vector3 ClampMagnitude(this Vector3 value, float minMagnitude)
         {
-            if(value.sqrMagnitude < minMagnitude*minMagnitude) 
+            if(value.sqrMagnitude > minMagnitude*minMagnitude) 
                 return value;
 
             var dir = value.normalized;
@@ -26,8 +24,8 @@ namespace PlotvaIzLodzya.Extensions
 
         public static Vector3 ClampMagnitude(this Vector3 value, float minMagnitude, float maxMagnitude)
         {
-            //value = Vector3.ClampMagnitude(value, minMagnitude);
             value = Vector3.ClampMagnitude(value, maxMagnitude);
+            value = value.ClampMagnitude(minMagnitude);
 
             return value;
         }

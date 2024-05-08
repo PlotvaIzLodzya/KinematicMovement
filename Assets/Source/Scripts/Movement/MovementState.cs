@@ -51,6 +51,12 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             hit = _collisionCheck.CollisionInfo.Hit;
             return _collisionCheck.CollisionInfo.Hit.HaveHit;
         }
+        
+        public bool HaveCollision(Vector3 dir)
+        {
+            _collisionCheck.Update(dir);
+            return _collisionCheck.CollisionInfo.Hit.HaveHit;
+        }
     }
 }
 

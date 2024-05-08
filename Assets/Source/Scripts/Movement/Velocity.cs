@@ -26,7 +26,7 @@ namespace PlotvaIzLodzya.Player.Movement
                 accelerationTime = _config.AccelerationTime;
             }
 
-            var acceleration = CalculateAcceleration(0f, _config.Speed, accelerationTime);
+            var acceleration = CalculateAcceleration(startSpeed:0f, _config.Speed, accelerationTime);
             var config = _config.CreateHorizontalConfig(currentVelocity, desiredVelocity, acceleration);
             var velocity = Calculate(config);
 

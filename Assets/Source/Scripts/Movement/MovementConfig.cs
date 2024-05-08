@@ -35,7 +35,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         public VelocityConfig CreateVerticalConfig(Vector3 currentVelocity, Vector3 desiredVelocity, float acceleration)
         {
-            return CreateConfig(currentVelocity, desiredVelocity, FallStartSpeed, FallMaxSpeed, acceleration);
+            return CreateConfig(currentVelocity, desiredVelocity, 0, FallMaxSpeed, acceleration);
         }
 
         private VelocityConfig CreateConfig(Vector3 currentVelocity, Vector3 desiredVelocity,float minSpeed, float maxSpeed, float acceleration)

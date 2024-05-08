@@ -21,6 +21,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
             return IsCollide(Collider.transform.position, dir, out hit, dist);
         }
 
+        public virtual bool IsCollide(Vector3 pos)
+        {
+            return IsCollide(pos, Vector3.zero, out HitInfo hit, Config.ClipPreventingValue);
+        }
+
         public bool IsCollideUp(out HitInfo hit, float dist)
         {
             return IsCollide(Collider.transform.up, out hit, dist);
@@ -101,6 +106,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public virtual bool IsCollide(Vector3 dir, out HitInfo hit, float dist)
         {
             return IsCollide(Collider.transform.position, dir, out hit, dist);
+        }
+
+        public virtual bool IsCollide(Vector3 pos)
+        {
+            return IsCollide(pos, Vector3.zero, out HitInfo hit, Config.ClipPreventingValue);
         }
 
         public bool IsCollideUp(out HitInfo hit, float dist)
