@@ -20,6 +20,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         public Vector3 CalculateHorizontal(Vector3 currentVelocity, Vector3 desiredVelocity, bool increase)
         {
+
             var accelerationTime = _config.DeccelerationTime;
             if (increase)
             {

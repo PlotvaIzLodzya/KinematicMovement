@@ -12,8 +12,10 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         public CollisionState RightSide { get; private set; }
         public CollisionState ForwardSide { get; private set; }
         public CollisionState BackSide { get; private set; }
+        public CollisionState CurrentCollision { get; private set; }
 
-        private CollisionState _collisionCheck;
+        public CollisionState _tempCheck;
+
         private Transform _transform;
 
 
@@ -31,11 +33,12 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             RightSide = new(collisionHandler);
             ForwardSide = new(collisionHandler);
             BackSide = new(collisionHandler);
-            _collisionCheck = new(collisionHandler);
+            CurrentCollision = new(collisionHandler);
+            _tempCheck = new(collisionHandler);
         }
 
 
-        public void Update()
+        public void Update(Vector3 dir)
         {
             Grounded.Update(-_transform.up);
             Ceiled.Update(_transform.up);
@@ -43,19 +46,20 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             RightSide.Update(_transform.right);
             ForwardSide.Update(_transform.forward);
             BackSide.Update(-_transform.forward);
+            CurrentCollision.Update(dir);
         }
 
         public bool HaveCollision(Vector3 dir, out HitInfo hit)
         {
-            _collisionCheck.Update(dir);
-            hit = _collisionCheck.CollisionInfo.Hit;
-            return _collisionCheck.CollisionInfo.Hit.HaveHit;
+            _tempCheck.Update(dir);
+            hit = _tempCheck.CollisionInfo.Hit;
+            return _tempCheck.CollisionInfo.Hit.HaveHit;
         }
         
         public bool HaveCollision(Vector3 dir)
         {
-            _collisionCheck.Update(dir);
-            return _collisionCheck.CollisionInfo.Hit.HaveHit;
+            _tempCheck.Update(dir);
+            return _tempCheck.CollisionInfo.Hit.HaveHit;
         }
     }
 }

@@ -46,9 +46,7 @@ namespace PlotvaIzLodzya.Player
         {
             var dir = Vector3.zero;
             var forward = _camera.transform.forward;
-            forward.y = 0;
             var right = _camera.transform.right;
-            right.y = 0;
 
 
             if (IsDirectionButtonHolded(KeyCode.W))
@@ -81,6 +79,7 @@ namespace PlotvaIzLodzya.Player
 
         private void SetDirection(Vector3 direction)
         {
+            direction.y = 0;
             Direction = direction.normalized;
             DirectionRelativeToCamera = GetDirectionRelativeToCamera(direction).normalized;
         }

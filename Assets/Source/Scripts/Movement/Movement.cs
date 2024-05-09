@@ -45,11 +45,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private void Update()
         {
-            State.Update();
-
             _currentHorizontalVelocity = _velocity.CalculateHorizontal(_currentHorizontalVelocity, _desiredVelocity, _moveRequested);
-
-
 
             var vel = _currentHorizontalVelocity;
             
@@ -63,8 +59,11 @@ namespace PlotvaIzLodzya.Player.Movement
                 _currentVerticalVelocity = ApplyGravity();
                 vel.y += _currentVerticalVelocity.y;
             }
-
+             
             Translate(vel);
+
+            State.Update(vel.normalized);
+            _currentHorizontalVelocity = HandleWall(vel);
 
             _desiredVelocity = Vector3.zero;
             _moveRequested = false;
@@ -83,6 +82,18 @@ namespace PlotvaIzLodzya.Player.Movement
 
             _currentVerticalVelocity.y = MovementConfig.GetJumpSpeed(); 
         }
+        
+        private Vector3 HandleWall(Vector3 vel)
+        {
+            var angle = GetSurfaceAngle(vel.normalized);
+            var currentVel = _currentHorizontalVelocity;
+            if (State.CurrentCollision.IsEnterState && IsSlopeTooSteep(angle))
+            {
+                currentVel = Vector3.zero;
+            }
+
+            return currentVel;
+        }
 
         private Vector3 ApplyGravity()
         {
@@ -93,6 +104,7 @@ namespace PlotvaIzLodzya.Player.Movement
             }
             var terminalVelocity = terminalFallSpeed * -_wordlConfig.WorldUp;
             var vel = _velocity.CalculateVertical(_currentVerticalVelocity, terminalVelocity);
+
             return vel;
         }
 
@@ -203,6 +215,7 @@ namespace PlotvaIzLodzya.Player.Movement
         private float GetSurfaceAngle(Vector3 directionToSurface)
         {
             State.HaveCollision(directionToSurface.normalized, out HitInfo hit);
+            //var hit = State.CurrentCollision.CollisionInfo.Hit;
             float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
 
             return angle;
