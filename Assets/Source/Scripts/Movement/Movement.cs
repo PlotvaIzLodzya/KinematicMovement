@@ -1,6 +1,5 @@
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
-using System;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement
