@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 {
+
     public class CollisionState
     {
         private ICollisionHandler _collisionHandler;

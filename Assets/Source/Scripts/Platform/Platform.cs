@@ -103,7 +103,6 @@ namespace PlotvaIzLodzya.Movement.Platforms
 
             foreach (var m in notOnPlatform)
             {
-                m.LeavePlatoform(this);
                 m.ExternalVelocity = Vector3.zero;
             }
 
@@ -111,7 +110,6 @@ namespace PlotvaIzLodzya.Movement.Platforms
             
             foreach (var movable in _movables)
             {
-                movable.SetOnPlatoform(this);
                 var velocity = Velocity;
                 movable.ExternalVelocity = velocity;
             }
