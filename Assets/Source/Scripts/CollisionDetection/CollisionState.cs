@@ -10,9 +10,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
         public bool IsInState { get; private set; }
         public bool IsEnterState { get; private set; }
+        public bool IsExitState { get; private set; }
         public CollisionInfo CollisionInfo { get;  private set; }
 
         public Action<CollisionInfo> OnStateEnter;
+        public Action<CollisionInfo> OnStateExit;
 
         public CollisionState(ICollisionHandler collisionHandler)
         {
@@ -22,8 +24,9 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         public void Update(Vector3 direction)
         {
             var wasInState = IsInState;
-            IsInState = _collisionHandler.IsCollide(direction, out HitInfo hit, 2 * _collisionHandler.Config.ClipPreventingValue);
+            IsInState = _collisionHandler.IsCollide(direction, out HitInfo hit, CollisionConfig.CollsisionDist);
             IsEnterState = false;
+            IsExitState = false;
 
             CollisionInfo = new CollisionInfo()
             {
@@ -35,6 +38,14 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
                 IsEnterState = true;
                 OnStateEnter?.Invoke(CollisionInfo);
             }
+
+            if(wasInState && IsInState == false)
+            {
+                IsExitState = true;
+                OnStateExit?.Invoke(CollisionInfo);
+            }
+
+
         }
     }
 }

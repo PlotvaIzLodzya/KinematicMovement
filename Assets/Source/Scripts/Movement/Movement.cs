@@ -1,12 +1,18 @@
+using PlotvaIzLodzya.Movement.Platforms;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement
 {
     public interface IMovable
     {
+        public Vector3 ExternalVelocity { get; set; }
+
         void Move(Vector3 direction);
+        void SetOnPlatoform(MovingPlatform platoform);
+        void LeavePlatoform(MovingPlatform platoform);
     }
 
     public class Movement : MonoBehaviour, IMovable
@@ -16,57 +22,86 @@ namespace PlotvaIzLodzya.Player.Movement
 
         [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
+        private bool _jumpRequested;
         private bool _moveRequested;
         private int _collideDepth;
-        private Vector3 _exteranalForce;
         private Vector3 _currentHorizontalVelocity;
         private Vector3 _currentVerticalVelocity;
         private Vector3 _desiredVelocity;
         private ICollisionHandler _collisionHandler;
         private Transform _transform;
-        private WorldConfig _wordlConfig;
         private Velocity _velocity;
-
-        public float Speed { get; private set; }
+        private IBody _rigidbody;
         public MovementState State { get; private set; }
         public bool IsGrounded { get; private set; }
+        public Vector3 ExternalVelocity { get; set; }
 
         private void Awake()
         {
             _transform = transform;
-            _wordlConfig = new (Vector3.down*14f, Vector3.up);
             _collisionHandler = CollisionHandlerBuilder.Create(gameObject, _collisionConfig);
+            _rigidbody = BodyBuilder.Create(gameObject);   
             State = new(_collisionHandler, _transform);
             _velocity = new(MovementConfig);
             _collideDepth = 5;
-            Speed = 0f;
         }
 
-        private void Update()
+        public void Update()
         {
             _currentHorizontalVelocity = _velocity.CalculateHorizontal(_currentHorizontalVelocity, _desiredVelocity, _moveRequested);
-
+            var onTooSteepSlope = false; 
             var vel = _currentHorizontalVelocity;
-            
-            vel += _exteranalForce;
+            vel += ExternalVelocity;
+            State.Update(vel.normalized);
+            vel = HandleWall(vel);
+            onTooSteepSlope = IsOnTooSteepSlope();
 
-            if (IsOnTooSteepSlope() == false)
-                vel = AlignToSurface(vel);
 
-            if (_enableGravity && IsGrounded == false)
+            if (_enableGravity)
             {
-                _currentVerticalVelocity = ApplyGravity();
-                vel.y += _currentVerticalVelocity.y;
+                vel.y = ApplyGravity(_currentVerticalVelocity);
             }
-             
+
+            if (onTooSteepSlope == false)
+            {
+                vel = AlignToSurface(vel);
+            }
+
+            if (_jumpRequested)
+            {
+                vel.y = _velocity.CalculateJumpSpeed();
+                _currentVerticalVelocity.y = vel.y;
+                _jumpRequested = false;
+            }
+
+            if (State.Ceiled.IsEnterState)
+            {
+                vel.y = 0;
+                _currentVerticalVelocity.y = 0;
+            }
+
             Translate(vel);
 
-            State.Update(vel.normalized);
-            _currentHorizontalVelocity = HandleWall(vel);
 
+            IsGrounded = State.Grounded.IsInState;
             _desiredVelocity = Vector3.zero;
             _moveRequested = false;
-            IsGrounded = State.Grounded.IsInState;
+        }
+
+        private void Translate(Vector3 vel)
+        {
+            vel = CollideAndSlide_recursive(vel * Time.deltaTime, _rigidbody.Position);
+            _rigidbody.MovePosition(_rigidbody.Position + vel);
+        }
+
+        public void SetOnPlatoform(MovingPlatform platoform)
+        {
+            
+        }
+
+        public void LeavePlatoform(MovingPlatform platoform)
+        {
+            
         }
 
         public void Move(Vector3 direction)
@@ -78,44 +113,27 @@ namespace PlotvaIzLodzya.Player.Movement
         public void Jump()
         {
             IsGrounded = false;
-
-            _currentVerticalVelocity.y = MovementConfig.GetJumpSpeed(); 
+            _jumpRequested = true;
         }
         
         private Vector3 HandleWall(Vector3 vel)
         {
             var angle = GetSurfaceAngle(vel.normalized);
-            var currentVel = _currentHorizontalVelocity;
+                
             if (State.CurrentCollision.IsEnterState && IsSlopeTooSteep(angle))
             {
-                currentVel = Vector3.zero;
+                vel = Vector3.zero;
+                _currentHorizontalVelocity = Vector3.zero;
             }
-
-            return currentVel;
-        }
-
-        private Vector3 ApplyGravity()
-        {
-            var terminalFallSpeed = MovementConfig.FallMaxSpeed;
-            if (IsGrounded)
-            {
-                terminalFallSpeed = MovementConfig.FallStartSpeed;
-            }
-            var terminalVelocity = terminalFallSpeed * -_wordlConfig.WorldUp;
-            var vel = _velocity.CalculateVertical(_currentVerticalVelocity, terminalVelocity);
 
             return vel;
         }
 
-        private void Translate(Vector3 vel)
+        private float ApplyGravity(Vector3 velocity)
         {
-            var previousPos = _transform.position;
-            vel = CollideAndSlide_recursive(vel * Time.deltaTime, _transform.position);
-
-            _transform.position += vel;
-
-            if(_collisionHandler.IsCollide(_transform.position))
-                _transform.position = previousPos;
+            var vel = _velocity.CalculateVertical(velocity);
+            _currentVerticalVelocity = vel;
+            return vel.y;
         }
 
         private Vector3 CollideAndSlide_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0)
@@ -123,25 +141,23 @@ namespace PlotvaIzLodzya.Player.Movement
             if (currentDepth >= _collideDepth)
                 return Vector3.zero;
 
-            float dist = vel.magnitude + _collisionConfig.ClipPreventingValue;
+            float dist = vel.magnitude + CollisionConfig.ClipPreventingValue;
 
             var dir = vel.normalized;
 
             if (_collisionHandler.IsCollide(currentPos, dir, out HitInfo hit, dist))
             {
-                var velToNextStep = dir * (hit.distance - _collisionConfig.ClipPreventingValue);
+                var velToNextStep = dir * (hit.Distance - CollisionConfig.ClipPreventingValue);
                 var leftOverVel = vel - velToNextStep;
 
                 var nextPos = currentPos + velToNextStep;
 
-                float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
+                float angle = Vector3.Angle(Vector3.up, hit.Normal);
+                var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hit.Normal);
 
-                var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hit.normal);
-
-                projectedleftOverVel = HandleSlope(angle, vel, projectedleftOverVel, hit.normal);
+                projectedleftOverVel = HandleSlope(angle, vel, projectedleftOverVel, hit.Normal);
 
                 vel = velToNextStep + CollideAndSlide_recursive(projectedleftOverVel, nextPos, ++currentDepth);
-
                 return vel;
             }
 
@@ -155,7 +171,7 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private bool IsOnTooSteepSlope()
         {
-            var angle = GetSurfaceAngle(-_collisionConfig.ObjectUp);
+            var angle = GetSurfaceAngle(Vector3.down);
 
             return IsSlopeTooSteep(angle);
         }
@@ -163,7 +179,9 @@ namespace PlotvaIzLodzya.Player.Movement
         private Vector3 HandleSlope(float slopeAngle, Vector3 vel, Vector3 projectedleftOverVel, Vector3 surfaceNormal)
         {
             if (IsGrounded == false)
+            {
                 return projectedleftOverVel;
+            }
 
             if (IsSlopeTooSteep(slopeAngle))
             {
@@ -194,7 +212,7 @@ namespace PlotvaIzLodzya.Player.Movement
         {
             if (IsGrounded)
             {
-                vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.normal);
+                vel = ProjectVelocityOnSurface(vel, State.Grounded.CollisionInfo.Hit.Normal);
             }
                 
             return vel;
@@ -214,8 +232,7 @@ namespace PlotvaIzLodzya.Player.Movement
         private float GetSurfaceAngle(Vector3 directionToSurface)
         {
             State.HaveCollision(directionToSurface.normalized, out HitInfo hit);
-            //var hit = State.CurrentCollision.CollisionInfo.Hit;
-            float angle = Vector3.Angle(_wordlConfig.WorldUp, hit.normal);
+            float angle = Vector3.Angle(Vector3.up, hit.Normal);
 
             return angle;
         }

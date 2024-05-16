@@ -23,7 +23,12 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 
         public virtual bool IsCollide(Vector3 pos)
         {
-            return IsCollide(pos, Vector3.zero, out HitInfo hit, Config.ClipPreventingValue);
+            return IsCollide(pos, Vector3.zero, out HitInfo hit, CollisionConfig.ClipPreventingValue);
+        }
+
+        public virtual bool IsCollide(Vector3 pos, float dist)
+        {
+            return IsCollide(pos, Vector3.zero, out HitInfo hit, dist);
         }
 
         public bool IsCollideUp(out HitInfo hit, float dist)
@@ -59,6 +64,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
             hit = raycastHit.ToHitInfo();
             return hit.HaveHit;
         }
+
+        //public override bool IsCollide(Vector3 dir, out HitInfo hit, float dist)
+        //{
+        //    return base.IsCollide(dir, out hit, dist);
+        //}
     }
 
     public class Circle2DCollisionHandler : CollisionHandler2D<CircleCollider2D>
@@ -110,7 +120,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 
         public virtual bool IsCollide(Vector3 pos)
         {
-            return IsCollide(pos, Vector3.zero, out HitInfo hit, Config.ClipPreventingValue);
+            return IsCollide(pos, Vector3.zero, out HitInfo hit, CollisionConfig.ClipPreventingValue);
         }
 
         public bool IsCollideUp(out HitInfo hit, float dist)
@@ -131,6 +141,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public bool IsCollideRight(out HitInfo hit, float dist)
         {
             return IsCollide(Collider.transform.right, out hit, dist);
+        }
+
+        public bool IsCollide(Vector3 pos, float dist)
+        {
+            return IsCollide(pos, Vector3.zero, out HitInfo hit, dist);
         }
     }
 
@@ -179,8 +194,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         
         private bool CapsuleCast(Vector3 pos, Vector3 dir, out HitInfo hit, float dist)
         {
-            var p1 = pos + Collider.center + Config.ObjectUp * -Collider.height * 0.5f;
-            var p2 = p1 + Config.ObjectUp * Collider.height;
+            var p1 = pos + Collider.center + Vector3.up * -Collider.height * 0.5f;
+            var p2 = p1 + Vector3.up * Collider.height;
             var isCollide = Physics.CapsuleCast(p1, p2, Collider.radius, dir, out RaycastHit raycastHit, dist, Config.CollisionMask);
             hit = raycastHit.ToHitInfo();
             return isCollide;

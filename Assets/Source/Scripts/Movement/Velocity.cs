@@ -1,4 +1,5 @@
 ﻿using PlotvaIzLodzya.Extensions;
+using Unity.VisualScripting.FullSerializer;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Player.Movement
@@ -18,47 +19,43 @@ namespace PlotvaIzLodzya.Player.Movement
             return currentVelocity.normalized * _config.Speed;
         }
 
+        public float CalculateVerticalAcceleration()
+        {
+            return _config.JumpHeight / (_config.JumpTime * _config.JumpTime);
+        }
+
+        public float CalculateHorizontalAcceleration(float time)
+        {
+            return _config.Speed / time;
+        }
+
+        public float CalculateJumpSpeed()
+        {
+            var acceleration = CalculateVerticalAcceleration();
+            var speed = Mathf.Sqrt(2 * acceleration * _config.JumpHeight);
+
+            return speed;
+        }
+
         public Vector3 CalculateHorizontal(Vector3 currentVelocity, Vector3 desiredVelocity, bool increase)
         {
-
             var accelerationTime = _config.DeccelerationTime;
             if (increase)
             {
                 accelerationTime = _config.AccelerationTime;
             }
 
-            var acceleration = CalculateAcceleration(startSpeed:0f, _config.Speed, accelerationTime);
-            var config = _config.CreateHorizontalConfig(currentVelocity, desiredVelocity, acceleration);
-            var velocity = Calculate(config);
-
+            var acceleration = CalculateHorizontalAcceleration(accelerationTime);
+            var velocity = Vector3.MoveTowards(currentVelocity, desiredVelocity, acceleration * Time.deltaTime);
+            velocity = velocity.ClampMagnitude(0, _config.Speed);
             return velocity;
         }
 
-        public Vector3 CalculateVertical(Vector3 currentVelocity, Vector3 desiredVelocity)
+        public Vector3 CalculateVertical(Vector3 currentVelocity)
         {
-            var config = _config.CreateVerticalConfig(currentVelocity, desiredVelocity, _config.GetAcceleration());
-
-            var velocity = Calculate(config);
-
-            return velocity;
-        }
-
-        public Vector3 Calculate(VelocityConfig config)
-        {
-            var velocity = Vector3.MoveTowards(config.CurrentVelocity, config.DesiredVelocity, config.Acceleration * Time.deltaTime);
-            velocity = ClampVelocity(velocity, config.MinSpeed, config.MaxSpeed);
-
-            return velocity;
-        }
-
-        private Vector3 ClampVelocity(Vector3 currentVelocity, float min, float max) 
-        {
-            return currentVelocity.ClampMagnitude(min, max);
-        }
-
-        private float CalculateAcceleration(float startSpeed, float endSpeed, float time)
-        {
-            return (endSpeed - startSpeed) / time;
+            currentVelocity.y -= CalculateVerticalAcceleration() * Time.deltaTime;
+            currentVelocity.y = Mathf.Clamp(currentVelocity.y, -_config.FallMaxSpeed, 100f);
+            return currentVelocity;
         }
     }
 }

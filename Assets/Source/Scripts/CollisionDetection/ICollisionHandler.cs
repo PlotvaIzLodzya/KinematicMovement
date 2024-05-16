@@ -9,9 +9,10 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
             HitInfo hitInfo = new HitInfo()
             {
                 HaveHit = hit.collider!=null,
-                normal = hit.normal,
-                position = hit.point,
-                distance = hit.distance,
+                Normal = hit.normal,
+                Position = hit.point,
+                Distance = hit.distance,
+                Transform = hit.transform,
             };
 
             return hitInfo;
@@ -21,10 +22,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         {
             HitInfo hitInfo = new HitInfo()
             {
-                HaveHit = hit.collider!=null,
-                normal = hit.normal,
-                position = hit.point,
-                distance = hit.distance,
+                HaveHit = hit.collider != null,
+                Normal = hit.normal,
+                Position = hit.point,
+                Distance = hit.distance,
+                Transform = hit.transform,
             };
 
             return hitInfo;
@@ -34,9 +36,10 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
     public struct HitInfo
     {
         public bool HaveHit;
-        public Vector3 normal;
-        public Vector3 position;
-        public float distance;
+        public Vector3 Normal;
+        public Vector3 Position;
+        public float Distance;
+        public Transform Transform;
     }
 
     public interface ICollisionHandler
@@ -45,6 +48,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         bool IsCollide(Vector3 pos, Vector3 dir, out HitInfo hit, float dist);
         bool IsCollide(Vector3 dir, out HitInfo hit, float dist);
         bool IsCollide(Vector3 pos);
+        bool IsCollide(Vector3 pos, float dist);
     }
 }
 
