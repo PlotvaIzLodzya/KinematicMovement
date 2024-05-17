@@ -1,6 +1,7 @@
 using PlotvaIzLodzya.Extensions;
 using PlotvaIzLodzya.Player.Movement;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using UnityEngine;
 
 namespace PlotvaIzLodzya.Movement.Platforms
 {
-    public class MovingPlatform : MonoBehaviour
+    public class Platform : MonoBehaviour
     {
         [SerializeField] private List<Transform> _points;
         [SerializeField] private float _time;
@@ -16,18 +17,17 @@ namespace PlotvaIzLodzya.Movement.Platforms
         private Rigidbody2D _rb;
         private BoxCollider2D _boxCollider;
         private bool _stop;
-        private List<IMovable> _movables;
         private float _speed;
         private Transform _currentPoint;
+        private RaycastHit2D[] _hits;
         public Vector3 Velocity { get; private set; }
 
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
             var dist = 0f;
-            _movables = new();
             _boxCollider = this.GetComponentNullAwarness<BoxCollider2D>();
-
+            _hits = new RaycastHit2D[10];
             for (int Index = 0; Index < _points.Count; Index++)
             {
                 var nextIndex= Index+1;
@@ -84,8 +84,6 @@ namespace PlotvaIzLodzya.Movement.Platforms
         public void Update()
         {
             SetMovables();
-            //Velocity = Vector3.right * _speed;
-            //_rb.MovePosition(_rb.position + (Vector2)Velocity * Time.deltaTime);
         }
 
         private void SetMovables()
@@ -94,24 +92,24 @@ namespace PlotvaIzLodzya.Movement.Platforms
             scaledSize.x *= transform.localScale.x;
             scaledSize.y *= transform.localScale.y;
             var dist = CollisionConfig.ClipPreventingValue;
-            var collidersToMove = Physics2D.BoxCastAll(transform.position, scaledSize, 0, Velocity.normalized, dist).ToList();
-            var collidersOnTop = Physics2D.BoxCastAll(transform.position, scaledSize, 0, Vector2.up, dist);
-            var colliderToAdd = collidersOnTop.Except(collidersToMove);
-            collidersToMove.AddRange(colliderToAdd);
-            var movables = collidersToMove.Where(h => RaycastHitFilter(h)).Select(c => c.collider.GetComponent<IMovable>()).ToList();
-            var notOnPlatform = _movables.Except(movables);
-
-            foreach (var m in notOnPlatform)
+            foreach (var hit in _hits)
             {
-                m.ExternalVelocity = Vector3.zero;
+                if (hit.transform != null && hit.transform.TryGetComponent(out IMovable movable))
+                {
+                    movable.ExternalVelocity = Vector3.zero;
+                }
             }
+            Array.Clear(_hits,0, 10);
 
-            _movables = movables;
-            
-            foreach (var movable in _movables)
+            Physics2D.BoxCastNonAlloc(transform.position, scaledSize, 0, Vector2.up, _hits, dist);
+
+            foreach (var hit in _hits)
             {
                 var velocity = Velocity;
-                movable.ExternalVelocity = velocity;
+                if (hit.transform != null && hit.transform.TryGetComponent(out IMovable movable))
+                {
+                    movable.ExternalVelocity = velocity;
+                }
             }
         }
 

@@ -121,21 +121,21 @@ namespace PlotvaIzLodzya.Player.Movement
                 velocity = _velocity.CalculateVertical(velocity);
                 _currentVerticalVelocity = velocity;
 
-                if(IsGrounded && _jumpEnded)
-                {
-                    velocity.y *= -100f;
-                }
+                //if(IsGrounded && _jumpEnded)
+                //{
+                //    velocity.y *= -100f;
+                //}
 
                 if (State.Grounded.IsEnterState)
                 {
                     _jumpEnded = true;
                 }
 
-                if (State.Grounded.IsExitState && _jumpEnded)
-                {
-                    _currentVerticalVelocity = Vector3.zero;
-                    velocity = _currentVerticalVelocity;
-                }
+                //if (State.Grounded.IsExitState && _jumpEnded)
+                //{
+                //    _currentVerticalVelocity = Vector3.zero;
+                //    velocity = _currentVerticalVelocity;
+                //}
             }
 
             return velocity.y;
