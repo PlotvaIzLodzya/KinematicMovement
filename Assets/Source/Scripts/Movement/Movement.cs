@@ -1,4 +1,3 @@
-using PlotvaIzLodzya.Movement.Platforms;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide;
 using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
 using UnityEngine;
@@ -12,6 +11,19 @@ namespace PlotvaIzLodzya.Player.Movement
         void Move(Vector3 direction);
     }
 
+    public interface IJumpStatus
+    {
+        bool Requested { get; }
+        bool Ended { get; }
+    }
+
+    public class Jump : IJumpStatus
+    {
+        public bool Requested {get; set; }
+
+        public bool Ended { get; set; }
+    }
+
     public class Movement : MonoBehaviour, IMovable
     {
         [SerializeField] private bool _enableGravity;
@@ -19,8 +31,6 @@ namespace PlotvaIzLodzya.Player.Movement
 
         [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
-        private bool _jumpRequested;
-        private bool _jumpEnded;
         private bool _moveRequested;
         private Vector3 _currentHorizontalVelocity;
         private Vector3 _currentVerticalVelocity;
@@ -29,9 +39,10 @@ namespace PlotvaIzLodzya.Player.Movement
         private Transform _transform;
         private Velocity _velocity;
         private IBody _rigidbody;
+        private Jump _jump;
+        
         private Slide _slide;
         public MovementState State { get; private set; }
-        public bool IsGrounded { get; private set; }
         public Vector3 ExternalVelocity { get; set; }
 
         private void Awake()
@@ -39,28 +50,36 @@ namespace PlotvaIzLodzya.Player.Movement
             _transform = transform;
             _collisionHandler = CollisionHandlerBuilder.Create(gameObject, _collisionConfig);
             _rigidbody = BodyBuilder.Create(gameObject);   
-            State = new(_collisionHandler, _transform);
+            _jump = new();
+            State = new(_collisionHandler, _transform, _jump);
             _velocity = new(MovementConfig);            
             _slide = new(_collisionHandler, collideDepth:5, MovementConfig, State);
         }
 
         public void Update()
         {
+            if (_collisionHandler.IsCollide(_transform.position, out HitInfo hit))
+            {
+                transform.position -= hit.Normal * hit.Distance;
+            }
+
             _currentHorizontalVelocity = _velocity.CalculateHorizontal(_currentHorizontalVelocity, _desiredVelocity, _moveRequested);
             _currentHorizontalVelocity = _slide.HandleWall(_currentHorizontalVelocity);
             var vel = _currentHorizontalVelocity;
-
-            vel = ApplyExternalForces(vel);
-            State.Update(vel.normalized);
+            //Debug.Log(State.Grounded.IsInState);            
+            vel = _slide.HandleWall(vel);
 
             vel.y = ApplyGravity(_currentVerticalVelocity);
-            vel = _slide.AlignToSurface(vel);
+
+            if (_jump.Ended)
+                vel = _slide.AlignToSurface(vel);
+
+            vel = ApplyExternalForces(vel);
             vel = ApplyJump(vel);
             vel = ApplyCeiling(vel);
 
+            State.Update(vel.normalized);
             Translate(vel);
-
-            IsGrounded = State.Grounded.IsInState;
             _desiredVelocity = Vector3.zero;
             _moveRequested = false;
         }
@@ -73,9 +92,8 @@ namespace PlotvaIzLodzya.Player.Movement
 
         public void Jump()
         {
-            _jumpEnded = false;
-            IsGrounded = false;
-            _jumpRequested = true;
+            _jump.Ended = false;
+            _jump.Requested = true;
         }
 
         private Vector3 ApplyCeiling(Vector3 vel)
@@ -91,11 +109,11 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private Vector3 ApplyJump(Vector3 vel)
         {
-            if (_jumpRequested)
+            if (_jump.Requested)
             {
                 vel.y = _velocity.CalculateJumpSpeed();
                 _currentVerticalVelocity.y = vel.y;
-                _jumpRequested = false;
+                _jump.Requested = false;
             }
 
             return vel;
@@ -103,15 +121,20 @@ namespace PlotvaIzLodzya.Player.Movement
 
         private Vector3 ApplyExternalForces(Vector3 velocity)
         {
-            velocity += ExternalVelocity;
+            var externalVelocity = ExternalVelocity;
+
+            if (externalVelocity.y < 0 && State.Grounded.IsInState)
+                externalVelocity.y *= 10;
+
+            velocity += externalVelocity;
             
             return velocity;
         }
 
         private void Translate(Vector3 vel)
         {
-            vel = _slide.CollideAndSlide_recursive(vel * Time.deltaTime, _rigidbody.Position);
-            _rigidbody.MovePosition(_rigidbody.Position + vel);
+            vel = _slide.CollideAndSlide_recursive(vel * Time.deltaTime, _transform.position);
+            _transform.position += vel;
         }
 
         private float ApplyGravity(Vector3 velocity)
@@ -121,21 +144,10 @@ namespace PlotvaIzLodzya.Player.Movement
                 velocity = _velocity.CalculateVertical(velocity);
                 _currentVerticalVelocity = velocity;
 
-                //if(IsGrounded && _jumpEnded)
-                //{
-                //    velocity.y *= -100f;
-                //}
-
                 if (State.Grounded.IsEnterState)
                 {
-                    _jumpEnded = true;
+                    _jump.Ended = true;
                 }
-
-                //if (State.Grounded.IsExitState && _jumpEnded)
-                //{
-                //    _currentVerticalVelocity = Vector3.zero;
-                //    velocity = _currentVerticalVelocity;
-                //}
             }
 
             return velocity.y;

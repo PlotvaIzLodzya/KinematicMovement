@@ -7,7 +7,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
     public class CollisionConfig
     {
         public const float ClipPreventingValue = 0.015f;
-        public const float CollsisionDist = 0.02f;
+        public const float CollsisionDist = 0.03f;
 
         [field: SerializeField] public LayerMask CollisionMask { get; private set; }
 

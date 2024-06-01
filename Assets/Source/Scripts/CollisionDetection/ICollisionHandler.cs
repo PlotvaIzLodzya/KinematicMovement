@@ -11,21 +11,27 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
                 HaveHit = hit.collider!=null,
                 Normal = hit.normal,
                 Position = hit.point,
-                Distance = hit.distance,
+                Distance = hit.distance - CollisionConfig.ClipPreventingValue,
                 Transform = hit.transform,
             };
 
             return hitInfo;
         }
 
-        public static HitInfo ToHitInfo(this RaycastHit2D hit)
+        public static HitInfo ToHitInfo(this RaycastHit2D hit, Collider2D collider)
         {
+            var dist = hit.distance;
+            var haveHit = hit.collider != null;
+            if (haveHit) 
+            {
+                dist = hit.collider.Distance(collider).distance;
+            }
             HitInfo hitInfo = new HitInfo()
             {
-                HaveHit = hit.collider != null,
+                HaveHit = haveHit,
                 Normal = hit.normal,
                 Position = hit.point,
-                Distance = hit.distance,
+                Distance = dist,
                 Transform = hit.transform,
             };
 
@@ -48,6 +54,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         bool IsCollide(Vector3 pos, Vector3 dir, out HitInfo hit, float dist);
         bool IsCollide(Vector3 dir, out HitInfo hit, float dist);
         bool IsCollide(Vector3 pos);
+        bool IsCollide(Vector3 pos, out HitInfo hit);
         bool IsCollide(Vector3 pos, float dist);
     }
 }

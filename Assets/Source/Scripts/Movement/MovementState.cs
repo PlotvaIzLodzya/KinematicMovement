@@ -12,7 +12,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         public CollisionState RightSide { get; private set; }
         public CollisionState ForwardSide { get; private set; }
         public CollisionState BackSide { get; private set; }
-        public CollisionState CurrentCollision { get; private set; }
+        public CollisionState DirectionCollision { get; private set; }
+        public IJumpStatus JumpStatus { get; private set; }
 
         public CollisionState _tempCheck;
 
@@ -20,9 +21,9 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
 
         //Whoever will control transform from this script, will be lefted without right ball
-        public MovementState(ICollisionHandler collisionHandler, Transform transform)
+        public MovementState(ICollisionHandler collisionHandler, Transform transform, IJumpStatus jumpStatus)
         {
-            if(collisionHandler == null)
+            if (collisionHandler == null)
                 throw new ArgumentNullException($"{nameof(collisionHandler)} is null");
 
             _transform = transform ?? throw new ArgumentNullException($"{nameof(transform)} is null");
@@ -33,20 +34,20 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             RightSide = new(collisionHandler);
             ForwardSide = new(collisionHandler);
             BackSide = new(collisionHandler);
-            CurrentCollision = new(collisionHandler);
+            DirectionCollision = new(collisionHandler);
             _tempCheck = new(collisionHandler);
+            JumpStatus = jumpStatus;
         }
-
 
         public void Update(Vector3 dir)
         {
-            Grounded.Update(-_transform.up);
+            Grounded.Update(-_transform.up, true);
             Ceiled.Update(_transform.up);
             LeftSide.Update(-_transform.right);
             RightSide.Update(_transform.right);
             ForwardSide.Update(_transform.forward);
             BackSide.Update(-_transform.forward);
-            CurrentCollision.Update(dir);
+            DirectionCollision.Update(dir);
         }
 
         public bool HaveCollision(Vector3 dir, out HitInfo hit)

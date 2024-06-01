@@ -28,10 +28,9 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             var dir = vel.normalized;
 
             if (_collisionHandler.IsCollide(currentPos, dir, out HitInfo hit, dist))
-            {
-                var velToNextStep = dir * (hit.Distance - CollisionConfig.ClipPreventingValue);
+            { 
+                var velToNextStep = dir * hit.Distance;
                 var leftOverVel = vel - velToNextStep;
-
                 var nextPos = currentPos + velToNextStep;
 
                 float angle = Vector3.Angle(Vector3.up, hit.Normal);
@@ -55,7 +54,8 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         {
             var angle = GetSurfaceAngle(vel.normalized);
 
-            if (_movementState.CurrentCollision.IsEnterState && IsSlopeTooSteep(angle))
+            //Debug.Log($"asdss {_movementState.DirectionCollision.IsInState} {angle}");
+            if (_movementState.DirectionCollision.IsEnterState && IsSlopeTooSteep(angle))
             {
                 vel = Vector3.zero;
             }
@@ -65,7 +65,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
         private Vector3 HandleSlope(float slopeAngle, Vector3 vel, Vector3 projectedleftOverVel, Vector3 surfaceNormal)
         {
-            if (_movementState.Grounded.IsInState == false)
+            if (_movementState.Grounded.IsInState == false || _movementState.JumpStatus.Ended == false)
             {
                 return projectedleftOverVel;
             }
@@ -87,6 +87,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
         {
             vel.y = 0;
             vel = Vector3.ProjectOnPlane(vel, normal);
+            
             return vel;
         }
 
@@ -103,8 +104,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 
         public bool IsOnTooSteepSlope()
         {
-            var angle = GetSurfaceAngle(Vector3.down);
-
+            var angle = GetGroundAngle();
             return IsSlopeTooSteep(angle);
         }
 
@@ -119,13 +119,23 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             return angle;
         }
 
+        /// <summary>
+        /// Rerturn 0 if there is no surface or is on the ground
+        /// </summary>
+        public float GetGroundAngle()
+        {
+            var hit = _movementState.Grounded.CollisionInfo.Hit;
+            float angle = Vector3.Angle(Vector3.up, hit.Normal);
+
+            return angle;
+        }
+
         private Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)
         {
-            vel.y = 0;
             surfaceNormal.y = 0;
-            projectedVel.y = vel.y;
+            vel.y = Mathf.Clamp(vel.y, -1000, 0);
             float scale = 1 + Vector3.Dot(vel.normalized, surfaceNormal.normalized);
-
+            //Debug.Log($" surface: {surfaceNormal}, vel {vel.normalized} scale: {scale}");
             var scaledVel = projectedVel * scale;
 
             return scaledVel;

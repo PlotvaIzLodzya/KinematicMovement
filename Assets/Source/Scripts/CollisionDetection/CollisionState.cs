@@ -1,6 +1,10 @@
 ﻿using PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection;
 using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
+using static PlotvaIzLodzya.Extensions.Extensions;
+using static UnityEditor.PlayerSettings;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
 {
@@ -22,12 +26,22 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             _collisionHandler = collisionHandler;
         }
 
-        public void Update(Vector3 direction)
+        public void Update(Vector3 direction, bool debug = false)
         {
             var wasInState = IsInState;
-            IsInState = _collisionHandler.IsCollide(direction, out HitInfo hit, CollisionConfig.CollsisionDist);
+            var dist = CollisionConfig.ClipPreventingValue * 2;
+            if (debug)
+            {
+                dist = CollisionConfig.ClipPreventingValue * 4;
+            }
+            IsInState = _collisionHandler.IsCollide(direction, out HitInfo hit, dist);
             IsEnterState = false;
             IsExitState = false;
+
+            if(debug)
+            {
+                //Debug.Log(hit.Normal);
+            }
 
             CollisionInfo = new CollisionInfo()
             {
@@ -45,8 +59,6 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
                 IsExitState = true;
                 OnStateExit?.Invoke(CollisionInfo);
             }
-
-
         }
     }
 }

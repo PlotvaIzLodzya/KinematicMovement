@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using static PlotvaIzLodzya.Extensions.Extensions;
 
 namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
 {
@@ -24,6 +25,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public virtual bool IsCollide(Vector3 pos)
         {
             return IsCollide(pos, Vector3.zero, out HitInfo hit, CollisionConfig.ClipPreventingValue);
+        }
+
+        public virtual bool IsCollide(Vector3 pos, out HitInfo hit)
+        {
+            return IsCollide(pos, Vector3.zero, out hit, CollisionConfig.ClipPreventingValue);
         }
 
         public virtual bool IsCollide(Vector3 pos, float dist)
@@ -61,14 +67,10 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public override bool IsCollide(Vector3 pos, Vector3 dir, out HitInfo hit, float dist)
         {
             var raycastHit = Physics2D.BoxCast(pos, Collider.size, 0, dir, dist, Config.CollisionMask);
-            hit = raycastHit.ToHitInfo();
+
+            hit = raycastHit.ToHitInfo(Collider);
             return hit.HaveHit;
         }
-
-        //public override bool IsCollide(Vector3 dir, out HitInfo hit, float dist)
-        //{
-        //    return base.IsCollide(dir, out hit, dist);
-        //}
     }
 
     public class Circle2DCollisionHandler : CollisionHandler2D<CircleCollider2D>
@@ -80,7 +82,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public override bool IsCollide(Vector3 pos, Vector3 dir, out HitInfo hit, float dist)
         {
             var raycastHit = Physics2D.CircleCast(pos, Collider.radius, dir, dist, Config.CollisionMask);
-            hit = raycastHit.ToHitInfo();
+            hit = raycastHit.ToHitInfo(Collider);
             return hit.HaveHit;
         }
     }
@@ -94,7 +96,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public override bool IsCollide(Vector3 pos, Vector3 dir, out HitInfo hit, float dist)
         {
             var raycastHit = Physics2D.CapsuleCast(pos, Collider.size, Collider.direction, 0, dir, dist, Config.CollisionMask);
-            hit = raycastHit.ToHitInfo();
+            hit = raycastHit.ToHitInfo(Collider);
             return hit.HaveHit;
         }
     }
@@ -121,6 +123,11 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         public virtual bool IsCollide(Vector3 pos)
         {
             return IsCollide(pos, Vector3.zero, out HitInfo hit, CollisionConfig.ClipPreventingValue);
+        }
+
+        public bool IsCollide(Vector3 pos, out HitInfo hit)
+        {
+            return IsCollide(pos, Vector3.zero, out hit, CollisionConfig.ClipPreventingValue);
         }
 
         public bool IsCollideUp(out HitInfo hit, float dist)
@@ -162,6 +169,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide.CollisionDetection
         {
             var isCollide = Physics.BoxCast(pos, Collider.size / 2, dir, out RaycastHit raycastHit, _transform.localRotation, dist, Config.CollisionMask);
             hit = raycastHit.ToHitInfo();
+
             return isCollide;
         }
     }

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Movement.Platforms
@@ -63,17 +64,18 @@ namespace PlotvaIzLodzya.Movement.Platforms
 
         private IEnumerator MovingToPoint(Transform nextPoint)
         {
-            var dir = nextPoint.position - _currentPoint.position;
+            var dir = (nextPoint.position - _currentPoint.position).normalized;
             var coveredDist = 0f;
             var dist = Vector3.Distance(_currentPoint.position, nextPoint.position);
-            Velocity = dir.normalized * _speed;
+            Velocity = dir * _speed;
 
             while(coveredDist < dist)
-            {                 
+            {
                 yield return null;
                 Velocity = dir.normalized * _speed;
+                
                 var speed = _speed * Time.deltaTime;
-                _rb.MovePosition(_rb.position + (Vector2)Velocity * Time.deltaTime);
+                transform.position += Velocity * Time.deltaTime;
                 coveredDist += speed;
             }
             Velocity = Vector3.zero;
@@ -91,7 +93,7 @@ namespace PlotvaIzLodzya.Movement.Platforms
             var scaledSize = _boxCollider.size;
             scaledSize.x *= transform.localScale.x;
             scaledSize.y *= transform.localScale.y;
-            var dist = CollisionConfig.ClipPreventingValue;
+            var dist = CollisionConfig.CollsisionDist;
             foreach (var hit in _hits)
             {
                 if (hit.transform != null && hit.transform.TryGetComponent(out IMovable movable))
@@ -101,7 +103,7 @@ namespace PlotvaIzLodzya.Movement.Platforms
             }
             Array.Clear(_hits,0, 10);
 
-            Physics2D.BoxCastNonAlloc(transform.position, scaledSize, 0, Vector2.up, _hits, dist);
+            Physics2D.BoxCastNonAlloc(transform.position, scaledSize, 0, Vector3.up, _hits, dist);
 
             foreach (var hit in _hits)
             {
