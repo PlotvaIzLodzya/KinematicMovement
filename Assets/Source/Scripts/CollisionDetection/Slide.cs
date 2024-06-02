@@ -77,7 +77,7 @@ namespace PlotvaIzLodzya.Player.Movement.CollideAndSlide
             else
             {
                 vel.y = projectedleftOverVel.y;
-                projectedleftOverVel = vel.normalized * projectedleftOverVel.magnitude;
+                projectedleftOverVel = projectedleftOverVel.normalized * vel.magnitude;
             }
 
             return projectedleftOverVel;
