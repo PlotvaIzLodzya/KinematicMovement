@@ -1,1 +1,1 @@
-<a href="https://www.google.com">cafe</a>
+<a href="https://www.foo.com">cafe</a>
