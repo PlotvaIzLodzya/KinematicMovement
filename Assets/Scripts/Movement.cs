@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Movement : MonoBehaviour
 {
@@ -16,7 +17,7 @@ public class Movement : MonoBehaviour
     private Vector2 _direction;
     private RaycastHit2D _groundHit;
     private CircleCollider2D _collider;
-    private Rigidbody2D _rb;
+    private IBody _rb;
     public float VerticalVelocity;
 
     public ExteranlVelocityAccumalator VelocityAccumalator { get; private set; }
@@ -27,7 +28,7 @@ public class Movement : MonoBehaviour
         Application.targetFrameRate = frameRate;
         Time.fixedDeltaTime = 1f /frameRate;        
         _collider = GetComponent<CircleCollider2D>();
-        _rb = GetComponent<Rigidbody2D>();
+        _rb = BodyBuilder.Create(gameObject);
         VelocityAccumalator = new();
     }
 
@@ -52,12 +53,24 @@ public class Movement : MonoBehaviour
 
     private void Move(float deltaTime)
     {
-        transform.position += VelocityAccumalator.TotalVelocity * deltaTime;
-        _rb.position += (Vector2)VelocityAccumalator.TotalVelocity * deltaTime;
+        var pos = transform.position + VelocityAccumalator.TotalVelocity * deltaTime;
+        SetPosition(pos);
+        HandleOverlap();
+        VerticalVelocity = CalculateVerticalSpeed(VerticalVelocity, deltaTime);
+
+        var totalVelocity = CalculateVelocity(transform.position, deltaTime);
+        var nextPos = transform.position + totalVelocity;
+        SetPosition(nextPos);
+
+        UpdateState(totalVelocity);
+    }
+
+    private void HandleOverlap()
+    {
         var counter = 0;
         var hit = GetHit(transform.position, _collider.radius, Vector2.zero, 0f, _groundMask);
         var haveHit = hit.collider != null;
-        if(haveHit)
+        if (haveHit)
         {
             while (counter < 5)
             {
@@ -65,17 +78,59 @@ public class Movement : MonoBehaviour
                 haveHit = hit.collider != null;
                 if (haveHit)
                 {
-                    //var colDist = hit.collider.Distance(_collider);
-                    //var hitDist = colDist.distance + _dist;
-                    //var targetPos = transform.position - (Vector3)colDist.normal * hitDist;
                     var targetPos = GetClosestPosition(hit);
-                    _rb.position = targetPos;
-                    transform.position = targetPos;
+                    SetPosition(targetPos);
                 }
                 counter++;
             }
         }
+    }
 
+    private void UpdateState(Vector3 totalVelocity)
+    {
+        bool velCheck = Check(totalVelocity.normalized + Vector3.down, transform.position);
+        bool downCheck = Check(Vector3.down, transform.position);
+        var wasGrounded = Grounded;
+        var wasOnTooSteepSlope = OnTooSteepSlope;
+        Grounded = velCheck || downCheck;
+        OnTooSteepSlope = IsOnTooSteepSlope();
+        var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
+        BecomeGrounded = Grounded && (wasGrounded == false || exitSteepSlope);
+    }
+
+    private Vector3 CalculateVelocity(Vector3 pos, float deltaTime)
+    {
+        var totalVelocity = CalculateHorizontalVelocity(pos, deltaTime);
+        totalVelocity = AlignToSurface(totalVelocity);
+        var nextPosAlongSurface = pos + totalVelocity;
+        totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
+
+        return totalVelocity;
+    }
+
+    private void SetPosition(Vector3 pos)
+    {
+        transform.position = pos;
+        _rb.Position = pos;
+    }
+
+    private Vector3 CalculateHorizontalVelocity(Vector3 pos, float deltaTime)
+    {
+        var horVelocity = _direction * _speed;
+        var vel = CollideAndSlide_recursive(horVelocity * deltaTime, transform.position, false);
+
+        return vel;
+    }
+
+    private Vector3 CalculateVerticalVelocity(Vector3 pos, float deltaTime)
+    {
+        var vertVel = Vector3.up * VerticalVelocity;
+        var vel = CollideAndSlide_recursive(vertVel * deltaTime, pos, true);
+        return vel;
+    }
+
+    public float CalculateVerticalSpeed(float currentSpeed, float deltaTime)
+    {
         var vertAccel = 0f;
         if (Grounded == false || OnTooSteepSlope)
         {
@@ -84,30 +139,13 @@ public class Movement : MonoBehaviour
 
         if (BecomeGrounded)
         {
-            VerticalVelocity = -9.8f;
+            //currentSpeed = -9.8f;
         }
 
-        VerticalVelocity -= vertAccel * deltaTime;
-        VerticalVelocity = Mathf.Clamp(VerticalVelocity, -40, 100);
-        var vertVel = Vector3.up * VerticalVelocity;
-        var horVelocity = _direction * _speed;
-        var vel = CollideAndSlide_recursive(horVelocity * deltaTime, transform.position, false);
-        vel = AlignToSurface(vel);
-        var nextPosAlongSurface = transform.position + vel;
-        vel += CollideAndSlide_recursive(vertVel * deltaTime, nextPosAlongSurface, true);
+        currentSpeed -= vertAccel * deltaTime;
+        currentSpeed = Mathf.Clamp(currentSpeed, -40, 100);
 
-        var nextPos = transform.position + vel;
-        _rb.position = nextPos;
-        transform.position = nextPos;
-
-        bool velCheck = Check(vel.normalized+Vector3.down, transform.position);
-        bool downCheck = Check(Vector3.down, transform.position);
-        var wasGrounded = Grounded;
-        var wasOnTooSteepSlope = OnTooSteepSlope;
-        Grounded = velCheck || downCheck;
-        OnTooSteepSlope = IsOnTooSteepSlope();
-        var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
-        BecomeGrounded = Grounded && (wasGrounded == false || exitSteepSlope);
+        return currentSpeed;    
     }
 
     private Vector3 AlignToSurface(Vector3 vel)
