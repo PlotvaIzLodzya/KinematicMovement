@@ -4,20 +4,19 @@ using UnityEngine.UIElements;
 public class Movement : MonoBehaviour
 {
     [SerializeField] private LayerMask _groundMask;
-    [SerializeField] private float _vertSpeed;
-    [SerializeField] private float _speed;
-    [SerializeField] private float _dist;
-    [SerializeField] private float _jumpHeight;
-    [SerializeField] private float _jumpTime;
-    [SerializeField] private float _maxSlopeAngle;
+    [SerializeField] private float _speed = 15f;
+    [SerializeField] private float _dist = 0.015f;
+    [SerializeField] private float _jumpHeight = 2f;
+    [SerializeField] private float _jumpTime = 0.1f;
+    [SerializeField] private float _maxSlopeAngle = 45f;
 
     public bool Grounded;
     public bool OnTooSteepSlope;
     public bool BecomeGrounded;
-    private Vector2 _direction;
-    private RaycastHit2D _groundHit;
-    private CircleCollider2D _collider;
+    private Vector3 _direction;
+    private HitInfo _groundHit;
     private IBody _rb;
+    private ICollision _collision;
     public float VerticalVelocity;
 
     public ExteranlVelocityAccumalator VelocityAccumalator { get; private set; }
@@ -27,8 +26,8 @@ public class Movement : MonoBehaviour
         var frameRate = 144;
         Application.targetFrameRate = frameRate;
         Time.fixedDeltaTime = 1f /frameRate;        
-        _collider = GetComponent<CircleCollider2D>();
         _rb = BodyBuilder.Create(gameObject);
+        _collision = CollisionBuilder.Create(gameObject);
         VelocityAccumalator = new();
     }
 
@@ -37,18 +36,27 @@ public class Movement : MonoBehaviour
         _direction = Vector2.zero;
 
         if (Input.GetKey(KeyCode.D))
-            _direction = Vector2.right;
+            _direction += Vector3.right;
 
         if (Input.GetKey(KeyCode.A))
-            _direction = Vector2.left;
+            _direction += Vector3.left;
 
+        if (Input.GetKey(KeyCode.S))
+            _direction += Vector3.back;
+
+        if (Input.GetKey(KeyCode.W))
+            _direction += Vector3.forward;
+
+        _direction = _direction.normalized;
         if (Input.GetKeyDown(KeyCode.Space))
             Jump();
+
+        Move(Time.deltaTime);
     }
 
     private void FixedUpdate()
     {
-        Move(Time.fixedDeltaTime);
+        //Move(Time.fixedDeltaTime);
     }
 
     private void Move(float deltaTime)
@@ -68,17 +76,15 @@ public class Movement : MonoBehaviour
     private void HandleOverlap()
     {
         var counter = 0;
-        var hit = GetHit(transform.position, _collider.radius, Vector2.zero, 0f, _groundMask);
-        var haveHit = hit.collider != null;
-        if (haveHit)
+        var hit = _collision.GetHit(transform.position, Vector2.zero, 0f, _groundMask);
+        if (hit.HaveHit)
         {
             while (counter < 5)
             {
-                hit = GetHit(transform.position, _collider.radius, Vector2.zero, 0f, _groundMask);
-                haveHit = hit.collider != null;
-                if (haveHit)
+                hit = _collision.GetHit(transform.position, Vector2.zero, 0f, _groundMask);
+                if (hit.HaveHit)
                 {
-                    var targetPos = GetClosestPosition(hit);
+                    var targetPos = _collision.GetClosestPositionTo(hit);
                     SetPosition(targetPos);
                 }
                 counter++;
@@ -166,14 +172,14 @@ public class Movement : MonoBehaviour
         float dist = vel.magnitude;
         var dir = vel.normalized;
 
-        var hit = GetHit(currentPos, _collider.radius, dir, dist, _groundMask);
+        var hit = _collision.GetHit(currentPos, dir, dist, _groundMask);
         var hitDist = hit.distance;
 
         float angle = Vector3.Angle(Vector3.up, hit.normal);
         var tooStep = IsSlopeTooSteep(angle);
         if (tooStep && gravity == false)
         {
-            var dis = GetDistance(hit);
+            var dis = hit.ColliderDistance;
             return vel.normalized * (dis);
         }
 
@@ -182,7 +188,7 @@ public class Movement : MonoBehaviour
             currentDepth=5;
         }
 
-        if (hit.collider != null)
+        if (hit.HaveHit)
         {
             var velToNextStep = dir * (hitDist - _dist);
             var leftOverVel = vel - velToNextStep;
@@ -241,9 +247,8 @@ public class Movement : MonoBehaviour
 
     private bool Check(Vector3 dir, Vector3 currentPos)
     {
-        var hit = GetHit(dir, currentPos);
-        var haveHit = hit.collider != null;
-        if (haveHit)
+        var hit = _collision.GetHit(currentPos, dir, _dist, _groundMask);
+        if (hit.HaveHit)
         {
             if (currentPos.y - hit.point.y > 0.1f)
             {
@@ -265,49 +270,5 @@ public class Movement : MonoBehaviour
         var scaledVel = projectedVel * scale;
 
         return scaledVel;
-    }
-
-    public RaycastHit2D GetHit(Vector3 pos, float radius, Vector3 dir, float dist, LayerMask mask)
-    {
-        return Physics2D.CircleCast(pos, radius, dir, dist, mask);
-
-        //Physics.SphereCast(pos, radius, dir, out RaycastHit hit, dist, mask);
-        //return hit;      
-    }
-
-    public float GetDistance(Vector3 pos, float radius, Vector3 dir, float dist, LayerMask mask)
-    {
-        var hit = GetHit(pos, radius, dir, dist, mask);
-        var distance = GetDistance(hit);
-        return distance;
-    }
-
-    public float GetDistance(RaycastHit2D hit)
-    {
-        var d = hit.collider.Distance(_collider);
-        var dis = d.distance;
-        return dis;
-    }
-
-    public Vector3 GetClosestPosition(RaycastHit2D hit)
-    {
-        var deltaPos = GetDeltaPositionToHit(hit);
-        var targetPos = transform.position - deltaPos;
-
-        return targetPos;
-    }
-
-    public Vector3 GetDeltaPositionToHit(RaycastHit2D hit)
-    {
-        var colDist = hit.collider.Distance(_collider);
-        var hitDist = GetDistance(hit);
-        var deltaPos = (Vector3)colDist.normal * hitDist;
-        return deltaPos;
-    }
-
-
-    private RaycastHit2D GetHit(Vector3 dir, Vector3 currentPos)
-    {
-        return Physics2D.CircleCast(currentPos, _collider.radius, dir, _dist, _groundMask);
     }
 }

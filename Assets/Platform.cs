@@ -24,7 +24,12 @@ public class Platform : MonoBehaviour, IExteranlVelocity
 
     private void FixedUpdate()
     {
-        Move(Time.fixedDeltaTime);
+        //Move(Time.fixedDeltaTime);
+    }
+
+    private void Update()
+    {
+        Move(Time.deltaTime);
     }
 
     private void OnCollisionStay2D(Collision2D collision)

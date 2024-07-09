@@ -32,11 +32,22 @@ public static class CollisionBuilder
         {
             collision = collider switch
             {
-                CircleCollider2D => new CircleCollision2D(collider, go.transform),
+                CircleCollider2D circleCollider => new CircleCollision2D(circleCollider, go.transform),
                 _ => throw new MissingComponentException($"{go.name} don't have supported collider")
             };
         }
 
+        if(go.TryGetComponent(out Collider collider3d))
+        {
+            collision = collider3d switch
+            {
+                SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, go.transform),
+                _ => throw new MissingComponentException($"{go.name} don't have supported collider")
+            };
+        }
+
+        if (collision == null)
+            throw new MissingReferenceException($"{go.name} don't have supported collider");
 
         return collision;
     }
