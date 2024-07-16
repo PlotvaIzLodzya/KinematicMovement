@@ -3,6 +3,7 @@
 public interface IBody
 {
     Vector3 Position { get; set; }
+    void MovePosition(Vector3 position);
 }
 
 public class Body3D : IBody
@@ -18,6 +19,11 @@ public class Body3D : IBody
     public Body3D(Rigidbody rigidbody)
     {
         _rigidbody = rigidbody;
+    }
+
+    public void MovePosition(Vector3 position)
+    {
+        _rigidbody.MovePosition(position);
     }
 }
 
@@ -35,4 +41,9 @@ public class Body2D: IBody
     {
         _rigidbody = rigidbody;
     }    
+
+    public void MovePosition(Vector3 position)
+    {
+        _rigidbody.MovePosition(position);
+    }
 }

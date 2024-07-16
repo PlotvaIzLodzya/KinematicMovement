@@ -39,9 +39,10 @@ public static class CollisionBuilder
 
         if(go.TryGetComponent(out Collider collider3d))
         {
+            var rb = go.GetComponent<Rigidbody>();
             collision = collider3d switch
             {
-                SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, go.transform),
+                SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, go.transform, rb),
                 _ => throw new MissingComponentException($"{go.name} don't have supported collider")
             };
         }

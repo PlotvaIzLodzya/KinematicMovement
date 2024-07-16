@@ -5,7 +5,6 @@ public class Movement : MonoBehaviour
 {
     [SerializeField] private LayerMask _groundMask;
     [SerializeField] private float _speed = 15f;
-    [SerializeField] private float _dist = 0.015f;
     [SerializeField] private float _jumpHeight = 2f;
     [SerializeField] private float _jumpTime = 0.1f;
     [SerializeField] private float _maxSlopeAngle = 45f;
@@ -19,13 +18,17 @@ public class Movement : MonoBehaviour
     private ICollision _collision;
     public float VerticalVelocity;
 
+    public static float ContactOffset = 0.015f;
+    public static float GroundCheckDistance = ContactOffset * 2;
+
     public ExteranlVelocityAccumalator VelocityAccumalator { get; private set; }
 
     private void Awake()
     {
-        var frameRate = 144;
+        var frameRate = 60;
         Application.targetFrameRate = frameRate;
-        Time.fixedDeltaTime = 1f /frameRate;        
+        Time.fixedDeltaTime = 1f / frameRate;
+
         _rb = BodyBuilder.Create(gameObject);
         _collision = CollisionBuilder.Create(gameObject);
         VelocityAccumalator = new();
@@ -50,13 +53,11 @@ public class Movement : MonoBehaviour
         _direction = _direction.normalized;
         if (Input.GetKeyDown(KeyCode.Space))
             Jump();
-
-        Move(Time.deltaTime);
     }
 
     private void FixedUpdate()
     {
-        //Move(Time.fixedDeltaTime);
+        Move(Time.fixedDeltaTime);
     }
 
     private void Move(float deltaTime)
@@ -69,6 +70,7 @@ public class Movement : MonoBehaviour
         var totalVelocity = CalculateVelocity(transform.position, deltaTime);
         var nextPos = transform.position + totalVelocity;
         SetPosition(nextPos);
+        
 
         UpdateState(totalVelocity);
     }
@@ -76,12 +78,12 @@ public class Movement : MonoBehaviour
     private void HandleOverlap()
     {
         var counter = 0;
-        var hit = _collision.GetHit(transform.position, Vector2.zero, 0f, _groundMask);
+        var hit = _collision.GetHit(_groundMask);
         if (hit.HaveHit)
         {
             while (counter < 5)
             {
-                hit = _collision.GetHit(transform.position, Vector2.zero, 0f, _groundMask);
+                hit = _collision.GetHit(_groundMask);
                 if (hit.HaveHit)
                 {
                     var targetPos = _collision.GetClosestPositionTo(hit);
@@ -156,10 +158,10 @@ public class Movement : MonoBehaviour
 
     private Vector3 AlignToSurface(Vector3 vel)
     {
-        if (Grounded)
-        {
-            vel = Vector3.ProjectOnPlane(vel, _groundHit.normal);
-        }
+        //if (Grounded)
+        //{
+        //    vel = Vector3.ProjectOnPlane(vel, _groundHit.normal);
+        //}
 
         return vel;
     }
@@ -180,17 +182,16 @@ public class Movement : MonoBehaviour
         if (tooStep && gravity == false)
         {
             var dis = hit.ColliderDistance;
-            return vel.normalized * (dis);
+            vel = vel.normalized * dis;
         }
 
         if (gravity && tooStep == false)
         {
-            currentDepth=5;
+            currentDepth = 5;
         }
-
         if (hit.HaveHit)
         {
-            var velToNextStep = dir * (hitDist - _dist);
+            var velToNextStep = dir * (hitDist - ContactOffset);
             var leftOverVel = vel - velToNextStep;
             var nextPos = currentPos + velToNextStep;
 
@@ -247,7 +248,7 @@ public class Movement : MonoBehaviour
 
     private bool Check(Vector3 dir, Vector3 currentPos)
     {
-        var hit = _collision.GetHit(currentPos, dir, _dist, _groundMask);
+        var hit = _collision.GetHit(currentPos, dir, GroundCheckDistance, _groundMask);
         if (hit.HaveHit)
         {
             if (currentPos.y - hit.point.y > 0.1f)
@@ -255,19 +256,17 @@ public class Movement : MonoBehaviour
                 _groundHit = hit;
                 return true;
             }
-
-            Debug.DrawRay(hit.point, Vector2.right, Color.red, 0.1f);
         }
 
         return false;
     }
 
-    private Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 projectedVel, Vector3 surfaceNormal)
+    private Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 surfaceNormal)
     {
         surfaceNormal.y = 0;
         float scale = 1 + Vector3.Dot(vel.normalized, surfaceNormal.normalized);
-        //Debug.Log($" surface: {surfaceNormal}, vel {vel.normalized} scale: {scale}");
-        var scaledVel = projectedVel * scale;
+        Debug.Log($" surface: {surfaceNormal}, vel {vel.normalized} scale: {scale}");
+        var scaledVel = vel.normalized * scale;
 
         return scaledVel;
     }

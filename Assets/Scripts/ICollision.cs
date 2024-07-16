@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEditor.PackageManager;
-using UnityEngine;
-using static UnityEditor.PlayerSettings;
-using UnityEngine.UI;
+﻿using UnityEngine;
+using UnityEngine.UIElements;
 
 public interface ICollision
 {
     bool TryGetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask, out HitInfo hit);
     HitInfo GetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask);
+    HitInfo GetHit(LayerMask mask);
     Vector3 GetClosestPositionTo(HitInfo hitInfo);
 }
 
@@ -19,13 +17,23 @@ public struct HitInfo
     public float ColliderDistance;
     public bool HaveHit;
     public Transform Transform;
+
+    public HitInfo(Vector3 point, Vector3 normal, float distance, float colliderDistance, bool haveHit, Transform transform)
+    {
+        this.point = point;
+        this.normal = normal;
+        this.distance = distance;
+        ColliderDistance = colliderDistance;
+        HaveHit = haveHit;
+        Transform = transform;
+    }
 }
 
-public abstract class Collision: ICollision
+public abstract class CollisionCompute: ICollision
 {
     protected Transform Transform;
 
-    public Collision(Transform transform)
+    public CollisionCompute(Transform transform)
     {
         Transform = transform;
     }
@@ -46,6 +54,8 @@ public abstract class Collision: ICollision
 
     public abstract HitInfo GetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask);
 
+    public abstract HitInfo GetHit(LayerMask mask);
+
     public bool TryGetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask, out HitInfo hit)
     {
         hit = GetHit(pos, dir, dist, mask);
@@ -53,23 +63,63 @@ public abstract class Collision: ICollision
     }
 }
 
-public class SphereCollision3D : Collision
+public class SphereCollision3D : CollisionCompute
 {
     private SphereCollider _collider;
+    private Rigidbody _rb;
 
-    public SphereCollision3D(SphereCollider sphereCollider, Transform transform) : base(transform)
+    public SphereCollision3D(SphereCollider sphereCollider, Transform transform, Rigidbody rb) : base(transform)
     {
         _collider = sphereCollider;
+        _rb = rb;
     }
 
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask)
     {
+        //_rb.SweepTest(dir, out var hit, dist);
         Physics.SphereCast(pos, _collider.radius, dir, out RaycastHit hit, dist, mask);
-        return hit.ToHitInfo();
+
+        var hitInfo = hit.ToHitInfo();
+
+        return hitInfo;
+    }
+
+    public HitInfo GetHit(Vector3 position, LayerMask layerMask)
+    {
+        var colliders = Physics.OverlapSphere(position, _collider.radius, layerMask);
+
+        var hitInfo = GetHitInfo(colliders, position);
+        return hitInfo;
+    }
+
+    public override HitInfo GetHit(LayerMask mask)
+    {
+        return GetHit(Transform.position, mask);
+    }
+
+    public HitInfo GetHitInfo(Collider[] colliders, Vector3 position)
+    {
+        var closestDistance = float.MinValue;
+
+        HitInfo hitInfo = new HitInfo();
+        foreach (var collider in colliders)
+        {
+
+            Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, _collider, position, Transform.rotation, out Vector3 dir, out float distance);
+            var dist = distance;
+            if (dist > closestDistance)
+            {
+                closestDistance = dist + Movement.ContactOffset;
+                var closestPosition = position - dir * closestDistance;
+                hitInfo = new HitInfo(closestPosition, dir, distance, closestDistance, true, collider.transform);
+            }
+        }
+
+        return hitInfo;
     }
 }
 
-public class CircleCollision2D : Collision
+public class CircleCollision2D : CollisionCompute
 {
     private CircleCollider2D _collider;
 
@@ -81,5 +131,10 @@ public class CircleCollision2D : Collision
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask)
     {
         return Physics2D.CircleCast(pos, _collider.radius, dir, dist, mask).ToHitInfo(_collider);
+    }
+
+    public override HitInfo GetHit(LayerMask mask)
+    {
+        return GetHit(Transform.position, Vector3.zero, Movement.ContactOffset, mask);
     }
 }
