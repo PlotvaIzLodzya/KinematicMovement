@@ -19,13 +19,13 @@ public class Movement : MonoBehaviour
     public float VerticalVelocity;
 
     public static float ContactOffset = 0.015f;
-    public static float GroundCheckDistance = ContactOffset * 2;
+    public static float GroundCheckDistance = ContactOffset * 1.1f;
 
     public ExteranlVelocityAccumalator VelocityAccumalator { get; private set; }
 
     private void Awake()
     {
-        var frameRate = 60;
+        var frameRate = 144;
         Application.targetFrameRate = frameRate;
         Time.fixedDeltaTime = 1f / frameRate;
 
@@ -98,9 +98,9 @@ public class Movement : MonoBehaviour
     {
         bool velCheck = Check(totalVelocity.normalized + Vector3.down, transform.position);
         bool downCheck = Check(Vector3.down, transform.position);
-        var wasGrounded = Grounded;
+        var wasGrounded = velCheck || Grounded;
         var wasOnTooSteepSlope = OnTooSteepSlope;
-        Grounded = velCheck || downCheck;
+        Grounded = downCheck;
         OnTooSteepSlope = IsOnTooSteepSlope();
         var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
         BecomeGrounded = Grounded && (wasGrounded == false || exitSteepSlope);
@@ -109,9 +109,11 @@ public class Movement : MonoBehaviour
     private Vector3 CalculateVelocity(Vector3 pos, float deltaTime)
     {
         var totalVelocity = CalculateHorizontalVelocity(pos, deltaTime);
-        totalVelocity = AlignToSurface(totalVelocity);
         var nextPosAlongSurface = pos + totalVelocity;
         totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
+
+        if(totalVelocity.y<0)
+            totalVelocity = AlignToSurface(totalVelocity);
 
         return totalVelocity;
     }
@@ -158,10 +160,10 @@ public class Movement : MonoBehaviour
 
     private Vector3 AlignToSurface(Vector3 vel)
     {
-        //if (Grounded)
-        //{
-        //    vel = Vector3.ProjectOnPlane(vel, _groundHit.normal);
-        //}
+        if (Grounded)
+        {
+            vel = Vector3.ProjectOnPlane(vel, _groundHit.normal);
+        }
 
         return vel;
     }

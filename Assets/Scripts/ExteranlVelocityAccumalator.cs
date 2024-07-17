@@ -15,7 +15,6 @@ public class ExteranlVelocityAccumalator
     {
         if(_exteranls.Contains(v) == false)
         {
-            Debug.Log("add");
             _exteranls.Add(v);
         }
     }
@@ -24,7 +23,6 @@ public class ExteranlVelocityAccumalator
     {
         if (_exteranls.Contains(v))
         {
-            Debug.Log("remove");
             _exteranls.Remove(v);
         }
     }
