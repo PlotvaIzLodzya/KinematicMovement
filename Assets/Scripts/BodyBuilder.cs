@@ -33,17 +33,20 @@ public static class CollisionBuilder
             collision = collider switch
             {
                 CircleCollider2D circleCollider => new CircleCollision2D(circleCollider, go.transform),
-                _ => throw new MissingComponentException($"{go.name} don't have supported collider")
+                BoxCollider2D boxCollider => new BoxCollision2D(boxCollider, go.transform),
+                CapsuleCollider2D capsuleCollider => new CapsuleCollision2D(capsuleCollider, go.transform),
+                _ => throw new MissingComponentException($"{go.name} don't have supported 2D collider")
             };
         }
 
         if(go.TryGetComponent(out Collider collider3d))
         {
-            var rb = go.GetComponent<Rigidbody>();
             collision = collider3d switch
             {
-                SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, go.transform, rb),
-                _ => throw new MissingComponentException($"{go.name} don't have supported collider")
+                SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, go.transform),
+                BoxCollider boxCollider => new BoxCollision3D(boxCollider, go.transform),
+                CapsuleCollider capsuleCollider => new CapsuleCollision3D(capsuleCollider, go.transform),
+                _ => throw new MissingComponentException($"{go.name} don't have supported 3D collider")
             };
         }
 

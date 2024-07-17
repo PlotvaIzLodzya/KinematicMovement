@@ -162,7 +162,7 @@ public class Movement : MonoBehaviour
     {
         if (Grounded)
         {
-            vel = Vector3.ProjectOnPlane(vel, _groundHit.normal);
+            vel = Vector3.ProjectOnPlane(vel, _groundHit.Normal);
         }
 
         return vel;
@@ -177,9 +177,9 @@ public class Movement : MonoBehaviour
         var dir = vel.normalized;
 
         var hit = _collision.GetHit(currentPos, dir, dist, _groundMask);
-        var hitDist = hit.distance;
+        var hitDist = hit.Distance;
 
-        float angle = Vector3.Angle(Vector3.up, hit.normal);
+        float angle = Vector3.Angle(Vector3.up, hit.Normal);
         var tooStep = IsSlopeTooSteep(angle);
         if (tooStep && gravity == false)
         {
@@ -197,7 +197,7 @@ public class Movement : MonoBehaviour
             var leftOverVel = vel - velToNextStep;
             var nextPos = currentPos + velToNextStep;
 
-            var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hit.normal);
+            var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hit.Normal);
 
             vel = velToNextStep + CollideAndSlide_recursive(projectedleftOverVel, nextPos, gravity, ++currentDepth);
             return vel;
@@ -243,7 +243,7 @@ public class Movement : MonoBehaviour
     private float GetGroundAngle()
     {
         var hit = _groundHit;
-        float angle = Vector3.Angle(Vector3.up, hit.normal);
+        float angle = Vector3.Angle(Vector3.up, hit.Normal);
 
         return angle;
     }
@@ -253,7 +253,7 @@ public class Movement : MonoBehaviour
         var hit = _collision.GetHit(currentPos, dir, GroundCheckDistance, _groundMask);
         if (hit.HaveHit)
         {
-            if (currentPos.y - hit.point.y > 0.1f)
+            if (currentPos.y - hit.Point.y > 0.1f)
             {
                 _groundHit = hit;
                 return true;

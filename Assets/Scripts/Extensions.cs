@@ -15,9 +15,9 @@ public static class Extensions
         }
         var hitInfo = new HitInfo()
         {
-            point = hit.point,
-            normal = hit.normal,
-            distance = dist,
+            Point = hit.point,
+            Normal = hit.normal,
+            Distance = dist,
             HaveHit = haveHit,
             Transform = hit.transform,
             ColliderDistance = collDist,
@@ -30,9 +30,9 @@ public static class Extensions
     {
         var hitInfo = new HitInfo()
         {
-            point = hit.point,
-            normal = hit.normal,
-            distance = hit.distance,
+            Point = hit.point,
+            Normal = hit.normal,
+            Distance = hit.distance,
             ColliderDistance = hit.distance + Movement.ContactOffset,
             HaveHit = hit.collider != null,
             Transform = hit.transform
