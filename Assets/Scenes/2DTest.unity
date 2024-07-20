@@ -1448,13 +1448,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7832ac73c2004d489ce0c129baa8103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _groundMask:
-    serializedVersion: 2
-    m_Bits: 64
-  _speed: 15
-  _jumpHeight: 2
-  _jumpTime: 0.2
-  _maxSlopeAngle: 30
+  <MovementConfig>k__BackingField:
+    <GroundMask>k__BackingField:
+      serializedVersion: 2
+      m_Bits: 64
+    <Speed>k__BackingField: 15
+    <JumpHeight>k__BackingField: 2
+    <JumpTime>k__BackingField: 0.2
+    <MaxSlopeAngle>k__BackingField: 45
   Grounded: 0
   OnTooSteepSlope: 0
   BecomeGrounded: 0
@@ -1855,13 +1856,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7832ac73c2004d489ce0c129baa8103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _groundMask:
-    serializedVersion: 2
-    m_Bits: 64
-  _speed: 15
-  _jumpHeight: 2
-  _jumpTime: 0.2
-  _maxSlopeAngle: 30
+  <MovementConfig>k__BackingField:
+    <GroundMask>k__BackingField:
+      serializedVersion: 2
+      m_Bits: 64
+    <Speed>k__BackingField: 15
+    <JumpHeight>k__BackingField: 2
+    <JumpTime>k__BackingField: 0.2
+    <MaxSlopeAngle>k__BackingField: 45
   Grounded: 0
   OnTooSteepSlope: 0
   BecomeGrounded: 0

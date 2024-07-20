@@ -3,13 +3,17 @@
 public abstract class CollisionCompute : ICollision
 {
     protected Transform Transform;
+    private ILayerMaskProvider _layerMaskProvider;
 
-    public CollisionCompute(Transform transform)
+    public LayerMask CollisionMask => _layerMaskProvider.GroundMask;
+
+    public CollisionCompute(Transform transform, ILayerMaskProvider layerMaskProvider)
     {
         Transform = transform;
+        _layerMaskProvider = layerMaskProvider;
     }
 
-    public abstract HitInfo GetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask);
+    public abstract HitInfo GetHit(Vector3 pos, Vector3 dir, float dist);
 
     public Vector3 GetClosestPositionTo(HitInfo hitInfo)
     {
@@ -25,19 +29,19 @@ public abstract class CollisionCompute : ICollision
         return deltaPos;
     }
 
-    public virtual HitInfo GetHit(Vector3 position, LayerMask mask)
+    public virtual HitInfo GetHit(Vector3 position)
     {
-        return GetHit(Transform.position, Vector3.zero, Movement.ContactOffset,  mask);
+        return GetHit(Transform.position, Vector3.zero, MovementConfig.ContactOffset);
     }
 
-    public virtual HitInfo GetHit(LayerMask mask)
+    public virtual HitInfo GetHit()
     {
-        return GetHit(Transform.position, mask);
+        return GetHit(Transform.position);
     }
 
-    public bool TryGetHit(Vector3 pos, Vector3 dir, float dist, LayerMask mask, out HitInfo hit)
+    public bool TryGetHit(Vector3 pos, Vector3 dir, float dist, out HitInfo hit)
     {
-        hit = GetHit(pos, dir, dist, mask);
+        hit = GetHit(pos, dir, dist);
         return hit.HaveHit;
     }
 }

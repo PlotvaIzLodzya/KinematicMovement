@@ -1,13 +1,8 @@
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Movement : MonoBehaviour
 {
-    [SerializeField] private LayerMask _groundMask;
-    [SerializeField] private float _speed = 15f;
-    [SerializeField] private float _jumpHeight = 2f;
-    [SerializeField] private float _jumpTime = 0.1f;
-    [SerializeField] private float _maxSlopeAngle = 45f;
+    [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
     public bool Grounded;
     public bool OnTooSteepSlope;
@@ -18,9 +13,6 @@ public class Movement : MonoBehaviour
     private ICollision _collision;
     public float VerticalVelocity;
 
-    public static float ContactOffset = 0.015f;
-    public static float GroundCheckDistance = ContactOffset * 1.1f;
-
     public ExteranlVelocityAccumalator VelocityAccumalator { get; private set; }
 
     private void Awake()
@@ -30,7 +22,7 @@ public class Movement : MonoBehaviour
         Time.fixedDeltaTime = 1f / frameRate;
 
         _rb = BodyBuilder.Create(gameObject);
-        _collision = CollisionBuilder.Create(gameObject);
+        _collision = CollisionBuilder.Create(gameObject, MovementConfig);
         VelocityAccumalator = new();
     }
 
@@ -64,26 +56,25 @@ public class Movement : MonoBehaviour
     {
         var pos = transform.position + VelocityAccumalator.TotalVelocity * deltaTime;
         SetPosition(pos);
-        HandleOverlap();
+        Depenetrate();
         VerticalVelocity = CalculateVerticalSpeed(VerticalVelocity, deltaTime);
 
         var totalVelocity = CalculateVelocity(transform.position, deltaTime);
         var nextPos = transform.position + totalVelocity;
         SetPosition(nextPos);
         
-
         UpdateState(totalVelocity);
     }
 
-    private void HandleOverlap()
+    private void Depenetrate()
     {
         var counter = 0;
-        var hit = _collision.GetHit(_groundMask);
+        var hit = _collision.GetHit();
         if (hit.HaveHit)
         {
             while (counter < 5)
             {
-                hit = _collision.GetHit(_groundMask);
+                hit = _collision.GetHit();
                 if (hit.HaveHit)
                 {
                     var targetPos = _collision.GetClosestPositionTo(hit);
@@ -126,7 +117,7 @@ public class Movement : MonoBehaviour
 
     private Vector3 CalculateHorizontalVelocity(Vector3 pos, float deltaTime)
     {
-        var horVelocity = _direction * _speed;
+        var horVelocity = _direction * MovementConfig.Speed;
         var vel = CollideAndSlide_recursive(horVelocity * deltaTime, transform.position, false);
 
         return vel;
@@ -176,7 +167,7 @@ public class Movement : MonoBehaviour
         float dist = vel.magnitude;
         var dir = vel.normalized;
 
-        var hit = _collision.GetHit(currentPos, dir, dist, _groundMask);
+        var hit = _collision.GetHit(currentPos, dir, dist);
         var hitDist = hit.Distance;
 
         float angle = Vector3.Angle(Vector3.up, hit.Normal);
@@ -193,7 +184,7 @@ public class Movement : MonoBehaviour
         }
         if (hit.HaveHit)
         {
-            var velToNextStep = dir * (hitDist - ContactOffset);
+            var velToNextStep = dir * (hitDist - MovementConfig.ContactOffset);
             var leftOverVel = vel - velToNextStep;
             var nextPos = currentPos + velToNextStep;
 
@@ -206,9 +197,7 @@ public class Movement : MonoBehaviour
         return vel;
     }
 
-
-
-    private void Jump()
+    public void Jump()
     {
         VerticalVelocity = CalculateJumpSpeed();
     }
@@ -216,14 +205,14 @@ public class Movement : MonoBehaviour
     public float CalculateJumpSpeed()
     {
         var acceleration = CalculateVerticalAcceleration();
-        var speed = Mathf.Sqrt(2 * acceleration * _jumpHeight);
+        var speed = Mathf.Sqrt(2 * acceleration * MovementConfig.JumpHeight);
 
         return speed;
     }
 
     public float CalculateVerticalAcceleration()
     {
-        return _jumpHeight / (_jumpTime * _jumpTime);
+        return MovementConfig.JumpHeight / (MovementConfig.JumpTime * MovementConfig.JumpTime);
     }
 
     public bool IsOnTooSteepSlope()
@@ -237,7 +226,7 @@ public class Movement : MonoBehaviour
 
     private bool IsSlopeTooSteep(float angle)
     {
-        return angle >= _maxSlopeAngle;
+        return angle >= MovementConfig.MaxSlopeAngle;
     }
 
     private float GetGroundAngle()
@@ -250,7 +239,7 @@ public class Movement : MonoBehaviour
 
     private bool Check(Vector3 dir, Vector3 currentPos)
     {
-        var hit = _collision.GetHit(currentPos, dir, GroundCheckDistance, _groundMask);
+        var hit = _collision.GetHit(currentPos, dir, MovementConfig.GroundCheckDistance);
         if (hit.HaveHit)
         {
             if (currentPos.y - hit.Point.y > 0.1f)
@@ -261,15 +250,5 @@ public class Movement : MonoBehaviour
         }
 
         return false;
-    }
-
-    private Vector3 ScaleHorizontalVelocity(Vector3 vel, Vector3 surfaceNormal)
-    {
-        surfaceNormal.y = 0;
-        float scale = 1 + Vector3.Dot(vel.normalized, surfaceNormal.normalized);
-        Debug.Log($" surface: {surfaceNormal}, vel {vel.normalized} scale: {scale}");
-        var scaledVel = vel.normalized * scale;
-
-        return scaledVel;
     }
 }

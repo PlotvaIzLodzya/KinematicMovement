@@ -25,16 +25,16 @@ public static class BodyBuilder
 
 public static class CollisionBuilder
 {
-    public static ICollision Create(GameObject go)
+    public static ICollision Create(GameObject go, ILayerMaskProvider layerMaskProvider)
     {
         ICollision collision = null;
         if(go.TryGetComponent(out Collider2D collider))
         {
             collision = collider switch
             {
-                CircleCollider2D circleCollider => new CircleCollision2D(circleCollider, go.transform),
-                BoxCollider2D boxCollider => new BoxCollision2D(boxCollider, go.transform),
-                CapsuleCollider2D capsuleCollider => new CapsuleCollision2D(capsuleCollider, go.transform),
+                CircleCollider2D circleCollider => new CircleCollision2D(circleCollider, go.transform, layerMaskProvider),
+                BoxCollider2D boxCollider => new BoxCollision2D(boxCollider, go.transform, layerMaskProvider),
+                CapsuleCollider2D capsuleCollider => new CapsuleCollision2D(capsuleCollider, go.transform, layerMaskProvider),
                 _ => throw new MissingComponentException($"{go.name} don't have supported 2D collider")
             };
         }
@@ -43,9 +43,9 @@ public static class CollisionBuilder
         {
             collision = collider3d switch
             {
-                SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, go.transform),
-                BoxCollider boxCollider => new BoxCollision3D(boxCollider, go.transform),
-                CapsuleCollider capsuleCollider => new CapsuleCollision3D(capsuleCollider, go.transform),
+                SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, go.transform, layerMaskProvider),
+                BoxCollider boxCollider => new BoxCollision3D(boxCollider, go.transform, layerMaskProvider),
+                CapsuleCollider capsuleCollider => new CapsuleCollision3D(capsuleCollider, go.transform, layerMaskProvider),
                 _ => throw new MissingComponentException($"{go.name} don't have supported 3D collider")
             };
         }

@@ -4,7 +4,7 @@ public abstract class CollisionCompute2D<T> : CollisionCompute where T : Collide
 {
     protected T Collider;
 
-    protected CollisionCompute2D(T collider, Transform transform) : base(transform)
+    protected CollisionCompute2D(T collider, Transform transform, ILayerMaskProvider layerMaskProvider) : base(transform, layerMaskProvider)
     {
         Collider = collider;
     }

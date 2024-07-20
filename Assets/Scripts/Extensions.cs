@@ -33,7 +33,7 @@ public static class Extensions
             Point = hit.point,
             Normal = hit.normal,
             Distance = hit.distance,
-            ColliderDistance = hit.distance + Movement.ContactOffset,
+            ColliderDistance = hit.distance + MovementConfig.ContactOffset,
             HaveHit = hit.collider != null,
             Transform = hit.transform
         };
