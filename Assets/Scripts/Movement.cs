@@ -110,6 +110,9 @@ public class Movement : MonoBehaviour
             currentSpeed = -9.8f;
         }
 
+        if (State.BecomeCeiled && State.IsJumping)
+            currentSpeed = 0f;
+
         currentSpeed -= vertAccel * deltaTime;
         currentSpeed = Mathf.Clamp(currentSpeed, -40, 100);
 

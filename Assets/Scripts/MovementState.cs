@@ -11,10 +11,12 @@ public class MovementState
     private MovementConfig _movementConfig;
 
     public bool IsJumping { get; private set; }
-    public bool Grounded { get; private set; }
-    public bool OnTooSteepSlope { get; private set; }
-    public bool BecomeGrounded { get; private set; }
     public bool LeftGround { get; private set; }
+    public bool Grounded { get; private set; }
+    public bool BecomeGrounded { get; private set; }
+    public bool OnTooSteepSlope { get; private set; }
+    public bool Ceiled { get; private set; }
+    public bool BecomeCeiled { get; private set; }
     public Vector3 GroundNormal => _groundHit.Normal;
 
     public MovementState(IBody body, ICollision collision, MovementConfig movementConfig)
@@ -28,9 +30,13 @@ public class MovementState
     {
         bool velCheck = Check(totalVelocity.normalized + Vector3.down, _body.Position);
         bool downCheck = Check(Vector3.down, _body.Position);
+        bool upCheck = Check(Vector3.up, _body.Position);
         var wasGrounded = _previousVelCheck || Grounded;
+        var wasCeiled = Ceiled;
         var wasOnTooSteepSlope = OnTooSteepSlope;
         Grounded = downCheck;
+        Ceiled = upCheck;
+        BecomeCeiled = wasCeiled == false && Ceiled;
         OnTooSteepSlope = IsOnTooSteepSlope();
         var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
         BecomeGrounded = Grounded && (wasGrounded == false || exitSteepSlope);
@@ -51,11 +57,8 @@ public class MovementState
         var hit = _collision.GetHit(currentPos, dir, MovementConfig.GroundCheckDistance);
         if (hit.HaveHit)
         {
-            if (currentPos.y - hit.Point.y > 0.1f)
-            {
-                _groundHit = hit;
-                return true;
-            }
+            _groundHit = hit;
+            return true;
         }
 
         return false;
