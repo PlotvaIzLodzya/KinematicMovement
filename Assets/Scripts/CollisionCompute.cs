@@ -70,4 +70,9 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
         hit = GetHit();
         return hit.HaveHit;
     }
+
+    public bool CheckDirection(Vector3 direction)
+    {
+        return TryGetHit(Body.Position, direction, MovementConfig.ContactOffset, out var hit);
+    }
 }

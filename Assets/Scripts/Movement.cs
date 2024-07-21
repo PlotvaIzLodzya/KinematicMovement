@@ -10,6 +10,8 @@ public class Movement : MonoBehaviour
     private SlideAlongSurface _slide;
     public float VerticalVelocity;
 
+    public Vector3 Velocity { get; private set; }
+    public Speed Speed { get; private set; }
     public MovementState State { get; private set; }
     public ExteranlVelocityAccumulator VelocityAccumulator { get; private set; }
 
@@ -24,6 +26,7 @@ public class Movement : MonoBehaviour
         VelocityAccumulator = new();
         _slide = new SlideAlongSurface(_collision, MovementConfig);
         State = new MovementState(_body, _collision, MovementConfig);
+        Speed = new Speed(State, MovementConfig);
     }
 
     private void Update()
@@ -64,9 +67,10 @@ public class Movement : MonoBehaviour
         var pos = _body.Position + VelocityAccumulator.TotalVelocity * deltaTime;
         _body.Position = pos;
         _collision.Depenetrate();
-        VerticalVelocity = CalculateVerticalSpeed(VerticalVelocity, deltaTime);
+        VerticalVelocity = Speed.CalculateVerticalSpeed(VerticalVelocity, deltaTime);
 
         var velocity = CalculateVelocity(_body.Position, deltaTime);
+        Velocity = velocity / deltaTime;
         var nextPos = _body.Position + velocity;
         _body.Position = nextPos;
         
@@ -84,7 +88,7 @@ public class Movement : MonoBehaviour
 
     private Vector3 CalculateHorizontalVelocity(Vector3 pos, float deltaTime)
     {
-        var horVelocity = _direction * MovementConfig.Speed * deltaTime;
+        var horVelocity = Speed.CalculateHorizontalSpeed(_direction, deltaTime) * deltaTime;
         var vel = _slide.SlideByMovement_recursive(horVelocity, pos);
 
         return vel;
@@ -94,28 +98,7 @@ public class Movement : MonoBehaviour
     {
         var vertVel = Vector3.up * VerticalVelocity * deltaTime;
         var vel = _slide.SlideByGravity_recursive(vertVel, pos);
+
         return vel;
-    }
-
-    public float CalculateVerticalSpeed(float currentSpeed, float deltaTime)
-    {
-        var vertAccel = 0f;
-        if (State.Grounded == false || State.OnTooSteepSlope)
-        {
-            vertAccel = MovementConfig.VerticalAcceleration;
-        }
-
-        if (State.LeftGround && State.IsJumping == false)
-        {
-            currentSpeed = -9.8f;
-        }
-
-        if (State.BecomeCeiled && State.IsJumping)
-            currentSpeed = 0f;
-
-        currentSpeed -= vertAccel * deltaTime;
-        currentSpeed = Mathf.Clamp(currentSpeed, -40, 100);
-
-        return currentSpeed;    
     }
 }

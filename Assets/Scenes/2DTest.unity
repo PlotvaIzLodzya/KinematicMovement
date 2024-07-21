@@ -1434,7 +1434,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!50 &1902906501
 Rigidbody2D:
   serializedVersion: 4
@@ -1445,7 +1445,7 @@ Rigidbody2D:
   m_GameObject: {fileID: 1902906500}
   m_BodyType: 0
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -1601,6 +1601,8 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 64
     <Speed>k__BackingField: 15
+    <AccelerationTime>k__BackingField: 0.1
+    <DeccelerationTime>k__BackingField: 0.05
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 30
@@ -2006,6 +2008,8 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 64
     <Speed>k__BackingField: 15
+    <AccelerationTime>k__BackingField: 0
+    <DeccelerationTime>k__BackingField: 0
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45

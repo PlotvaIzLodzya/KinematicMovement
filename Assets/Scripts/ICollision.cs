@@ -6,6 +6,7 @@ public interface ICollision
     bool TryGetHit(Vector3 pos, Vector3 dir, float dist, out HitInfo hit);
     bool TryGetHit(out HitInfo hit);
     HitInfo GetHit(Vector3 pos, Vector3 dir, float dist);
+    bool CheckDirection(Vector3 direction);
     HitInfo GetHit(Vector3 position);
     HitInfo GetHit();
     Vector3 GetClosestPositionTo(HitInfo hitInfo);

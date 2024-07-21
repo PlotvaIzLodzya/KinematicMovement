@@ -9,11 +9,14 @@ public class MovementConfig: ILayerMaskProvider
 
     [field: SerializeField] public LayerMask GroundMask { get; private set; }
     [field: SerializeField] public float Speed { get; private set; }
+    [field: SerializeField] public float AccelerationTime { get; private set; }
+    [field: SerializeField] public float DeccelerationTime { get; private set; }
     [field: SerializeField] public float JumpHeight { get; private set; }
     [field: SerializeField] public float JumpTime { get; private set; }
     [field: SerializeField] public float MaxSlopeAngle { get; private set; }
 
-
+    public float Acceleration => Speed / AccelerationTime;
+    public float Decceleration => Speed / DeccelerationTime;
     public float VerticalAcceleration => JumpHeight / (JumpTime * JumpTime);
     public float JumpSpeed => Mathf.Sqrt(2 * VerticalAcceleration * JumpHeight);
 
@@ -23,6 +26,8 @@ public class MovementConfig: ILayerMaskProvider
        JumpHeight = 2f;
        JumpTime = 0.2f;
        MaxSlopeAngle = 45f;
+       AccelerationTime = 0.3f;
+       DeccelerationTime = 0.05f;
     }
 
     public MovementConfig(LayerMask groundMask, float speed, float jumpHeight, float jumpTime, float maxSlopeAngle)
