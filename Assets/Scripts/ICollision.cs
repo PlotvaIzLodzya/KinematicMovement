@@ -87,7 +87,7 @@ public class BoxCollision2D : CollisionCompute2D<BoxCollider2D>
 
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
-        return Physics2D.BoxCast(pos, Collider.size, 0, dir, dist, CollisionMask).ToHitInfo(Collider);
+        return Physics2D.BoxCast(pos, Collider.size, Body.Rotation, dir, dist, CollisionMask).ToHitInfo(Collider);
     }
 }
 

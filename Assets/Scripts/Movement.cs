@@ -1,18 +1,16 @@
 using UnityEngine;
+
 public class Movement : MonoBehaviour
 {
     [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
-    public bool Grounded;
-    public bool OnTooSteepSlope;
-    public bool BecomeGrounded;
     private Vector3 _direction;
-    private HitInfo _groundHit;
     private IBody _body;
     private ICollision _collision;
     private SlideAlongSurface _slide;
     public float VerticalVelocity;
 
+    public MovementState State { get; private set; }
     public ExteranlVelocityAccumulator VelocityAccumulator { get; private set; }
 
     private void Awake()
@@ -25,6 +23,7 @@ public class Movement : MonoBehaviour
         _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
         VelocityAccumulator = new();
         _slide = new SlideAlongSurface(_collision, MovementConfig);
+        State = new MovementState(_body, _collision, MovementConfig);
     }
 
     private void Update()
@@ -54,6 +53,12 @@ public class Movement : MonoBehaviour
         Move(Time.fixedDeltaTime);
     }
 
+    public void Jump()
+    {
+        VerticalVelocity = MovementConfig.JumpSpeed;
+        State.SetJumping();
+    }
+
     private void Move(float deltaTime)
     {
         var pos = _body.Position + VelocityAccumulator.TotalVelocity * deltaTime;
@@ -61,23 +66,11 @@ public class Movement : MonoBehaviour
         _collision.Depenetrate();
         VerticalVelocity = CalculateVerticalSpeed(VerticalVelocity, deltaTime);
 
-        var totalVelocity = CalculateVelocity(_body.Position, deltaTime);
-        var nextPos = _body.Position + totalVelocity;
+        var velocity = CalculateVelocity(_body.Position, deltaTime);
+        var nextPos = _body.Position + velocity;
         _body.Position = nextPos;
         
-        UpdateState(totalVelocity);
-    }
-
-    private void UpdateState(Vector3 totalVelocity)
-    {
-        bool velCheck = Check(totalVelocity.normalized + Vector3.down, _body.Position);
-        bool downCheck = Check(Vector3.down, _body.Position);
-        var wasGrounded = velCheck || Grounded;
-        var wasOnTooSteepSlope = OnTooSteepSlope;
-        Grounded = downCheck;
-        OnTooSteepSlope = IsOnTooSteepSlope();
-        var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
-        BecomeGrounded = Grounded && (wasGrounded == false || exitSteepSlope);
+        State.Update(velocity);
     }
 
     private Vector3 CalculateVelocity(Vector3 pos, float deltaTime)
@@ -86,16 +79,13 @@ public class Movement : MonoBehaviour
         var nextPosAlongSurface = pos + totalVelocity;
         totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
 
-        if(totalVelocity.y < 0)
-            totalVelocity = AlignToSurface(totalVelocity);
-
         return totalVelocity;
     }
 
     private Vector3 CalculateHorizontalVelocity(Vector3 pos, float deltaTime)
     {
         var horVelocity = _direction * MovementConfig.Speed * deltaTime;
-        var vel = _slide.SlideByMovement_recursive(horVelocity, _body.Position);
+        var vel = _slide.SlideByMovement_recursive(horVelocity, pos);
 
         return vel;
     }
@@ -110,66 +100,19 @@ public class Movement : MonoBehaviour
     public float CalculateVerticalSpeed(float currentSpeed, float deltaTime)
     {
         var vertAccel = 0f;
-        if (Grounded == false || OnTooSteepSlope)
+        if (State.Grounded == false || State.OnTooSteepSlope)
         {
             vertAccel = MovementConfig.VerticalAcceleration;
         }
 
-        if (BecomeGrounded)
+        if (State.LeftGround && State.IsJumping == false)
         {
-            //currentSpeed = -9.8f;
+            currentSpeed = -9.8f;
         }
 
         currentSpeed -= vertAccel * deltaTime;
         currentSpeed = Mathf.Clamp(currentSpeed, -40, 100);
 
         return currentSpeed;    
-    }
-
-    private Vector3 AlignToSurface(Vector3 vel)
-    {
-        if (Grounded)
-        {
-            vel = Vector3.ProjectOnPlane(vel, _groundHit.Normal);
-        }
-
-        return vel;
-    }
-
-    public void Jump()
-    {
-        VerticalVelocity = MovementConfig.JumpSpeed;
-    }
-
-    public bool IsOnTooSteepSlope()
-    {
-        if (Grounded == false)
-            return false;
-
-        var angle = GetGroundAngle();
-        return MovementConfig.IsSlopeTooSteep(angle);
-    }
-
-    private float GetGroundAngle()
-    {
-        var hit = _groundHit;
-        float angle = Vector3.Angle(Vector3.up, hit.Normal);
-
-        return angle;
-    }
-
-    private bool Check(Vector3 dir, Vector3 currentPos)
-    {
-        var hit = _collision.GetHit(currentPos, dir, MovementConfig.GroundCheckDistance);
-        if (hit.HaveHit)
-        {
-            if (currentPos.y - hit.Point.y > 0.1f)
-            {
-                _groundHit = hit;
-                return true;
-            }
-        }
-
-        return false;
     }
 }

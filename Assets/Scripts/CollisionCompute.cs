@@ -50,21 +50,18 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
     public void Depenetrate()
     {
         var iteration = 0;
-        if (TryGetHit(out HitInfo hit))
+        while (iteration <= DepenetrationIteration)
         {
-            while (iteration <= DepenetrationIteration)
+            if (TryGetHit(out HitInfo hit))
             {
-                if (TryGetHit(out hit))
-                {
-                    Body.Position = GetClosestPositionTo(hit);
-                }
-                else 
-                { 
-                    break; 
-                }
-
-                iteration++;
+                Body.Position = GetClosestPositionTo(hit);
             }
+            else 
+            { 
+                break; 
+            }
+
+            iteration++;
         }
     }
 

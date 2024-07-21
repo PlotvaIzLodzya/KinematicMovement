@@ -34,6 +34,8 @@ public class Body2D: IBody
 {
     private Rigidbody2D _rigidbody;
 
+    public float Rotation => _rigidbody.rotation;
+
     public Vector3 Position
     {
         get { return _rigidbody.position; }
