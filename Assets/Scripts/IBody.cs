@@ -9,11 +9,14 @@ public interface IBody
 public class Body3D : IBody
 {
     private Rigidbody _rigidbody;
-
+    public Quaternion rotation =>_rigidbody.rotation;
     public Vector3 Position
     {
         get { return _rigidbody.position; }
-        set { _rigidbody.position = value; }
+        set {
+            _rigidbody.position = value;
+            _rigidbody.transform.position = value;
+            }
     }
 
     public Body3D(Rigidbody rigidbody)
@@ -34,8 +37,13 @@ public class Body2D: IBody
     public Vector3 Position
     {
         get { return _rigidbody.position; }
-        set { _rigidbody.position = value; }
+        set
+        {
+            _rigidbody.position = value;
+            _rigidbody.transform.position = value;
+        }
     }
+
 
     public Body2D(Rigidbody2D rigidbody)
     {

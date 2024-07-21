@@ -1435,7 +1435,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1920545086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1455,7 +1455,7 @@ MonoBehaviour:
     <Speed>k__BackingField: 15
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
-    <MaxSlopeAngle>k__BackingField: 45
+    <MaxSlopeAngle>k__BackingField: 30
   Grounded: 0
   OnTooSteepSlope: 0
   BecomeGrounded: 0
@@ -1485,7 +1485,7 @@ Rigidbody2D:
     m_Bits: 0
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 1
+  m_CollisionDetection: 0
   m_Constraints: 4
 --- !u!58 &1920545088
 CircleCollider2D:
@@ -1747,7 +1747,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!50 &2111494987
 Rigidbody2D:
   serializedVersion: 4

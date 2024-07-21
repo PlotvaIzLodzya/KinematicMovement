@@ -2,7 +2,9 @@
 
 public interface ICollision
 {
+    void Depenetrate();
     bool TryGetHit(Vector3 pos, Vector3 dir, float dist, out HitInfo hit);
+    bool TryGetHit(out HitInfo hit);
     HitInfo GetHit(Vector3 pos, Vector3 dir, float dist);
     HitInfo GetHit(Vector3 position);
     HitInfo GetHit();
@@ -11,7 +13,7 @@ public interface ICollision
 
 public class SphereCollision3D : CollisionCompute3D<SphereCollider>
 {
-    public SphereCollision3D(SphereCollider collider, Transform transform, ILayerMaskProvider layerMaskProvider) : base(collider, transform, layerMaskProvider)
+    public SphereCollision3D(SphereCollider collider, Body3D body, ILayerMaskProvider layerMaskProvider) : base(collider, body, layerMaskProvider)
     {
     }
 
@@ -32,26 +34,26 @@ public class SphereCollision3D : CollisionCompute3D<SphereCollider>
 
 public class BoxCollision3D : CollisionCompute3D<BoxCollider>
 {
-    public BoxCollision3D(BoxCollider collider, Transform transform, ILayerMaskProvider layerMaskProvider) : base(collider, transform, layerMaskProvider)
+    public BoxCollision3D(BoxCollider collider, Body3D body, ILayerMaskProvider layerMaskProvider) : base(collider, body, layerMaskProvider)
     {
     }
 
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
-        Physics.BoxCast(pos, Collider.bounds.extents, dir, out RaycastHit raycastHit, Transform.localRotation, dist, CollisionMask);
+        Physics.BoxCast(pos, Collider.bounds.extents, dir, out RaycastHit raycastHit, Body.rotation, dist, CollisionMask);
         return raycastHit.ToHitInfo();
     }
 
     public override Collider[] Overlap(Vector3 pos)
     {
-        var colliders = Physics.OverlapBox(pos, Collider.bounds.extents, Transform.rotation, CollisionMask);
+        var colliders = Physics.OverlapBox(pos, Collider.bounds.extents, Body.rotation, CollisionMask);
         return colliders;
     }
 }
 
 public class CapsuleCollision3D : CollisionCompute3D<CapsuleCollider>
 {
-    public CapsuleCollision3D(CapsuleCollider collider, Transform transform, ILayerMaskProvider layerMaskProvider) : base(collider, transform, layerMaskProvider)
+    public CapsuleCollision3D(CapsuleCollider collider, Body3D body, ILayerMaskProvider layerMaskProvider) : base(collider, body, layerMaskProvider)
     {
     }
 
@@ -79,7 +81,7 @@ public class CapsuleCollision3D : CollisionCompute3D<CapsuleCollider>
 
 public class BoxCollision2D : CollisionCompute2D<BoxCollider2D>
 {
-    public BoxCollision2D(BoxCollider2D collider, Transform transform, ILayerMaskProvider layerMaskProvider) : base(collider, transform, layerMaskProvider)
+    public BoxCollision2D(BoxCollider2D collider, Body2D body, ILayerMaskProvider layerMaskProvider) : base(collider, body, layerMaskProvider)
     {
     }
 
@@ -91,7 +93,7 @@ public class BoxCollision2D : CollisionCompute2D<BoxCollider2D>
 
 public class CapsuleCollision2D : CollisionCompute2D<CapsuleCollider2D>
 {
-    public CapsuleCollision2D(CapsuleCollider2D collider, Transform transform, ILayerMaskProvider layerMaskProvider) : base(collider, transform, layerMaskProvider)
+    public CapsuleCollision2D(CapsuleCollider2D collider, Body2D body, ILayerMaskProvider layerMaskProvider) : base(collider, body, layerMaskProvider)
     {
     }
 
@@ -104,7 +106,7 @@ public class CapsuleCollision2D : CollisionCompute2D<CapsuleCollider2D>
 
 public class CircleCollision2D : CollisionCompute2D<CircleCollider2D>
 {
-    public CircleCollision2D(CircleCollider2D collider, Transform transform, ILayerMaskProvider layerMaskProvider) : base(collider, transform, layerMaskProvider)
+    public CircleCollision2D(CircleCollider2D collider, Body2D body, ILayerMaskProvider layerMaskProvider) : base(collider, body, layerMaskProvider)
     {
     }
 

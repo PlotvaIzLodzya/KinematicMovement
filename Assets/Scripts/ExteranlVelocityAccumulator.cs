@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public class ExteranlVelocityAccumalator
+public class ExteranlVelocityAccumulator
 {
     private List<IExteranlVelocity> _exteranls;
     public Vector3 TotalVelocity => GetTotalVelocity();
 
-    public ExteranlVelocityAccumalator()
+    public ExteranlVelocityAccumulator()
     {
         _exteranls = new();
     }

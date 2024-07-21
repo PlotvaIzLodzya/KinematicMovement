@@ -1,15 +1,17 @@
 ﻿using UnityEngine;
 
-public abstract class CollisionCompute : ICollision
+public abstract class CollisionCompute<T> : ICollision where T :IBody 
 {
-    protected Transform Transform;
+    private const int DepenetrationIteration = 10;
+
+    protected T Body;
     private ILayerMaskProvider _layerMaskProvider;
 
     public LayerMask CollisionMask => _layerMaskProvider.GroundMask;
 
-    public CollisionCompute(Transform transform, ILayerMaskProvider layerMaskProvider)
+    public CollisionCompute(T body, ILayerMaskProvider layerMaskProvider)
     {
-        Transform = transform;
+        Body = body;
         _layerMaskProvider = layerMaskProvider;
     }
 
@@ -18,7 +20,7 @@ public abstract class CollisionCompute : ICollision
     public Vector3 GetClosestPositionTo(HitInfo hitInfo)
     {
         var deltaPos = GetDeltaPositionToHit(hitInfo);
-        var targetPos = Transform.position - deltaPos;
+        var targetPos = Body.Position - deltaPos;
         return targetPos;
     }
 
@@ -31,17 +33,44 @@ public abstract class CollisionCompute : ICollision
 
     public virtual HitInfo GetHit(Vector3 position)
     {
-        return GetHit(Transform.position, Vector3.zero, MovementConfig.ContactOffset);
+        return GetHit(Body.Position, Vector3.zero, MovementConfig.ContactOffset);
     }
 
     public virtual HitInfo GetHit()
     {
-        return GetHit(Transform.position);
+        return GetHit(Body.Position);
     }
 
     public bool TryGetHit(Vector3 pos, Vector3 dir, float dist, out HitInfo hit)
     {
         hit = GetHit(pos, dir, dist);
+        return hit.HaveHit;
+    }
+
+    public void Depenetrate()
+    {
+        var iteration = 0;
+        if (TryGetHit(out HitInfo hit))
+        {
+            while (iteration <= DepenetrationIteration)
+            {
+                if (TryGetHit(out hit))
+                {
+                    Body.Position = GetClosestPositionTo(hit);
+                }
+                else 
+                { 
+                    break; 
+                }
+
+                iteration++;
+            }
+        }
+    }
+
+    public bool TryGetHit(out HitInfo hit)
+    {
+        hit = GetHit();
         return hit.HaveHit;
     }
 }

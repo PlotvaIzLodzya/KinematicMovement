@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class MovementConfig: ILayerMaskProvider
 {
-    public const float ContactOffset = 0.015f;
+    public const float ContactOffset = 0.01f;
     public const float GroundCheckDistance = ContactOffset * 1.1f;
 
     [field: SerializeField] public LayerMask GroundMask { get; private set; }
@@ -12,6 +12,10 @@ public class MovementConfig: ILayerMaskProvider
     [field: SerializeField] public float JumpHeight { get; private set; }
     [field: SerializeField] public float JumpTime { get; private set; }
     [field: SerializeField] public float MaxSlopeAngle { get; private set; }
+
+
+    public float VerticalAcceleration => JumpHeight / (JumpTime * JumpTime);
+    public float JumpSpeed => Mathf.Sqrt(2 * VerticalAcceleration * JumpHeight);
 
     public MovementConfig()
     {       
@@ -28,6 +32,11 @@ public class MovementConfig: ILayerMaskProvider
         JumpHeight = jumpHeight;
         JumpTime = jumpTime;
         MaxSlopeAngle = maxSlopeAngle;
+    }
+
+    public bool IsSlopeTooSteep(float angle)
+    {
+        return angle >= MaxSlopeAngle;
     }
 
 }

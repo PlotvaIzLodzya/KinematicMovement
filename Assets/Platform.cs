@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Android.Types;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public interface IExteranlVelocity
@@ -30,10 +26,9 @@ public class Platform : MonoBehaviour, IExteranlVelocity
 
     private void OnCollisionStay(Collision collision)
     {
-        Debug.Log("hi");
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.VelocityAccumalator.Add(this);
+            collider.VelocityAccumulator.Add(this);
         }
     }
 
@@ -41,7 +36,7 @@ public class Platform : MonoBehaviour, IExteranlVelocity
     {
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.VelocityAccumalator.Remove(this);
+            collider.VelocityAccumulator.Remove(this);
         }
     }
 
@@ -49,7 +44,7 @@ public class Platform : MonoBehaviour, IExteranlVelocity
     {
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.VelocityAccumalator.Add(this);
+            collider.VelocityAccumulator.Add(this);
         }
     }
 
@@ -57,8 +52,7 @@ public class Platform : MonoBehaviour, IExteranlVelocity
     {
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.VelocityAccumalator.Remove(this);
-            //collider.ReleaseFromPlatform();
+            collider.VelocityAccumulator.Remove(this);
         }
     }
 
@@ -73,6 +67,5 @@ public class Platform : MonoBehaviour, IExteranlVelocity
         var hor = Vector3.right * _xSpeed;
         Velocity = vert + hor;
         _rb.Position += Velocity * deltaTime;
-        transform.position += Velocity * deltaTime;
     }
 }
