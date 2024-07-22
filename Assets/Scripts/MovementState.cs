@@ -14,8 +14,6 @@ public interface IMovementState
     bool Ceiled { get; }
     bool BecomeCeiled { get; }
     Vector3 GroundNormal { get; }
-
-    bool Check(Vector3 velocity);
 }
 [Serializable]
 public class MovementState: IMovementState
@@ -44,20 +42,22 @@ public class MovementState: IMovementState
         _movementConfig = movementConfig;
     }
 
-    public void Update(Vector3 totalVelocity)
+    public void Update(Vector3 movementDirection)
     {
-        bool haveWallCollision = Check(totalVelocity);
-        bool velrGroundCheck = Check(totalVelocity.normalized + Vector3.down, _body.Position);
+        bool haveWallCollision = Check(movementDirection);
+        bool velrGroundCheck = Check(movementDirection + Vector3.down, _body.Position);
         bool downCheck = Check(Vector3.down, _body.Position);
         bool upCheck = Check(Vector3.up, _body.Position);
         var wasGrounded = _previousVelCheck || Grounded;
-        var wasCeiled = Ceiled;
         var wasOnTooSteepSlope = OnTooSteepSlope;
+
         CrashedIntoWall = haveWallCollision && HaveWallCollision == false;
         HaveWallCollision = haveWallCollision;
-        Grounded = downCheck;
+
+        BecomeCeiled = upCheck && Ceiled == false;
         Ceiled = upCheck;
-        BecomeCeiled = wasCeiled == false && Ceiled;
+
+        Grounded = downCheck;
         OnTooSteepSlope = IsOnTooSteepSlope();
         var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
         BecomeGrounded = Grounded && (wasGrounded == false || exitSteepSlope);
@@ -80,7 +80,7 @@ public class MovementState: IMovementState
 
     private bool Check(Vector3 dir, Vector3 currentPos)
     {
-        var hit = _collision.GetHit(currentPos, dir, MovementConfig.GroundCheckDistance);
+        var hit = _collision.GetHit(currentPos, dir, MovementConfig.CollisionCheckDistance);
         if (hit.HaveHit)
         {
             _groundHit = hit;

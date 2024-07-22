@@ -1,14 +1,16 @@
 ﻿using UnityEngine;
 
-public class Speed
+public class Velocity
 {
     private IMovementState _state;
     private MovementConfig MovementConfig;
     private Vector3 _currentSpeed;
+    private Vector3 _minVelocity;
 
-    public Speed(IMovementState state, MovementConfig movementConfig)
+    public Velocity(IMovementState state, MovementConfig movementConfig)
     {
         _state = state;
+        _minVelocity = Vector3.zero;    
         MovementConfig = movementConfig;
     }
 
@@ -25,7 +27,7 @@ public class Speed
         if (dir.sqrMagnitude > 0)
             _currentSpeed = Vector3.MoveTowards(_currentSpeed, maxVel, MovementConfig.Acceleration*deltaTime);
         else
-            _currentSpeed = Vector3.MoveTowards(_currentSpeed, Vector3.zero, MovementConfig.Decceleration*deltaTime);
+            _currentSpeed = Vector3.MoveTowards(_currentSpeed, _minVelocity, MovementConfig.Decceleration*deltaTime);
 
         return _currentSpeed;
     }

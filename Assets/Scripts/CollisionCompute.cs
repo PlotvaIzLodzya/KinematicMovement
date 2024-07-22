@@ -73,6 +73,6 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
 
     public bool CheckDirection(Vector3 direction)
     {
-        return TryGetHit(Body.Position, direction, MovementConfig.ContactOffset, out var hit);
+        return TryGetHit(Body.Position, direction, MovementConfig.CollisionCheckDistance, out var hit);
     }
 }
