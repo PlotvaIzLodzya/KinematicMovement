@@ -3,12 +3,12 @@
 public class SlideAlongSurface
 {
     private ICollision _collision;
-    private MovementConfig _movementConfig;
+    private IMovementState _movementState;
 
-    public SlideAlongSurface(ICollision collision, MovementConfig movementConfig)
+    public SlideAlongSurface(ICollision collision, IMovementState movementState)
     {
         _collision = collision;
-        _movementConfig = movementConfig;
+        _movementState = movementState;
     }
 
     public Vector3 SlideByMovement_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0)
@@ -74,7 +74,7 @@ public class SlideAlongSurface
 
         var hit = _collision.GetHit(currentPos, dir, dist);
         float angle = Vector3.Angle(Vector3.up, hit.Normal);
-        var tooSteep = _movementConfig.IsSlopeTooSteep(angle);
+        var tooSteep = _movementState.IsSlopeTooSteep(angle) && _movementState.Grounded;
 
         return (tooSteep, hit, dir);
     }

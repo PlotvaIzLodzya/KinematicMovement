@@ -24,8 +24,8 @@ public class Movement : MonoBehaviour
         _body = BodyBuilder.Create(gameObject);
         _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
         VelocityAccumulator = new();
-        _slide = new SlideAlongSurface(_collision, MovementConfig);
         State = new MovementState(_body, _collision, MovementConfig);
+        _slide = new SlideAlongSurface(_collision, State);
         _velocity = new Velocity(State, MovementConfig);
     }
 

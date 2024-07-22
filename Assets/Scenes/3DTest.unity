@@ -1405,13 +1405,11 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 64
     <Speed>k__BackingField: 15
+    <AccelerationTime>k__BackingField: 0.15
+    <DeccelerationTime>k__BackingField: 0.05
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
-  Grounded: 0
-  OnTooSteepSlope: 0
-  BecomeGrounded: 0
-  VerticalVelocity: 0
 --- !u!135 &1604950000
 SphereCollider:
   m_ObjectHideFlags: 0

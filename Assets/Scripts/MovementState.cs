@@ -14,6 +14,8 @@ public interface IMovementState
     bool Ceiled { get; }
     bool BecomeCeiled { get; }
     Vector3 GroundNormal { get; }
+
+    bool IsSlopeTooSteep(float angle);
 }
 [Serializable]
 public class MovementState: IMovementState
@@ -96,6 +98,11 @@ public class MovementState: IMovementState
             return false;
 
         var angle = GetGroundAngle();
+        return _movementConfig.IsSlopeTooSteep(angle);
+    }
+
+    public bool IsSlopeTooSteep(float angle)
+    {
         return _movementConfig.IsSlopeTooSteep(angle);
     }
 

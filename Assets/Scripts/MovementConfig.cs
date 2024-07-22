@@ -21,7 +21,7 @@ public class MovementConfig: ILayerMaskProvider
     public float JumpSpeed => Mathf.Sqrt(2 * VerticalAcceleration * JumpHeight);
 
     public MovementConfig()
-    {       
+    {
        Speed = 15f;
        JumpHeight = 2f;
        JumpTime = 0.2f;
