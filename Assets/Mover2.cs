@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+
 public class Mover2 : MonoBehaviour
 {
     public Vector3 Vel;

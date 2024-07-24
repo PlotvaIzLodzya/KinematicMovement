@@ -22,14 +22,13 @@ public class SphereCollision3D : CollisionCompute3D<SphereCollider>
     {
         Physics.SphereCast(pos, Collider.radius, dir, out RaycastHit hit, dist, CollisionMask);
 
-        var hitInfo = hit.ToHitInfo();
-
-        return hitInfo;
+        return hit.ToHitInfo();
     }
     public override Collider[] Overlap(Vector3 pos)
     {
-        var colliders = Physics.OverlapSphere(pos, Collider.radius, CollisionMask);
-        return colliders;
+        Physics.OverlapSphereNonAlloc(pos, Collider.radius, Colliders, CollisionMask);
+
+        return Colliders;
     }
 }
 
@@ -42,13 +41,15 @@ public class BoxCollision3D : CollisionCompute3D<BoxCollider>
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
         Physics.BoxCast(pos, Collider.bounds.extents, dir, out RaycastHit raycastHit, Body.Rotation, dist, CollisionMask);
+
         return raycastHit.ToHitInfo();
     }
 
     public override Collider[] Overlap(Vector3 pos)
     {
-        var colliders = Physics.OverlapBox(pos, Collider.bounds.extents, Body.Rotation, CollisionMask);
-        return colliders;
+        Physics.OverlapBoxNonAlloc(pos, Collider.bounds.extents, Colliders, Body.Rotation, CollisionMask);
+
+        return Colliders;
     }
 }
 
@@ -62,20 +63,23 @@ public class CapsuleCollision3D : CollisionCompute3D<CapsuleCollider>
     {
         (var p1, var p2) = GetCapsulePoints(pos);
         Physics.CapsuleCast(p1, p2, Collider.radius, dir, out RaycastHit raycastHit, dist, CollisionMask);
+
         return raycastHit.ToHitInfo();
     }
 
     public override Collider[] Overlap(Vector3 pos)
     {
         (var p1, var p2) = GetCapsulePoints(pos);
-        var colliders = Physics.OverlapCapsule(p1, p2, Collider.radius, CollisionMask);
-        return colliders;
+        Physics.OverlapCapsuleNonAlloc(p1, p2, Collider.radius, Colliders, CollisionMask);
+
+        return Colliders;
     }
 
     private (Vector3 point1, Vector3 point2) GetCapsulePoints(Vector3 pos)
     {
         var p1 = pos + Collider.center + Vector3.up * -Collider.height * 0.5f;
         var p2 = p1 + Vector3.up * Collider.height;
+
         return (p1, p2);
     }
 }
@@ -101,6 +105,7 @@ public class CapsuleCollision2D : CollisionCompute2D<CapsuleCollider2D>
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
         var raycastHit = Physics2D.CapsuleCast(pos, Collider.size, Collider.direction, 0, dir, dist, CollisionMask);
+
         return raycastHit.ToHitInfo(Collider);
     }
 }

@@ -12,11 +12,6 @@ public class Movement : MonoBehaviour
     private Velocity _velocity;
     private SlideAlongSurface _slide;
 
-    public Quaternion Quaternion;
-    public Vector3 Axis;
-    public Vector3 Point;
-    public float Angle;
-
     public Vector3 Velocity { get; private set; }
     public MovementState State { get; private set; }
     public ExteranlVelocityAccumulator ExteranalMovementAccumulator { get; private set; }

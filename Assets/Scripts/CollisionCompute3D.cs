@@ -2,10 +2,14 @@
 
 public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T : Collider
 {
+    public const int MaxCollisionCount = 32;
+
+    protected Collider[] Colliders;
     protected T Collider;
 
     protected CollisionCompute3D(T collider, Body3D body, ILayerMaskProvider layerMaskProvider) : base(body, layerMaskProvider)
     {
+        Colliders = new Collider[MaxCollisionCount];
         Collider = collider;
     }
 
@@ -25,6 +29,9 @@ public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T :
         HitInfo hitInfo = new HitInfo();
         foreach (var collider in colliders)
         {
+            if(collider == null) 
+                continue;
+
             Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, position, Body.Rotation, out Vector3 dir, out float distance);
             var dist = distance;
             if (dist > closestDistance)
