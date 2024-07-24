@@ -43,5 +43,4 @@ public class MovementConfig: ILayerMaskProvider
     {
         return angle >= MaxSlopeAngle;
     }
-
 }

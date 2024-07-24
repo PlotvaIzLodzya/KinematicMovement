@@ -3,6 +3,11 @@
 public static class Extensions
 {
 
+    public static Vector3 RotatePointAroundPivot(this Vector3 point, Vector3 pivot, Quaternion angle)
+    {
+        return angle * (point - pivot) + pivot;
+    }
+
     public static HitInfo ToHitInfo(this RaycastHit2D hit, Collider2D selfCollider)
     {
         var dist = hit.distance;

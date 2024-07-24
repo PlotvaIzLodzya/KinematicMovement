@@ -25,7 +25,7 @@ public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T :
         HitInfo hitInfo = new HitInfo();
         foreach (var collider in colliders)
         {
-            Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, position, Body.rotation, out Vector3 dir, out float distance);
+            Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, position, Body.Rotation, out Vector3 dir, out float distance);
             var dist = distance;
             if (dist > closestDistance)
             {

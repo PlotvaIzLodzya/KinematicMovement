@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 
 public class Movement : MonoBehaviour
@@ -11,9 +12,14 @@ public class Movement : MonoBehaviour
     private Velocity _velocity;
     private SlideAlongSurface _slide;
 
+    public Quaternion Quaternion;
+    public Vector3 Axis;
+    public Vector3 Point;
+    public float Angle;
+
     public Vector3 Velocity { get; private set; }
     public MovementState State { get; private set; }
-    public ExteranlVelocityAccumulator VelocityAccumulator { get; private set; }
+    public ExteranlVelocityAccumulator ExteranalMovementAccumulator { get; private set; }
 
     private void Awake()
     {
@@ -23,7 +29,7 @@ public class Movement : MonoBehaviour
 
         _body = BodyBuilder.Create(gameObject);
         _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
-        VelocityAccumulator = new();
+        ExteranalMovementAccumulator = new();
         State = new MovementState(_body, _collision, MovementConfig);
         _slide = new SlideAlongSurface(_collision, State);
         _velocity = new Velocity(State, MovementConfig);
@@ -64,8 +70,7 @@ public class Movement : MonoBehaviour
 
     private void Move(float deltaTime)
     {
-        var pos = _body.Position + VelocityAccumulator.TotalVelocity * deltaTime;
-        _body.Position = pos;
+        _body.Position = HandleExternalMovement(_body.Position);
         _collision.Depenetrate();
         _verticalVelocity = _velocity.CalculateVerticalSpeed(_verticalVelocity, deltaTime);
 
@@ -73,8 +78,18 @@ public class Movement : MonoBehaviour
         Velocity = velocity / deltaTime;
         var nextPos = _body.Position + velocity;
         _body.Position = nextPos;
-        
+
         State.Update(_direction);
+    }
+
+    private Vector3 HandleExternalMovement(Vector3 position)
+    {
+        if (State.IsOnTooSteepSlope() == false && State.Grounded)
+            position = ExteranalMovementAccumulator.GetPositionByRotation(position);
+
+        position += ExteranalMovementAccumulator.TotalVelocity;
+
+        return position;
     }
 
     private Vector3 CalculateVelocity(Vector3 pos, float deltaTime)

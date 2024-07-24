@@ -2,14 +2,27 @@
 
 public interface IBody
 {
+    Quaternion Rotation { get; set; }
+    Quaternion LocalRotation { get; set; }
     Vector3 Position { get; set; }
-    void MovePosition(Vector3 position);
 }
 
 public class Body3D : IBody
 {
     private Rigidbody _rigidbody;
-    public Quaternion rotation =>_rigidbody.rotation;
+
+    public Quaternion Rotation
+    {
+        get => _rigidbody.transform.rotation;
+        set => _rigidbody.transform.rotation = value;
+    }
+
+    public Quaternion LocalRotation
+    {
+        get => _rigidbody.transform.localRotation;
+        set => _rigidbody.transform.localRotation = value;
+    }
+
     public Vector3 Position
     {
         get { return _rigidbody.position; }
@@ -34,7 +47,20 @@ public class Body2D: IBody
 {
     private Rigidbody2D _rigidbody;
 
-    public float Rotation => _rigidbody.rotation;
+    public float Angle => _rigidbody.rotation;
+
+    public Quaternion Rotation 
+    {
+        get => _rigidbody.transform.rotation; 
+        set => _rigidbody.transform.rotation = value; 
+    }
+
+    public Quaternion LocalRotation
+    {
+        get => _rigidbody.transform.localRotation;
+        set => _rigidbody.transform.localRotation = value;
+    }
+
 
     public Vector3 Position
     {

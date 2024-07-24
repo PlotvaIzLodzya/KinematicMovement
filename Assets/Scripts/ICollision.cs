@@ -41,13 +41,13 @@ public class BoxCollision3D : CollisionCompute3D<BoxCollider>
 
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
-        Physics.BoxCast(pos, Collider.bounds.extents, dir, out RaycastHit raycastHit, Body.rotation, dist, CollisionMask);
+        Physics.BoxCast(pos, Collider.bounds.extents, dir, out RaycastHit raycastHit, Body.Rotation, dist, CollisionMask);
         return raycastHit.ToHitInfo();
     }
 
     public override Collider[] Overlap(Vector3 pos)
     {
-        var colliders = Physics.OverlapBox(pos, Collider.bounds.extents, Body.rotation, CollisionMask);
+        var colliders = Physics.OverlapBox(pos, Collider.bounds.extents, Body.Rotation, CollisionMask);
         return colliders;
     }
 }
@@ -88,7 +88,7 @@ public class BoxCollision2D : CollisionCompute2D<BoxCollider2D>
 
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
-        return Physics2D.BoxCast(pos, Collider.size, Body.Rotation, dir, dist, CollisionMask).ToHitInfo(Collider);
+        return Physics2D.BoxCast(pos, Collider.size, Body.Angle, dir, dist, CollisionMask).ToHitInfo(Collider);
     }
 }
 

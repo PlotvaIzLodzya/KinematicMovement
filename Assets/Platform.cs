@@ -1,17 +1,21 @@
+using System.Drawing;
 using UnityEngine;
 
-public interface IExteranlVelocity
+public interface IExteranlMovemnt
 {
+    Vector3 Position { get; }
     Vector3 Velocity { get; }
+    Quaternion RotationVelocity { get; }
 }
 
-public class Platform : MonoBehaviour, IExteranlVelocity
+public class Platform : MonoBehaviour, IExteranlMovemnt
 {
-    [SerializeField] private float _ySpeed;
-    [SerializeField] private float _xSpeed;
-    [SerializeField] private float _rotationSpeed;
-
+    private Vector3 _prevPosition;
+    private Quaternion _prevRotation;
     private IBody _rb;
+
+    public Vector3 Position => _rb.Position;
+    public Quaternion RotationVelocity { get; private set; }
     public Vector3 Velocity { get; private set; }
 
     private void Awake()
@@ -21,22 +25,22 @@ public class Platform : MonoBehaviour, IExteranlVelocity
 
     private void FixedUpdate()
     {
-        Move(Time.fixedDeltaTime);
+        UpdateBody(Time.fixedDeltaTime);
     }
 
     private void OnCollisionStay(Collision collision)
     {
-        if (collision.collider.TryGetComponent(out Movement collider))
+        if (collision.collider.TryGetComponent(out Movement movement))
         {
-            collider.VelocityAccumulator.Add(this);
+            movement.ExteranalMovementAccumulator.Add(this);
         }
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        if (collision.collider.TryGetComponent(out Movement collider))
+        if (collision.collider.TryGetComponent(out Movement movement))
         {
-            collider.VelocityAccumulator.Remove(this);
+            movement.ExteranalMovementAccumulator.Remove(this);
         }
     }
 
@@ -44,7 +48,7 @@ public class Platform : MonoBehaviour, IExteranlVelocity
     {
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.VelocityAccumulator.Add(this);
+            collider.ExteranalMovementAccumulator.Add(this);
         }
     }
 
@@ -52,20 +56,22 @@ public class Platform : MonoBehaviour, IExteranlVelocity
     {
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.VelocityAccumulator.Remove(this);
+            collider.ExteranalMovementAccumulator.Remove(this);
         }
     }
 
-    private void OnStay()
+    public virtual void UpdateBody(IBody body, float deltaTime)
     {
-
+        body.Position = transform.position;
+        body.Rotation = transform.rotation;
     }
 
-    public void Move(float deltaTime)
+    private void UpdateBody(float deltaTime)
     {
-        var vert = Vector3.down * _ySpeed;
-        var hor = Vector3.right * _xSpeed;
-        Velocity = vert + hor;
-        _rb.Position += Velocity * deltaTime;
+        UpdateBody(_rb, deltaTime);
+        Velocity = _rb.Position - _prevPosition;
+        RotationVelocity = _rb.Rotation * Quaternion.Inverse(_prevRotation);
+        _prevRotation = _rb.Rotation;
+        _prevPosition = _rb.Position;
     }
 }

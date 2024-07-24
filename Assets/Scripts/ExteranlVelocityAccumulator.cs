@@ -1,41 +1,66 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class ExteranlVelocityAccumulator
 {
-    private List<IExteranlVelocity> _exteranls;
+    private List<IExteranlMovemnt> _movements;
+
+    private IExteranlMovemnt _rotation;
     public Vector3 TotalVelocity => GetTotalVelocity();
+
+    private bool _haveRotation;
 
     public ExteranlVelocityAccumulator()
     {
-        _exteranls = new();
+        _movements = new();
     }
 
-    public void Add(IExteranlVelocity v)
+    public void Add(IExteranlMovemnt m)
     {
-        if(_exteranls.Contains(v) == false)
+        if(_rotation == null)
         {
-            _exteranls.Add(v);
+            _haveRotation = true;
+            _rotation = m;
+        }
+
+        if(_movements.Contains(m) == false)
+        {
+            _movements.Add(m);
         }
     }
 
-    public void Remove(IExteranlVelocity v)
+    public void Remove(IExteranlMovemnt m)
     {
-        if (_exteranls.Contains(v))
+        if(_rotation == m)
         {
-            _exteranls.Remove(v);
+            _haveRotation =false;
+            _rotation = null;
+        }
+
+        if (_movements.Contains(m))
+        {            
+            _movements.Remove(m);
         }
     }
 
-    private Vector2 GetTotalVelocity()
+    public Vector3 GetPositionByRotation(Vector3 currentPos)
+    {
+        if(_haveRotation == false)
+            return currentPos;
+
+        return currentPos.RotatePointAroundPivot(_rotation.Position, _rotation.RotationVelocity);
+    }
+
+    private Vector3 GetTotalVelocity()
     {
         var velocity = Vector3.zero;
 
-        foreach (var ext in _exteranls)
+        foreach (var ext in _movements)
         {
             velocity += ext.Velocity;
         }
-
+         
         return velocity;
     }
 }
