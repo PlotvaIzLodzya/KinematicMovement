@@ -1,7 +1,21 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public static class Extensions
 {
+    public static Vector3 RoundFloat(this Vector3 value, int digits = 5)
+    {
+        value.x = (float)Math.Round(value.x, digits);
+        value.y = (float)Math.Round(value.y, digits);
+        value.z = (float)Math.Round(value.z, digits);
+
+        return value;
+    }
+
+    public static float GetMax(this Vector3 vector)
+    {
+        return Mathf.Max(vector.x, vector.y, vector.z);
+    }
 
     public static Vector3 RotatePointAroundPivot(this Vector3 point, Vector3 pivot, Quaternion angle)
     {

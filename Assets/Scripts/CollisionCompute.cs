@@ -2,7 +2,7 @@
 
 public abstract class CollisionCompute<T> : ICollision where T :IBody 
 {
-    private const int DepenetrationIteration = 10;
+    private const int DepenetrationIteration = 1;
 
     protected T Body;
     private ILayerMaskProvider _layerMaskProvider;
@@ -21,6 +21,7 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
     {
         var deltaPos = GetDeltaPositionToHit(hitInfo);
         var targetPos = Body.Position - deltaPos;
+
         return targetPos;
     }
 
@@ -28,6 +29,7 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
     {
         var hitDist = hit.ColliderDistance;
         var deltaPos = hit.Normal * hitDist;
+            
         return deltaPos;
     }
 
@@ -68,6 +70,7 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
     public bool TryGetHit(out HitInfo hit)
     {
         hit = GetHit();
+
         return hit.HaveHit;
     }
 

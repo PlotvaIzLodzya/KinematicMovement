@@ -1,10 +1,14 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public interface IBody
 {
     Quaternion Rotation { get; set; }
     Quaternion LocalRotation { get; set; }
+    Vector3 Scale { get; set; }
     Vector3 Position { get; set; }
+
+    void MovePosition(Vector3 position);
 }
 
 public class Body3D : IBody
@@ -26,10 +30,18 @@ public class Body3D : IBody
     public Vector3 Position
     {
         get { return _rigidbody.position; }
-        set {
-            _rigidbody.position = value;
-            _rigidbody.transform.position = value;
-            }
+        set 
+        {
+            var rounded = value.RoundFloat();
+            _rigidbody.position = rounded;
+            _rigidbody.transform.position = rounded;
+        }
+    }
+
+    public Vector3 Scale 
+    {
+        get { return _rigidbody.transform.localScale; }
+        set { _rigidbody.transform.localScale = value; }
     }
 
     public Body3D(Rigidbody rigidbody)
@@ -61,12 +73,18 @@ public class Body2D: IBody
         set => _rigidbody.transform.localRotation = value;
     }
 
+    public Vector3 Scale
+    {
+        get { return _rigidbody.transform.localScale; }
+        set { _rigidbody.transform.localScale = value; }
+    }
 
     public Vector3 Position
     {
         get { return _rigidbody.position; }
         set
         {
+            //MovePosition(value);
             _rigidbody.position = value;
             _rigidbody.transform.position = value;
         }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T : Collider
 {
@@ -19,6 +20,7 @@ public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T :
     {
         var colliders = Overlap(pos);
         var hitInfo = GetClosestHitPosition(colliders, pos);
+
         return hitInfo;
     }
 
@@ -27,6 +29,7 @@ public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T :
         var closestDistance = float.MinValue;
 
         HitInfo hitInfo = new HitInfo();
+
         foreach (var collider in colliders)
         {
             if(collider == null) 
@@ -37,7 +40,7 @@ public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T :
             if (dist > closestDistance)
             {
                 closestDistance = dist + MovementConfig.ContactOffset;
-                var closestPosition = position - dir * closestDistance;
+                var closestPosition = position - dir.normalized * closestDistance;
                 hitInfo = new HitInfo(closestPosition, dir, distance, closestDistance, true, collider.transform);
             }
         }
