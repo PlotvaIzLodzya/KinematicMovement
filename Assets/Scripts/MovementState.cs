@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Net.NetworkInformation;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
 public interface IMovementState
-{
+{    
     bool HaveWallCollision { get; }
     bool CrashedIntoWall { get; }
     bool IsJumping { get; }
@@ -17,15 +19,31 @@ public interface IMovementState
 
     bool IsSlopeTooSteep(float angle);
 }
+
+public interface IExteranlMovementState
+{
+    bool IsEnteredPlatform { get; }
+    bool IsOnPlatform { get; }
+    bool IsLeftPlatform { get;}
+
+    public bool TrySetOnPlatform(IPlatform platform);
+    public void LeavePlatform(IPlatform platform);
+}
+
 [Serializable]
-public class MovementState: IMovementState
+public class MovementState: IMovementState, IExteranlMovementState
 {
     private bool _previousVelCheck;
     private HitInfo _groundHit;
     private IBody _body;
     private ICollision _collision;
     private MovementConfig _movementConfig;
+    private bool _forceAnyPlatform;
 
+    public bool CanAccumulatePlafromVelocity { get; private set; }
+    public bool IsOnPlatform { get; private set; }
+    public bool IsEnteredPlatform { get; private set; }
+    public bool IsLeftPlatform { get; private set; }
     public bool HaveWallCollision { get; private set; }
     public bool CrashedIntoWall { get; private set; }
     public bool IsJumping { get; private set; }
@@ -39,6 +57,7 @@ public class MovementState: IMovementState
 
     public MovementState(IBody body, ICollision collision, MovementConfig movementConfig)
     {
+        _forceAnyPlatform = false;
         _body = body;
         _collision = collision;
         _movementConfig = movementConfig;
@@ -78,6 +97,27 @@ public class MovementState: IMovementState
     public bool Check(Vector3 velocity)
     {
         return _collision.CheckDirection(velocity);
+    }
+
+    public bool TrySetOnPlatform(IPlatform platform)
+    {
+        if (IsOnPlatform)
+            return false;
+
+        if(CanSetOnPlatform(platform))
+            IsOnPlatform = true;
+
+        return IsOnPlatform;
+    }
+
+    public void LeavePlatform(IPlatform platform)
+    {
+        IsOnPlatform = false;
+    }
+
+    private bool CanSetOnPlatform( IPlatform platform)
+    {
+        return _forceAnyPlatform || (platform.CollisionPoint.y - _groundHit.Point.y) <= MovementConfig.ContactOffset;
     }
 
     private bool Check(Vector3 dir, Vector3 currentPos)

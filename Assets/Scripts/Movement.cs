@@ -24,8 +24,8 @@ public class Movement : MonoBehaviour
 
         _body = BodyBuilder.Create(gameObject);
         _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
-        ExteranalMovementAccumulator = new();
         State = new MovementState(_body, _collision, MovementConfig);
+        ExteranalMovementAccumulator = new (State);
         _slide = new SlideAlongSurface(_collision, State);
         _velocity = new Velocity(State, MovementConfig);
     }
@@ -47,7 +47,7 @@ public class Movement : MonoBehaviour
             _direction += Vector3.forward;
 
         if (Input.GetKeyDown(KeyCode.Space))
-            Jump();
+            Jump(MovementConfig.JumpSpeed);
 
         _direction = _direction.normalized;
     }
@@ -57,9 +57,9 @@ public class Movement : MonoBehaviour
         Move(Time.fixedDeltaTime);
     }
 
-    public void Jump()
+    public void Jump(float speed)
     {
-        _verticalVelocity = MovementConfig.JumpSpeed;
+        _verticalVelocity = speed;
         State.SetJumping();
     }
 

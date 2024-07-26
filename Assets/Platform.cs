@@ -8,15 +8,21 @@ public interface IExteranlMovemnt
     Quaternion RotationVelocity { get; }
 }
 
-public class Platform : MonoBehaviour, IExteranlMovemnt
+public interface IPlatform: IExteranlMovemnt
+{
+    Vector3 CollisionPoint { get; }
+}
+
+public class Platform : MonoBehaviour, IPlatform
 {
     private Vector3 _prevPosition;
     private Quaternion _prevRotation;
     private IBody _rb;
 
     public Vector3 Position => _rb.Position;
-    public Quaternion RotationVelocity { get; private set; }
     public Vector3 Velocity { get; private set; }
+    public Vector3 CollisionPoint { get; private set; }
+    public Quaternion RotationVelocity { get; private set; }
 
     private void Awake()
     {
@@ -28,11 +34,12 @@ public class Platform : MonoBehaviour, IExteranlMovemnt
         UpdateBody(Time.fixedDeltaTime);
     }
 
-    private void OnCollisionStay(Collision collision)
+    private void OnCollisionEnter(Collision collision)
     {
         if (collision.collider.TryGetComponent(out Movement movement))
         {
-            movement.ExteranalMovementAccumulator.Add(this);
+            CollisionPoint = collision.GetContact(0).point;
+            movement.ExteranalMovementAccumulator.TryAdd(this);
         }
     }
 
@@ -40,15 +47,17 @@ public class Platform : MonoBehaviour, IExteranlMovemnt
     {
         if (collision.collider.TryGetComponent(out Movement movement))
         {
-            movement.ExteranalMovementAccumulator.Remove(this);
+            CollisionPoint = Vector3.zero;
+            movement.ExteranalMovementAccumulator.TryRemove(this);
         }
     }
 
-    private void OnCollisionStay2D(Collision2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.ExteranalMovementAccumulator.Add(this);
+            CollisionPoint = collision.GetContact(0).point;
+            collider.ExteranalMovementAccumulator.TryAdd(this);
         }
     }
 
@@ -56,7 +65,8 @@ public class Platform : MonoBehaviour, IExteranlMovemnt
     {
         if (collision.collider.TryGetComponent(out Movement collider))
         {
-            collider.ExteranalMovementAccumulator.Remove(this);
+            CollisionPoint = Vector3.zero;
+            collider.ExteranalMovementAccumulator.TryRemove(this);
         }
     }
 

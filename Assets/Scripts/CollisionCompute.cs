@@ -2,7 +2,7 @@
 
 public abstract class CollisionCompute<T> : ICollision where T :IBody 
 {
-    private const int DepenetrationIteration = 1;
+    private const int DepenetrationIteration = 10;
 
     protected T Body;
     private ILayerMaskProvider _layerMaskProvider;

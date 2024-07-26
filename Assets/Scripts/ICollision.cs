@@ -23,23 +23,16 @@ public class SphereCollision3D : CollisionCompute3D<SphereCollider>
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
         Array.Clear(Colliders, 0, Colliders.Length);
-        float scaled = Collider.radius * GetScale();
-        Physics.SphereCast(pos, scaled, dir, out RaycastHit hit, dist, CollisionMask);
+        Physics.SphereCast(pos, Collider.radius, dir, out RaycastHit hit, dist, CollisionMask);
 
         return hit.ToHitInfo();
     }
     public override Collider[] Overlap(Vector3 pos)
     {
         Array.Clear(Colliders, 0, Colliders.Length);
-        float scaled = Collider.radius * GetScale();
-        Physics.OverlapSphereNonAlloc(pos, scaled, Colliders, CollisionMask);
+        Physics.OverlapSphereNonAlloc(pos, Collider.radius, Colliders, CollisionMask);
 
         return Colliders;
-    }
-
-    public float GetScale()
-    {
-        return Body.Scale.GetMax();
     }
 }
 

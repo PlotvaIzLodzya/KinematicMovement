@@ -1,47 +1,58 @@
 ﻿using System.Collections.Generic;
+using UnityEditor.Build;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 public class ExteranlVelocityAccumulator
 {
     private List<IExteranlMovemnt> _movements;
 
-    private IExteranlMovemnt _rotation;
+    private IPlatform _platform;
+    private IExteranlMovementState _state;
     public Vector3 TotalVelocity => GetTotalVelocity();
 
-    private bool _haveRotation;
+    private bool _haveRotation => _platform != null;
 
-    public ExteranlVelocityAccumulator()
+    public ExteranlVelocityAccumulator(IExteranlMovementState state)
     {
         _movements = new();
+        _state = state;
     }
 
-    public void Add(IExteranlMovemnt m)
+    public bool TryAdd(IExteranlMovemnt m)
     {
-        if(_rotation == null)
+        var added = false;
+        if (m is IPlatform platform && _state.TrySetOnPlatform(platform))
         {
-            _haveRotation = true;
-            _rotation = m;
+            _platform = platform;
+            added = true;
         }
 
         if(_movements.Contains(m) == false)
         {
             _movements.Add(m);
+            added = true;
         }
+
+        return added;
     }
 
-    public void Remove(IExteranlMovemnt m)
+    public bool TryRemove(IExteranlMovemnt m)
     {
-        if(_rotation == m)
+        bool removed = false;
+        if(_platform != null && m == _platform)
         {
-            _haveRotation =false;
-            _rotation = null;
+            _platform = null;
+            _state.LeavePlatform(m as IPlatform);
+            removed = true;
         }
 
         if (_movements.Contains(m))
         {            
             _movements.Remove(m);
+            removed = true;
         }
+
+        return removed;
     }
 
     public Vector3 GetPositionByRotation(Vector3 currentPos)
@@ -49,7 +60,7 @@ public class ExteranlVelocityAccumulator
         if(_haveRotation == false)
             return currentPos;
 
-        return currentPos.RotatePointAroundPivot(_rotation.Position, _rotation.RotationVelocity);
+        return currentPos.RotatePointAroundPivot(_platform.Position, _platform.RotationVelocity);
     }
 
     private Vector3 GetTotalVelocity()
