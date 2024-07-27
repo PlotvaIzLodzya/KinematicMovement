@@ -17,6 +17,7 @@ public interface IMovementState
     bool BecomeCeiled { get; }
     Vector3 GroundNormal { get; }
 
+    bool Check(Vector3 velocity);
     bool IsSlopeTooSteep(float angle);
 }
 
@@ -38,7 +39,7 @@ public class MovementState: IMovementState, IExteranlMovementState
     private IBody _body;
     private ICollision _collision;
     private MovementConfig _movementConfig;
-    private bool _forceAnyPlatform;
+    private bool _stickFromAnySide;
 
     public bool CanAccumulatePlafromVelocity { get; private set; }
     public bool IsOnPlatform { get; private set; }
@@ -57,7 +58,7 @@ public class MovementState: IMovementState, IExteranlMovementState
 
     public MovementState(IBody body, ICollision collision, MovementConfig movementConfig)
     {
-        _forceAnyPlatform = false;
+        _stickFromAnySide = false;
         _body = body;
         _collision = collision;
         _movementConfig = movementConfig;
@@ -115,9 +116,9 @@ public class MovementState: IMovementState, IExteranlMovementState
         IsOnPlatform = false;
     }
 
-    private bool CanSetOnPlatform( IPlatform platform)
+    public bool CanSetOnPlatform( IPlatform platform)
     {
-        return _forceAnyPlatform || (platform.CollisionPoint.y - _groundHit.Point.y) <= MovementConfig.ContactOffset;
+        return _stickFromAnySide || (platform.CollisionPoint.y - _groundHit.Point.y) <= MovementConfig.CollisionCheckDistance;
     }
 
     private bool Check(Vector3 dir, Vector3 currentPos)

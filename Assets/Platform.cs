@@ -34,12 +34,15 @@ public class Platform : MonoBehaviour, IPlatform
         UpdateBody(Time.fixedDeltaTime);
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionStay(Collision collision)
     {
         if (collision.collider.TryGetComponent(out Movement movement))
         {
             CollisionPoint = collision.GetContact(0).point;
-            movement.ExteranalMovementAccumulator.TryAdd(this);
+            if (movement.State.CanSetOnPlatform(this))
+                movement.ExteranalMovementAccumulator.TryAdd(this);
+            else
+                movement.ExteranalMovementAccumulator.TryRemove(this);
         }
     }
 
@@ -52,21 +55,24 @@ public class Platform : MonoBehaviour, IPlatform
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnCollisionStay2D(Collision2D collision)
     {
-        if (collision.collider.TryGetComponent(out Movement collider))
+        if (collision.collider.TryGetComponent(out Movement movement))
         {
             CollisionPoint = collision.GetContact(0).point;
-            collider.ExteranalMovementAccumulator.TryAdd(this);
+            if (movement.State.CanSetOnPlatform(this))
+                movement.ExteranalMovementAccumulator.TryAdd(this);
+            else
+                movement.ExteranalMovementAccumulator.TryRemove(this);
         }
     }
 
     private void OnCollisionExit2D(Collision2D collision)
     {
-        if (collision.collider.TryGetComponent(out Movement collider))
+        if (collision.collider.TryGetComponent(out Movement movement))
         {
             CollisionPoint = Vector3.zero;
-            collider.ExteranalMovementAccumulator.TryRemove(this);
+            movement.ExteranalMovementAccumulator.TryRemove(this);
         }
     }
 

@@ -83,7 +83,6 @@ public class Movement : MonoBehaviour
             position = ExteranalMovementAccumulator.GetPositionByRotation(position);
 
         position += ExteranalMovementAccumulator.TotalVelocity;
-
         return position;
     }
 
@@ -92,7 +91,8 @@ public class Movement : MonoBehaviour
         var totalVelocity = CalculateHorizontalVelocity(pos, deltaTime);
         var nextPosAlongSurface = pos + totalVelocity;
         totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
-
+        if (totalVelocity.magnitude > 0)
+            totalVelocity = totalVelocity.ClampMagnitude(MovementConfig.MinDistanceTravel);
         return totalVelocity;
     }
 

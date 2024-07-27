@@ -24,6 +24,9 @@ public class Velocity
             return Vector3.zero;
         }
 
+        //if (_state.Check(dir))
+        //    return dir*5* deltaTime;
+
         if (dir.sqrMagnitude > 0)
             _currentSpeed = Vector3.MoveTowards(_currentSpeed, maxVel, MovementConfig.Acceleration*deltaTime);
         else

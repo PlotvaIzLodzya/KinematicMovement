@@ -32,9 +32,8 @@ public class Body3D : IBody
         get { return _rigidbody.position; }
         set 
         {
-            var rounded = value.RoundFloat();
-            _rigidbody.position = rounded;
-            _rigidbody.transform.position = rounded;
+            _rigidbody.position = value;
+            _rigidbody.transform.position = value;
         }
     }
 
@@ -84,7 +83,6 @@ public class Body2D: IBody
         get { return _rigidbody.position; }
         set
         {
-            //MovePosition(value);
             _rigidbody.position = value;
             _rigidbody.transform.position = value;
         }

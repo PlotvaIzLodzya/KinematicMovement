@@ -4,8 +4,9 @@ using UnityEngine;
 [Serializable]
 public class MovementConfig: ILayerMaskProvider
 {
-    public const float ContactOffset = 0.005f;
-    public const float CollisionCheckDistance = ContactOffset * 1.1f;
+    public const float ContactOffset = 0.015f;
+    public const float CollisionCheckDistance = ContactOffset * 1.2f;
+    public const float MinDistanceTravel = 0.0001f;
 
     [field: SerializeField] public LayerMask GroundMask { get; private set; }
     [field: SerializeField] public float Speed { get; private set; }

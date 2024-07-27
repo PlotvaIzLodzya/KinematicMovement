@@ -20,20 +20,20 @@ public class ExteranlVelocityAccumulator
 
     public bool TryAdd(IExteranlMovemnt m)
     {
-        var added = false;
-        if (m is IPlatform platform && _state.TrySetOnPlatform(platform))
+        if (m is IPlatform platform)
         {
-            _platform = platform;
-            added = true;
+            if (_state.TrySetOnPlatform(platform))
+            {
+                _platform = platform;
+                return _movements.TryAdd(m);
+            }
+            else
+            {
+                return false;
+            }
         }
 
-        if(_movements.Contains(m) == false)
-        {
-            _movements.Add(m);
-            added = true;
-        }
-
-        return added;
+        return _movements.TryAdd(m);
     }
 
     public bool TryRemove(IExteranlMovemnt m)
@@ -45,7 +45,6 @@ public class ExteranlVelocityAccumulator
             _state.LeavePlatform(m as IPlatform);
             removed = true;
         }
-
         if (_movements.Contains(m))
         {            
             _movements.Remove(m);
@@ -53,14 +52,14 @@ public class ExteranlVelocityAccumulator
         }
 
         return removed;
-    }
+    }    
 
     public Vector3 GetPositionByRotation(Vector3 currentPos)
     {
         if(_haveRotation == false)
             return currentPos;
 
-        return currentPos.RotatePointAroundPivot(_platform.Position, _platform.RotationVelocity);
+        return currentPos.RotateAroundPivot(_platform.Position, _platform.RotationVelocity);
     }
 
     private Vector3 GetTotalVelocity()
