@@ -2,17 +2,6 @@
 using Unity.VisualScripting;
 using UnityEngine;
 
-public interface ICollision
-{
-    void Depenetrate();
-    bool TryGetHit(Vector3 pos, Vector3 dir, float dist, out HitInfo hit);
-    bool TryGetHit(out HitInfo hit);
-    HitInfo GetHit(Vector3 pos, Vector3 dir, float dist);
-    bool CheckDirection(Vector3 direction);
-    HitInfo GetHit(Vector3 position);
-    HitInfo GetHit();
-    Vector3 GetClosestPositionTo(HitInfo hitInfo);
-}
 
 public class SphereCollision3D : CollisionCompute3D<SphereCollider>
 {
@@ -81,7 +70,7 @@ public class CapsuleCollision3D : CollisionCompute3D<CapsuleCollider>
         Array.Clear(Colliders, 0, Colliders.Length);
         (var p1, var p2) = GetCapsulePoints(pos);
         Physics.OverlapCapsuleNonAlloc(p1, p2, Collider.radius, Colliders, CollisionMask);
-
+        
         return Colliders;
     }
 

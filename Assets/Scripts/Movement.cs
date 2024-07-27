@@ -5,12 +5,13 @@ public class Movement : MonoBehaviour
 {
     [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
-    private float _verticalVelocity;
+    private float _verticalSpeed;
     private Vector3 _direction;
     private IBody _body;
     private ICollision _collision;
     private Velocity _velocity;
     private SlideAlongSurface _slide;
+    private Camera _camera;
 
     public Vector3 Velocity { get; private set; }
     public MovementState State { get; private set; }
@@ -21,7 +22,7 @@ public class Movement : MonoBehaviour
         var frameRate = 144;
         Application.targetFrameRate = frameRate;
         Time.fixedDeltaTime = 1f / frameRate;
-
+        _camera = Camera.main;
         _body = BodyBuilder.Create(gameObject);
         _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
         State = new MovementState(_body, _collision, MovementConfig);
@@ -35,21 +36,27 @@ public class Movement : MonoBehaviour
         _direction = Vector2.zero;
 
         if (Input.GetKey(KeyCode.D))
-            _direction += Vector3.right;
+            _direction += _camera.transform.right;
 
         if (Input.GetKey(KeyCode.A))
-            _direction += Vector3.left;
+            _direction -= _camera.transform.right;
 
         if (Input.GetKey(KeyCode.S))
-            _direction += Vector3.back;
+            _direction -= _camera.transform.forward;
 
         if (Input.GetKey(KeyCode.W))
-            _direction += Vector3.forward;
+            _direction += _camera.transform.forward;
 
         if (Input.GetKeyDown(KeyCode.Space))
             Jump(MovementConfig.JumpSpeed);
 
-        _direction = _direction.normalized;
+        if (Input.GetKey(KeyCode.Q))
+            _body.Rotation *= Quaternion.Euler(Vector3.down * 90 * Time.deltaTime);
+        if (Input.GetKey(KeyCode.E))
+            _body.Rotation *= Quaternion.Euler(Vector3.up * 90 * Time.deltaTime);
+
+        if(_direction.sqrMagnitude > 0)
+            _direction = _direction.normalized;
     }
 
     private void FixedUpdate()
@@ -59,15 +66,16 @@ public class Movement : MonoBehaviour
 
     public void Jump(float speed)
     {
-        _verticalVelocity = speed;
-        State.SetJumping();
+        _verticalSpeed = speed;
+        State.SetJumping(true);
     }
 
     private void Move(float deltaTime)
     {
+        _body.Position = transform.position;
         _body.Position = HandleExternalMovement(_body.Position);
         _collision.Depenetrate();
-        _verticalVelocity = _velocity.CalculateVerticalSpeed(_verticalVelocity, deltaTime);
+        _verticalSpeed = _velocity.CalculateVerticalSpeed(_verticalSpeed, deltaTime);
 
         var velocity = CalculateVelocity(_body.Position, deltaTime);
         Velocity = velocity / deltaTime;
@@ -91,8 +99,10 @@ public class Movement : MonoBehaviour
         var totalVelocity = CalculateHorizontalVelocity(pos, deltaTime);
         var nextPosAlongSurface = pos + totalVelocity;
         totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
+
         if (totalVelocity.magnitude > 0)
             totalVelocity = totalVelocity.ClampMagnitude(MovementConfig.MinDistanceTravel);
+
         return totalVelocity;
     }
 
@@ -106,7 +116,7 @@ public class Movement : MonoBehaviour
 
     private Vector3 CalculateVerticalVelocity(Vector3 pos, float deltaTime)
     {
-        var vertVel = Vector3.up * _verticalVelocity * deltaTime;
+        var vertVel = Vector3.up * _verticalSpeed * deltaTime;
         var vel = _slide.SlideByGravity_recursive(vertVel, pos);
 
         return vel;

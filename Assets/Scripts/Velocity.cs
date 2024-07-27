@@ -2,10 +2,14 @@
 
 public class Velocity
 {
+    private const float MinVerticalSpeed = -40;
+    private const float MaxVertiaclSpeed = 100;
+    private const float GroundedVerticalSpeed = -9.8f;
+
+    private Vector3 _currentVelocity;
+    private Vector3 _minVelocity;
     private IMovementState _state;
     private MovementConfig MovementConfig;
-    private Vector3 _currentSpeed;
-    private Vector3 _minVelocity;
 
     public Velocity(IMovementState state, MovementConfig movementConfig)
     {
@@ -20,19 +24,16 @@ public class Velocity
 
         if (_state.CrashedIntoWall)
         {
-            _currentSpeed = Vector3.zero;
+            _currentVelocity = Vector3.zero;
             return Vector3.zero;
         }
 
-        //if (_state.Check(dir))
-        //    return dir*5* deltaTime;
-
         if (dir.sqrMagnitude > 0)
-            _currentSpeed = Vector3.MoveTowards(_currentSpeed, maxVel, MovementConfig.Acceleration*deltaTime);
+            _currentVelocity = Vector3.MoveTowards(_currentVelocity, maxVel, MovementConfig.Acceleration*deltaTime);
         else
-            _currentSpeed = Vector3.MoveTowards(_currentSpeed, _minVelocity, MovementConfig.Decceleration*deltaTime);
+            _currentVelocity = Vector3.MoveTowards(_currentVelocity, _minVelocity, MovementConfig.Decceleration*deltaTime);
 
-        return _currentSpeed;
+        return _currentVelocity;
     }
 
     public float CalculateVerticalSpeed(float currentSpeed, float deltaTime)
@@ -45,14 +46,16 @@ public class Velocity
 
         if (_state.LeftGround && _state.IsJumping == false)
         {
-            currentSpeed = -9.8f;
+            currentSpeed = GroundedVerticalSpeed;
         }
 
         if (_state.BecomeCeiled && _state.IsJumping)
+        {
             currentSpeed = 0f;
+        }
 
         currentSpeed -= vertAccel * deltaTime;
-        currentSpeed = Mathf.Clamp(currentSpeed, -40, 100);
+        currentSpeed = Mathf.Clamp(currentSpeed, MinVerticalSpeed, MaxVertiaclSpeed);
 
         return currentSpeed;
     }

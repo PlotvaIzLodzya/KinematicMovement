@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Net.NetworkInformation;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -79,6 +77,9 @@ public class MovementState: IMovementState, IExteranlMovementState
         BecomeCeiled = upCheck && Ceiled == false;
         Ceiled = upCheck;
 
+        if (BecomeCeiled && IsJumping)
+            IsJumping = false;
+
         Grounded = downCheck;
         OnTooSteepSlope = IsOnTooSteepSlope();
         var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
@@ -90,9 +91,9 @@ public class MovementState: IMovementState, IExteranlMovementState
             IsJumping = false;
     }
 
-    public void SetJumping()
+    public void SetJumping(bool isJumping)
     {
-        IsJumping = true;
+        IsJumping = isJumping;
     }
 
     public bool Check(Vector3 velocity)
@@ -118,7 +119,9 @@ public class MovementState: IMovementState, IExteranlMovementState
 
     public bool CanSetOnPlatform( IPlatform platform)
     {
-        return _stickFromAnySide || (platform.CollisionPoint.y - _groundHit.Point.y) <= MovementConfig.CollisionCheckDistance;
+        var heightDiffrence = platform.CollisionPoint.y - _groundHit.Point.y;
+        bool isCollide = heightDiffrence <= MovementConfig.CollisionCheckDistance;
+        return _stickFromAnySide || isCollide;
     }
 
     private bool Check(Vector3 dir, Vector3 currentPos)
@@ -126,7 +129,9 @@ public class MovementState: IMovementState, IExteranlMovementState
         var hit = _collision.GetHit(currentPos, dir, MovementConfig.CollisionCheckDistance);
         if (hit.HaveHit)
         {
-            _groundHit = hit;
+            if (hit.Point.y < currentPos.y)
+                _groundHit = hit;
+
             return true;
         }
 

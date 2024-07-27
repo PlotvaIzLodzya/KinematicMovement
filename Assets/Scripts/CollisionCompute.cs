@@ -1,5 +1,17 @@
 ﻿using UnityEngine;
 
+public interface ICollision
+{
+    void Depenetrate();
+    bool TryGetHit(Vector3 pos, Vector3 dir, float dist, out HitInfo hit);
+    bool TryGetHit(out HitInfo hit);
+    HitInfo GetHit(Vector3 pos, Vector3 dir, float dist);
+    bool CheckDirection(Vector3 direction);
+    HitInfo GetHit(Vector3 position);
+    HitInfo GetHit();
+    Vector3 GetClosestPositionTo(HitInfo hitInfo);
+}
+
 public abstract class CollisionCompute<T> : ICollision where T :IBody 
 {
     private const int DepenetrationIteration = 10;
@@ -76,6 +88,7 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
 
     public bool CheckDirection(Vector3 direction)
     {
+        
         return TryGetHit(Body.Position, direction, MovementConfig.CollisionCheckDistance, out var hit);
     }
 }
