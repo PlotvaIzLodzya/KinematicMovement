@@ -3,14 +3,14 @@ using UnityEngine;
 
 public interface IExteranlMovemnt
 {
-    Vector3 Position { get; }
     Vector3 Velocity { get; }
-    Quaternion RotationVelocity { get; }
 }
 
 public interface IPlatform: IExteranlMovemnt
 {
+    Vector3 Position { get; }
     Vector3 CollisionPoint { get; }
+    Quaternion RotationVelocity { get; }
 }
 
 public class Platform : MonoBehaviour, IPlatform
