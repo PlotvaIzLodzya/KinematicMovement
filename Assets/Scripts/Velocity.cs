@@ -51,7 +51,7 @@ public class Velocity
 
         if (_state.BecomeCeiled && _state.IsJumping)
         {
-            currentSpeed = 0f;
+            currentSpeed = 0;
         }
 
         currentSpeed -= vertAccel * deltaTime;

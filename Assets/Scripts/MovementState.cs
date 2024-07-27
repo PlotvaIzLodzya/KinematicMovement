@@ -74,11 +74,11 @@ public class MovementState: IMovementState, IExteranlMovementState
         CrashedIntoWall = haveWallCollision && HaveWallCollision == false;
         HaveWallCollision = haveWallCollision;
 
-        BecomeCeiled = upCheck && Ceiled == false;
-        Ceiled = upCheck;
-
         if (BecomeCeiled && IsJumping)
             IsJumping = false;
+
+        BecomeCeiled = upCheck && Ceiled == false;
+        Ceiled = upCheck;
 
         Grounded = downCheck;
         OnTooSteepSlope = IsOnTooSteepSlope();
