@@ -1,4 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEditor;
+using UnityEngine;
+
+
+public static class PlatformJumpBuilder
+{
+    public static PlatformJump UseDefault()
+    {
+        var guid = AssetDatabase.FindAssets(nameof(MultiplicativePlatformJump), new string[] { "Assets/Configs/Platform jump configs" }).First();
+        var path = AssetDatabase.GUIDToAssetPath(guid);
+        var so = AssetDatabase.LoadAssetAtPath<MultiplicativePlatformJump>(path);
+
+        return so;
+    }
+}
 
 public static class BodyBuilder
 {

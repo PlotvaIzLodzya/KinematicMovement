@@ -2,14 +2,12 @@
 
 public class Velocity
 {
-    private const float MinVerticalSpeed = -40;
-    private const float MaxVertiaclSpeed = 100;
-    private const float GroundedVerticalSpeed = -9.8f;
-
-    private Vector3 _currentVelocity;
+ 
     private Vector3 _minVelocity;
     private IMovementState _state;
     private MovementConfig MovementConfig;
+
+    public Vector3 Horizontal { get; private set; }
 
     public Velocity(IMovementState state, MovementConfig movementConfig)
     {
@@ -24,16 +22,16 @@ public class Velocity
 
         if (_state.CrashedIntoWall)
         {
-            _currentVelocity = Vector3.zero;
+            Horizontal = Vector3.zero;
             return Vector3.zero;
         }
 
         if (dir.sqrMagnitude > 0)
-            _currentVelocity = Vector3.MoveTowards(_currentVelocity, maxVel, MovementConfig.Acceleration*deltaTime);
+            Horizontal = Vector3.MoveTowards(Horizontal, maxVel, MovementConfig.Acceleration*deltaTime);
         else
-            _currentVelocity = Vector3.MoveTowards(_currentVelocity, _minVelocity, MovementConfig.Decceleration*deltaTime);
+            Horizontal = Vector3.MoveTowards(Horizontal, _minVelocity, MovementConfig.Decceleration * deltaTime);
 
-        return _currentVelocity;
+        return Horizontal;
     }
 
     public float CalculateVerticalSpeed(float currentSpeed, float deltaTime)
@@ -46,7 +44,7 @@ public class Velocity
 
         if (_state.LeftGround && _state.IsJumping == false)
         {
-            currentSpeed = GroundedVerticalSpeed;
+            currentSpeed = MovementConfig.GroundedVerticalSpeed;
         }
 
         if (_state.BecomeCeiled && _state.IsJumping)
@@ -55,8 +53,7 @@ public class Velocity
         }
 
         currentSpeed -= vertAccel * deltaTime;
-        currentSpeed = Mathf.Clamp(currentSpeed, MinVerticalSpeed, MaxVertiaclSpeed);
-
+        currentSpeed = Mathf.Clamp(currentSpeed, MovementConfig.MinVerticalSpeed, MovementConfig.MaxVertiaclSpeed);
         return currentSpeed;
     }
 }

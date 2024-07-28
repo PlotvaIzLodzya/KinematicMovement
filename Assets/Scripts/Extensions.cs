@@ -6,6 +6,10 @@ using UnityEngine;
 
 public static class Extensions
 {
+    public static float ScaledRadius(this SphereCollider sphereCollider)
+    {
+        return sphereCollider.radius * sphereCollider.transform.lossyScale.y;
+    }
 
     public static bool TryAdd<T>(this List<T> list, T item)
     {
@@ -116,6 +120,23 @@ public static class VectorEnhance
         return vector;
     }
 
+    public static Vector3 ClampMin(this Vector3 vectorA, Vector3 min)
+    {
+        vectorA.x = Mathf.Clamp(vectorA.x, min.x, vectorA.x);
+        vectorA.y = Mathf.Clamp(vectorA.y, min.y, vectorA.y);
+        vectorA.z = Mathf.Clamp(vectorA.z, min.z, vectorA.z);
+
+        return vectorA;
+    }
+
+    public static Vector3 ClampMagnitude(this Vector3 vector, float minMagnitude, float maxMagnitude) 
+    {
+        vector = vector.ClampMagnitude(minMagnitude);
+        vector = Vector3.ClampMagnitude(vector, maxMagnitude);
+
+        return vector;
+    }
+
     public static Vector3 ClampMagnitude(this Vector3 vector, float minLength)
     {
         float magnitude = vector.magnitude;
@@ -128,5 +149,16 @@ public static class VectorEnhance
         }
 
         return vector;
+    }
+
+    public static Vector3 Horizontal(this Vector3 vector)
+    {
+        vector.y = 0;
+        return vector;
+    }
+
+    public static bool IsSameDirection(this Vector3 vectorA, Vector3 vectorB)
+    {
+        return Vector3.Angle(vectorA, vectorB) < 90;
     }
 }

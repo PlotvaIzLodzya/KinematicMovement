@@ -12,14 +12,14 @@ public class SphereCollision3D : CollisionCompute3D<SphereCollider>
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
         Array.Clear(Colliders, 0, Colliders.Length);
-        Physics.SphereCast(pos, Collider.radius, dir, out RaycastHit hit, dist, CollisionMask);
+        Physics.SphereCast(pos, Collider.ScaledRadius(), dir, out RaycastHit hit, dist, CollisionMask);
 
         return hit.ToHitInfo();
     }
     public override Collider[] Overlap(Vector3 pos)
     {
         Array.Clear(Colliders, 0, Colliders.Length);
-        Physics.OverlapSphereNonAlloc(pos, Collider.radius, Colliders, CollisionMask);
+        Physics.OverlapSphereNonAlloc(pos, Collider.ScaledRadius(), Colliders, CollisionMask);
 
         return Colliders;
     }

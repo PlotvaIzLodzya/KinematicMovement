@@ -1,7 +1,12 @@
 ﻿using System;
 using UnityEngine;
 
-
+public interface IJumpState
+{
+    bool IsOnPlatform { get; }
+    bool Grounded { get; }
+    bool IsJumping { get; }
+}
 public interface IMovementState
 {    
     bool HaveWallCollision { get; }
@@ -30,7 +35,7 @@ public interface IExteranlMovementState
 }
 
 [Serializable]
-public class MovementState: IMovementState, IExteranlMovementState
+public class MovementState: IMovementState, IExteranlMovementState, IJumpState
 {
     private bool _previousVelCheck;
     private HitInfo _groundHit;
@@ -39,7 +44,6 @@ public class MovementState: IMovementState, IExteranlMovementState
     private MovementConfig _movementConfig;
     private bool _stickFromAnySide;
 
-    public bool CanAccumulatePlafromVelocity { get; private set; }
     public bool IsOnPlatform { get; private set; }
     public bool IsEnteredPlatform { get; private set; }
     public bool IsLeftPlatform { get; private set; }

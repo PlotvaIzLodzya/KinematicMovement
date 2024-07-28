@@ -18,6 +18,11 @@ public class ExteranlVelocityAccumulator
         _state = state;
     }
 
+    public bool Have(IExteranlMovemnt movemnt)
+    {
+        return _movements.Contains(movemnt);
+    }
+
     public bool TryAdd(IExteranlMovemnt m)
     {
         if (m is IPlatform platform)
