@@ -18,6 +18,7 @@ public class Movement : MonoBehaviour
     private SlideAlongSurface _slide;
     private Camera _camera;
 
+    public Vector3 AngularVelocity { get; private set; }
     public Vector3 Velocity { get; private set; }
     public MovementState State { get; private set; }
     public ExteranlVelocityAccumulator ExteranalMovementAccumulator { get; private set; }
@@ -74,10 +75,13 @@ public class Movement : MonoBehaviour
 
     public void Jump(float speed)
     {
+        if(State.Ceiled)
+            return;
+
         _verticalSpeed = speed;
 
         if(State.IsOnPlatform)
-            _platformJump.Set();
+            _platformJump.SetValue(ExteranalMovementAccumulator.PlatformVelocity, AngularVelocity);
 
         State.SetJumping(true);
     }
@@ -108,8 +112,10 @@ public class Movement : MonoBehaviour
 
     private Vector3 HandleExternalMovement(Vector3 position)
     {
+        var prevPosition = position;
         if (State.IsOnTooSteepSlope() == false && State.Grounded)
             position = ExteranalMovementAccumulator.GetPositionByRotation(position);
+        AngularVelocity = position - prevPosition;
 
         position += ExteranalMovementAccumulator.TotalVelocity;
         return position;

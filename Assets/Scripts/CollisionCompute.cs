@@ -41,7 +41,7 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
     {
         var hitDist = hit.ColliderDistance;
         var deltaPos = hit.Normal * hitDist;
-            
+        
         return deltaPos;
     }
 

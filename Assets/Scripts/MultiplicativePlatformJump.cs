@@ -10,12 +10,12 @@ public class MultiplicativePlatformJump : PlatformJump
         base.Init(velocityAccumulator, state);
     }
 
-    public override Vector3 OnSet(Vector3 additionalSpeed)
+    public override Vector3 OnSet(Vector3 additionalSpeed, Vector3 angularVelocity)
     {
         var velocity = additionalSpeed;
         var scaled = velocity.Horizontal() * _horizontalMultiplier;
         scaled.y = additionalSpeed.y;
-
+        scaled += angularVelocity;
         return scaled;
     }
 

@@ -3,25 +3,27 @@
 public abstract class PlatformJump : ScriptableObject, IExteranlMovemnt
 {
     private ExteranlVelocityAccumulator _velocityAccumulator;
-
     public Vector3 Velocity { get; set; }
     public IJumpState State { get; private set; }
 
-    public virtual void Init(ExteranlVelocityAccumulator velocityAccumulator, IJumpState state)
+    public virtual void Init(ExteranlVelocityAccumulator accumulator, IJumpState state)
     {
-        _velocityAccumulator = velocityAccumulator;
+        _velocityAccumulator = accumulator;
         State = state;
     }
 
-    public void Set()
+    public abstract Vector3 OnSet(Vector3 additionalSpeed, Vector3 angularVelocity);
+    public abstract Vector3 VelocityUpdate(Vector3 platformVelocity, Vector3 characterVelocity);
+
+    public void SetValue(Vector3 platformVelocity, Vector3 angularVelocity)
     {
-        Velocity = OnSet(_velocityAccumulator.TotalVelocity);
+        Velocity = OnSet(platformVelocity, angularVelocity);
     }
 
-    public void UpdateState(Vector3 velocity)
+    public void UpdateState(Vector3 characterVelocity)
     {
         AccumulatorHandle();
-        Velocity = VelocityUpdate(Velocity, velocity);
+        Velocity = VelocityUpdate(Velocity, characterVelocity);
     }
 
     private void AccumulatorHandle()
@@ -32,11 +34,7 @@ public abstract class PlatformJump : ScriptableObject, IExteranlMovemnt
             _velocityAccumulator.TryRemove(this);
 
         if (State.IsJumping == false)
-        {
             Velocity = Vector3.zero;
-        }
     }
 
-    public abstract Vector3 OnSet(Vector3 additionalSpeed);
-    public abstract Vector3 VelocityUpdate(Vector3 currentVelocity, Vector3 characterVelocity);
 }

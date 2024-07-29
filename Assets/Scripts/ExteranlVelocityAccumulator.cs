@@ -9,7 +9,7 @@ public class ExteranlVelocityAccumulator
     private IPlatform _platform;
     private IExteranlMovementState _state;
     public Vector3 TotalVelocity => GetTotalVelocity();
-
+    public Vector3 PlatformVelocity => _platform.Velocity;
     private bool _haveRotation => _platform != null;
 
     public ExteranlVelocityAccumulator(IExteranlMovementState state)
