@@ -61,7 +61,7 @@ public static class CollisionBuilder
             collision = collider3d switch
             {
                 SphereCollider sphereCollider => new SphereCollision3D(sphereCollider, body3D, layerMaskProvider),
-                //BoxCollider boxCollider => new BoxCollision3D(boxCollider, body3D, layerMaskProvider),
+                BoxCollider boxCollider => new BoxCollision3D(boxCollider, body3D, layerMaskProvider),
                 CapsuleCollider capsuleCollider => new CapsuleCollision3D(capsuleCollider, body3D, layerMaskProvider),
                 _ => throw new MissingComponentException($"{go.name} don't have supported 3D collider")
             };
