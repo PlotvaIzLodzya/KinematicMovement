@@ -41,10 +41,10 @@ public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T :
             {
                 closestDistance = dist + MovementConfig.ContactOffset;
                 var closestPosition = position - dir.normalized * closestDistance;
-                hitInfo = new HitInfo(closestPosition, dir, distance, closestDistance, true, collider.transform);
+                hitInfo = new HitInfo(closestPosition, dir.normalized, distance, closestDistance, true, collider.transform);
             }
         }
-
+        
         return hitInfo;
     }
 }
