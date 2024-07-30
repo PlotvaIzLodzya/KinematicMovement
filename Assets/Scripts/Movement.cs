@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -7,9 +8,7 @@ public class Movement : MonoBehaviour
 
     [SerializeField] private PlatformJump _platformJump;
 
-    public Vector3 Scale;
-
-    public float Multiplier = 1f;
+    public bool test;
     private float _verticalSpeed;
     private Vector3 _direction;
     private IBody _body;
@@ -35,7 +34,6 @@ public class Movement : MonoBehaviour
         ExteranalMovementAccumulator = new (State);
         _slide = new SlideAlongSurface(_collision, State);
         _velocity = new Velocity(State, MovementConfig);
-        Scale = _body.Scale;
         _platformJump ??= PlatformJumpBuilder.UseDefault();
         _platformJump.Init(ExteranalMovementAccumulator, State);
     }
@@ -66,11 +64,13 @@ public class Movement : MonoBehaviour
 
         if(_direction.sqrMagnitude > 0)
             _direction = _direction.normalized;
+        if (test)
+        transform.localScale = Vector3.MoveTowards(transform.localScale, Vector3.one * 5, 10 * Time.deltaTime);
     }
 
     private void FixedUpdate()
     {
-        Move(Time.fixedDeltaTime);
+        UpdateBody(Time.fixedDeltaTime);
     }
 
     public void Jump(float speed)
@@ -86,17 +86,8 @@ public class Movement : MonoBehaviour
         State.SetJumping(true);
     }
 
-    public void SetScale(Vector3 scale)
-    {
-        var heightDiffrene = _body.Scale.y - scale.y;
-        _body.Scale = scale;
-        _body.Position = _body.Position + Vector3.up*heightDiffrene;
-    }
-
-    private void Move(float deltaTime)
-    {
-        var scale = Scale * Multiplier;
-        SetScale(scale);
+    private void UpdateBody(float deltaTime)
+    { 
         _body.Position = transform.position;
         _body.Position = HandleExternalMovement(_body.Position);
         _collision.Depenetrate();
@@ -107,6 +98,7 @@ public class Movement : MonoBehaviour
         var nextPos = _body.Position + velocity;
         _body.Position = nextPos;
 
+        _body.LocalScale = transform.localScale;
         State.Update(_direction);
     }
 
@@ -127,8 +119,8 @@ public class Movement : MonoBehaviour
         var nextPosAlongSurface = pos + totalVelocity;
         totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
 
-        if (totalVelocity.magnitude > 0)
-            totalVelocity = totalVelocity.ClampMagnitude(MovementConfig.MinDistanceTravel);
+        if (totalVelocity.magnitude <= MovementConfig.MinDistanceTravel)
+            totalVelocity = Vector3.zero;   
 
         return totalVelocity;
     }

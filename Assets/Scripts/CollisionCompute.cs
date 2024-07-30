@@ -12,10 +12,15 @@ public interface ICollision
     Vector3 GetClosestPositionTo(HitInfo hitInfo);
 }
 
+public interface IHeightProvider
+{
+
+}
+
 public abstract class CollisionCompute<T> : ICollision where T :IBody 
 {
     private const int DepenetrationIteration = 10;
-
+    
     protected T Body;
     private ILayerMaskProvider _layerMaskProvider;
 
@@ -68,11 +73,12 @@ public abstract class CollisionCompute<T> : ICollision where T :IBody
         {
             if (TryGetHit(out HitInfo hit))
             {
-                Body.Position = GetClosestPositionTo(hit);
+                var closestPosition = GetClosestPositionTo(hit);
+                Body.Position = closestPosition;
             }
-            else 
-            { 
-                break; 
+            else
+            {
+                break;
             }
 
             iteration++;

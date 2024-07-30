@@ -44,7 +44,7 @@ public class Velocity
 
         if (_state.LeftGround && _state.IsJumping == false)
         {
-            currentSpeed = MovementConfig.GroundedVerticalSpeed;
+            currentSpeed = 0;
         }
 
         if (_state.BecomeCeiled && _state.IsJumping)

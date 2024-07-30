@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEditor.Build;
-using UnityEditor.Rendering;
 using UnityEngine;
 
 public static class Extensions
 {
     public static float ScaledRadius(this SphereCollider sphereCollider)
     {
-        return sphereCollider.radius * sphereCollider.transform.lossyScale.y;
+        return sphereCollider.radius * sphereCollider.transform.lossyScale.GetMax();
     }
 
     public static bool TryAdd<T>(this List<T> list, T item)

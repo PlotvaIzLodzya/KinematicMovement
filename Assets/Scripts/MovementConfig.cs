@@ -8,9 +8,8 @@ public class MovementConfig: ILayerMaskProvider
     public const float CollisionCheckDistance = ContactOffset * 1.2f;
     public const float MinDistanceTravel = 0.0001f;
 
-    public const float MinVerticalSpeed = -40;
-    public const float MaxVertiaclSpeed = 100;
-    public const float GroundedVerticalSpeed = -9.8f;
+    public const float MinVerticalSpeed = -40f;
+    public const float MaxVertiaclSpeed = 100f;
 
     [field: SerializeField] public LayerMask GroundMask { get; private set; }
     [field: SerializeField] public float Speed { get; private set; }

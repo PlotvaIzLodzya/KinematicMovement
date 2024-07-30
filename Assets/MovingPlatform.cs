@@ -8,7 +8,7 @@ public class MovingPlatform: Platform
     {
         var nextPos = body.Position + Vel * deltaTime;
         body.Position = nextPos;
-        body.Rotation *= Quaternion.Euler(Vector3.up * 90 * deltaTime);
+        //body.Rotation *= Quaternion.Euler(Vector3.up * 90 * deltaTime);
         //body.Position = body.Position.RotateAroundPivot(Vector3.zero, Quaternion.Euler(Vector3.up * 10 * deltaTime));
     }
 }

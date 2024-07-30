@@ -35,12 +35,13 @@ public abstract class CollisionCompute3D<T> : CollisionCompute<Body3D> where T :
             if(collider == null) 
                 continue;
 
-            Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, position, Body.Rotation, out Vector3 dir, out float distance);
+            Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, Body.Position, Body.Rotation, out Vector3 dir, out float distance);
             var dist = distance;
+
             if (dist > closestDistance)
             {
-                closestDistance = dist + MovementConfig.ContactOffset;
-                var closestPosition = position - dir.normalized * closestDistance;
+                closestDistance = dist;
+                var closestPosition = Body.Position - dir.normalized * closestDistance;
                 hitInfo = new HitInfo(closestPosition, dir.normalized, distance, closestDistance, true, collider.transform);
             }
         }

@@ -43,8 +43,8 @@ public class Test: MonoBehaviour
             }
         }
 
-        //if(closestCollider != null)
-        //    Debug.Log($"{closestCollider.transform.name} dist {closestDistance}");
+        if (closestCollider != null)
+            Debug.Log($"{closestCollider.transform.name} dist {closestDistance}");
         return closestPosition;
     }
 

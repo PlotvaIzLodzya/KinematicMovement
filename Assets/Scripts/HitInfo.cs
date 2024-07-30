@@ -14,7 +14,7 @@ public struct HitInfo
         Point = point;
         Normal = normal;
         Distance = distance;
-        ColliderDistance = colliderDistance;
+        ColliderDistance = colliderDistance + MovementConfig.ContactOffset;
         HaveHit = haveHit;
         Transform = transform;
     }

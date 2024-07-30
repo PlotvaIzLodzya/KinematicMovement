@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -11,11 +10,11 @@ public class SphereCollision3D : CollisionCompute3D<SphereCollider>
 
     public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
     {
-        Array.Clear(Colliders, 0, Colliders.Length);
         Physics.SphereCast(pos, Collider.ScaledRadius(), dir, out RaycastHit hit, dist, CollisionMask);
 
         return hit.ToHitInfo();
     }
+
     public override Collider[] Overlap(Vector3 pos)
     {
         Array.Clear(Colliders, 0, Colliders.Length);
@@ -78,7 +77,7 @@ public class CapsuleCollision3D : CollisionCompute3D<CapsuleCollider>
     {
         var capsulHeight = Mathf.Clamp(Collider.height, MinHeight, MaxHeight);
         var p1 = pos + Collider.center + Vector3.up * (-capsulHeight + Collider.radius*2)* 0.5f ;
-        var p2 = p1 + Vector3.up * (capsulHeight * Body.Scale.y - Collider.radius*2);
+        var p2 = p1 + Vector3.up * (capsulHeight * Body.LocalScale.y - Collider.radius*2);
 
         return (p1, p2);
     }
@@ -123,6 +122,6 @@ public class CircleCollision2D : CollisionCompute2D<CircleCollider2D>
 
     private float GetScale()
     {
-        return Body.Scale.GetMax();
+        return Body.LocalScale.GetMax();
     }
 }
