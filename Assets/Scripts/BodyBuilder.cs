@@ -1,12 +1,11 @@
-﻿using System.Linq;
-using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class BodyBuilder
 {
     public static IBody Create(GameObject go)
     {
         IBody body = null;
+
         if (go.TryGetComponent(out Rigidbody rb3D))
         {
             body = new Body3D(rb3D);

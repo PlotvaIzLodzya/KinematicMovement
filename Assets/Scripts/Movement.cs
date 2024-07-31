@@ -10,12 +10,13 @@ public class Movement : MonoBehaviour
     private Vector3 _direction;
     private IBody _body;
     private ICollision _collision;
-    private VelocityCompute _velocity;
+    private IVelocityCompute _velocity;
+    private VelocityHandler _velocityHandler;
     private SlideAlongSurface _slide;
     private Camera _camera;
 
+    public Vector3 Velocity;
     public Vector3 AngularVelocity { get; private set; }
-    public Vector3 Velocity { get; private set; }
     public MovementState State { get; private set; }
     public ExteranlVelocityAccumulator ExteranalMovementAccumulator { get; private set; }
 
@@ -30,7 +31,8 @@ public class Movement : MonoBehaviour
         State = new MovementState(_body, _collision, MovementConfig);
         ExteranalMovementAccumulator = new (State);
         _slide = new SlideAlongSurface(_collision, State);
-        _velocity = new VelocityCompute(State, MovementConfig);
+        _velocityHandler = new(State, MovementConfig);
+        _velocity = _velocityHandler.GetVelocity<VelocityCompute>();
     }
 
     private void Update()
@@ -73,7 +75,7 @@ public class Movement : MonoBehaviour
         if(State.Ceiled)
             return;
 
-        _velocity.SetVerticalSpeed(speed);
+        Velocity.y = speed;
 
         State.SetJumping(true);
     }
@@ -84,13 +86,12 @@ public class Movement : MonoBehaviour
         _body.Position = HandleExternalMovement(_body.Position);
         _collision.Depenetrate();
         var velocity = CalculateVelocity(_body.Position, deltaTime);
-
-        Velocity = velocity / deltaTime;
         var nextPos = _body.Position + velocity;
         _body.Position = nextPos;
 
         _body.LocalScale = transform.localScale;
         State.Update(_direction);
+        _velocity = _velocityHandler.GetVelocity();
     }
 
     private Vector3 HandleExternalMovement(Vector3 position)
@@ -118,16 +119,19 @@ public class Movement : MonoBehaviour
 
     private Vector3 CalculateHorizontalVelocity(Vector3 pos, float deltaTime)
     {
-        var horVelocity = _velocity.CalculateHorizontalSpeed(_direction, deltaTime) * deltaTime;
+        var horVelocity = _velocity.CalculateHorizontalSpeed(_direction, Velocity.Horizontal(), deltaTime);
+        Velocity = Velocity.SetHorizontal(horVelocity);
+        horVelocity *= deltaTime;
         var vel = _slide.SlideByMovement_recursive(horVelocity, pos);
+        
 
         return vel;
     }
 
     private Vector3 CalculateVerticalVelocity(Vector3 pos, float deltaTime)
     {
-        var vertSpeed = _velocity.CalculateVerticalSpeed(deltaTime);
-        var vertVel = Vector3.up * vertSpeed * deltaTime;
+        Velocity.y = _velocity.CalculateVerticalSpeed(Velocity.y, deltaTime);
+        var vertVel = Vector3.up * Velocity.y * deltaTime;
         var vel = _slide.SlideByGravity_recursive(vertVel, pos);
 
         return vel;

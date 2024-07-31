@@ -80,6 +80,13 @@ public static class Extensions
 
 public static class VectorEnhance
 {
+    public static Vector3 SetHorizontal(this Vector3 v1, Vector3 v2)
+    {
+        v1.x = v2.x;
+        v1.z = v2.z;
+        return v1;
+    }
+
     public static Vector3 ClampHorizontalPosition(Vector3 vector, Vector3 min, Vector3 max)
     {
         vector.x = Mathf.Clamp(vector.x, min.x, max.x);

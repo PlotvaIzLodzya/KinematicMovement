@@ -1,22 +1,69 @@
 ﻿using UnityEngine;
 
-public class VelocityCompute
+public interface IVelocityCompute
 {
-    private Vector3 _velocityHorizontal;
-    private float _speedVertical;
+    Vector3 CalculateHorizontalSpeed(Vector3 dir, Vector3 horVelocity, float deltaTime);
+    float CalculateVerticalSpeed(float verticalSpeed, float deltaTime);
+}
+
+public class VelocityHandler
+{
+    private IMovementState _state;
+    private VelocityCompute _velocity;
+    private AirborneVelocity _airborneVelocity;
+
+    public VelocityHandler(IMovementState state, MovementConfig movementConfig)
+    {
+        _state = state;
+        _velocity = new VelocityCompute(state, movementConfig);
+        _airborneVelocity = new AirborneVelocity(_velocity);
+    }
+
+    public IVelocityCompute GetVelocity<T>() where T : IVelocityCompute
+    {        
+        return true switch
+        {
+            true when typeof(T) == typeof(VelocityCompute) => _velocity,
+            true when typeof(T) == typeof(AirborneVelocity) => _airborneVelocity,   
+            _ => throw new System.NotImplementedException(),
+        };
+    }
+
+    public IVelocityCompute GetVelocity()
+    {
+        if (_state.Grounded)
+            return _velocity;
+            
+        return _airborneVelocity;
+    }
+}
+
+public class AirborneVelocity : IVelocityCompute
+{
+    public Vector3 Current { get; private set;}
+    private VelocityCompute _velocity;
+
+    public AirborneVelocity(VelocityCompute velocity)
+    {
+        _velocity = velocity;
+    }
+
+    public Vector3 CalculateHorizontalSpeed(Vector3 dir, Vector3 horVelocity, float deltaTime)
+    {
+        return _velocity.CalculateHorizontalSpeed(dir,horVelocity, deltaTime);
+    }
+
+    public float CalculateVerticalSpeed(float verticalSpeed, float deltaTime)
+    {
+        return _velocity.CalculateVerticalSpeed(verticalSpeed, deltaTime);
+    }
+}
+
+public class VelocityCompute: IVelocityCompute
+{
     private Vector3 _minVelocity;
     private IMovementState _state;
     private MovementConfig MovementConfig;
-
-    public Vector3 Velocity
-    {
-        get
-        {
-            var totalVelocity = _velocityHorizontal;
-            totalVelocity.y = _speedVertical;
-            return totalVelocity;
-        }
-    }
 
     public VelocityCompute(IMovementState state, MovementConfig movementConfig)
     {
@@ -25,30 +72,24 @@ public class VelocityCompute
         MovementConfig = movementConfig;
     }
 
-    public Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
+    public Vector3 CalculateHorizontalSpeed(Vector3 dir, Vector3 horizontalVelocity, float deltaTime)
     {
         var maxVel = dir * MovementConfig.Speed;
 
         if (_state.CrashedIntoWall)
-        {
-            _velocityHorizontal = Vector3.zero;
+        {            
             return Vector3.zero;
         }
 
         if (dir.sqrMagnitude > 0)
-            _velocityHorizontal = Vector3.MoveTowards(_velocityHorizontal, maxVel, MovementConfig.Acceleration * deltaTime);
+            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, maxVel, MovementConfig.Acceleration * deltaTime);
         else
-            _velocityHorizontal = Vector3.MoveTowards(_velocityHorizontal, _minVelocity, MovementConfig.Decceleration * deltaTime);
+            horizontalVelocity = Vector3.MoveTowards(horizontalVelocity, _minVelocity, MovementConfig.Decceleration * deltaTime);
 
-        return _velocityHorizontal;
+        return horizontalVelocity;
     }
 
-    public void SetVerticalSpeed(float speed)
-    {
-        _speedVertical = speed;
-    }
-
-    public float CalculateVerticalSpeed(float deltaTime)
+    public float CalculateVerticalSpeed(float verticalSpeed, float deltaTime)
     {
         var vertAccel = 0f;
         if (_state.Grounded == false || _state.OnTooSteepSlope)
@@ -58,16 +99,16 @@ public class VelocityCompute
 
         if (_state.LeftGround && _state.IsJumping == false)
         {
-            _speedVertical = -9.8f;
+            verticalSpeed = -9.8f;
         }
 
         if (_state.BecomeCeiled && _state.IsJumping)
         {
-            _speedVertical = 0f;
+            verticalSpeed = 0f;
         }
 
-        _speedVertical -= vertAccel * deltaTime;
-        _speedVertical = Mathf.Clamp(_speedVertical, MovementConfig.MinVerticalSpeed, MovementConfig.MaxVertiaclSpeed);
-        return _speedVertical;
+        verticalSpeed -= vertAccel * deltaTime;
+        verticalSpeed = Mathf.Clamp(verticalSpeed, MovementConfig.MinVerticalSpeed, MovementConfig.MaxVertiaclSpeed);
+        return verticalSpeed;
     }
 }
