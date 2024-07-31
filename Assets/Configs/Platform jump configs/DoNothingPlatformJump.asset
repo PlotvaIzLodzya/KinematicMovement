@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4abe8346b990ea2418cca653bca18dfc, type: 3}
+  m_Script: {fileID: 11500000, guid: bb7bfea62e6e386439ceb59791e3b1ac, type: 3}
   m_Name: DoNothingPlatformJump
   m_EditorClassIdentifier: 

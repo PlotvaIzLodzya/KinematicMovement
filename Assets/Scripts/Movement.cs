@@ -6,14 +6,11 @@ public class Movement : MonoBehaviour
 {
     [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
-    [SerializeField] private PlatformJump _platformJump;
-
     public bool test;
-    private float _verticalSpeed;
     private Vector3 _direction;
     private IBody _body;
     private ICollision _collision;
-    private Velocity _velocity;
+    private VelocityCompute _velocity;
     private SlideAlongSurface _slide;
     private Camera _camera;
 
@@ -33,9 +30,7 @@ public class Movement : MonoBehaviour
         State = new MovementState(_body, _collision, MovementConfig);
         ExteranalMovementAccumulator = new (State);
         _slide = new SlideAlongSurface(_collision, State);
-        _velocity = new Velocity(State, MovementConfig);
-        _platformJump ??= PlatformJumpBuilder.UseDefault();
-        _platformJump.Init(ExteranalMovementAccumulator, State);
+        _velocity = new VelocityCompute(State, MovementConfig);
     }
 
     private void Update()
@@ -78,10 +73,7 @@ public class Movement : MonoBehaviour
         if(State.Ceiled)
             return;
 
-        _verticalSpeed = speed;
-
-        if(State.IsOnPlatform)
-            _platformJump.SetValue(ExteranalMovementAccumulator.PlatformVelocity, AngularVelocity);
+        _velocity.SetVerticalSpeed(speed);
 
         State.SetJumping(true);
     }
@@ -91,7 +83,6 @@ public class Movement : MonoBehaviour
         _body.Position = transform.position;
         _body.Position = HandleExternalMovement(_body.Position);
         _collision.Depenetrate();
-        _platformJump.UpdateState(_velocity.Horizontal);
         var velocity = CalculateVelocity(_body.Position, deltaTime);
 
         Velocity = velocity / deltaTime;
@@ -135,9 +126,8 @@ public class Movement : MonoBehaviour
 
     private Vector3 CalculateVerticalVelocity(Vector3 pos, float deltaTime)
     {
-        _verticalSpeed = _velocity.CalculateVerticalSpeed(_verticalSpeed, deltaTime);
-
-        var vertVel = Vector3.up * _verticalSpeed * deltaTime;
+        var vertSpeed = _velocity.CalculateVerticalSpeed(deltaTime);
+        var vertVel = Vector3.up * vertSpeed * deltaTime;
         var vel = _slide.SlideByGravity_recursive(vertVel, pos);
 
         return vel;

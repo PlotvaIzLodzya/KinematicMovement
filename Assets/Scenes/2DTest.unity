@@ -1125,9 +1125,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 875625573}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2d0774b836239141b731ee110bcf92a, type: 3}
+  m_Script: {fileID: 11500000, guid: 3a6f24e5903545840bc2a58429badda1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Vel: {x: 0, y: 0, z: 0}
 --- !u!1 &948392621
 GameObject:
   m_ObjectHideFlags: 0
@@ -1673,7 +1674,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!70 &1570390791
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -1731,6 +1732,8 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
+  _platformJump: {fileID: 0}
+  test: 0
 --- !u!50 &1570390793
 Rigidbody2D:
   serializedVersion: 4
@@ -1994,7 +1997,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1920545086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2017,6 +2020,8 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 30
+  _platformJump: {fileID: 0}
+  test: 0
 --- !u!50 &1920545087
 Rigidbody2D:
   serializedVersion: 4
@@ -2423,6 +2428,8 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
+  _platformJump: {fileID: 0}
+  test: 0
 --- !u!61 &2111494992
 BoxCollider2D:
   m_ObjectHideFlags: 0

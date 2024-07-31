@@ -9,7 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99d53a65cde941f42b8fcea7b91eda56, type: 3}
-  m_Name: MultiplicativePlatformJump
+  m_Script: {fileID: 11500000, guid: 4abe8346b990ea2418cca653bca18dfc, type: 3}
+  m_Name: FullFollowPlatformJump
   m_EditorClassIdentifier: 
-  _horizontalMultiplier: 0.8

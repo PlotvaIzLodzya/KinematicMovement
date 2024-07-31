@@ -88,6 +88,7 @@ public class MovementState: IMovementState, IExteranlMovementState, IJumpState
         OnTooSteepSlope = IsOnTooSteepSlope();
         var exitSteepSlope = wasOnTooSteepSlope && OnTooSteepSlope == false;
         BecomeGrounded = Grounded && (wasGrounded == false || exitSteepSlope);
+        
         LeftGround = wasGrounded && Grounded == false;
         _previousVelCheck = velrGroundCheck;
 
