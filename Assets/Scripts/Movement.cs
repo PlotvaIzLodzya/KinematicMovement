@@ -81,7 +81,7 @@ public class Movement : MonoBehaviour
     }
 
     private void UpdateBody(float deltaTime)
-    { 
+    {
         _body.Position = transform.position;
         _body.Position = HandleExternalMovement(_body.Position);
         _collision.Depenetrate();

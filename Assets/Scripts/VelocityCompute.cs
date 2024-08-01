@@ -49,7 +49,7 @@ public class AirborneVelocity : IVelocityCompute
     }
 
     public Vector3 CalculateHorizontalSpeed(Vector3 dir, Vector3 horVelocity, float deltaTime)
-    {
+    {        
         return _velocity.CalculateHorizontalSpeed(dir,horVelocity, deltaTime);
     }
 

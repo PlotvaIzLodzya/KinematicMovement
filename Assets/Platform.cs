@@ -27,6 +27,13 @@ public class Platform : MonoBehaviour, IPlatform
     private void Awake()
     {
         _rb = BodyBuilder.Create(gameObject);
+
+    }
+
+    private void OnEnable()
+    {
+        _prevPosition = _rb.Position;
+        _prevRotation = _rb.Rotation;
     }
 
     private void FixedUpdate()

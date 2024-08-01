@@ -31,7 +31,10 @@ public static class Extensions
 
     public static float GetMax(this Vector3 vector)
     {
-        return Mathf.Max(vector.x, vector.y, vector.z);
+        var max = Mathf.Max(vector.x, vector.y);
+        max = Mathf.Max(max, vector.z);
+        
+        return max;
     }
 
     public static Vector3 RotateAroundPivot(this Vector3 point, Vector3 pivot, Quaternion angle)
