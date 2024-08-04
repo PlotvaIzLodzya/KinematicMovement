@@ -201,7 +201,14 @@ namespace PlotvaIzLodzya.Extensions
             vector.z = 0;
             return vector;
         }
+
         public static Vector3 Horizontal(this Vector3 vector)
+        {
+            vector.y = 0;
+            return vector;
+        }
+
+        public static Vector2 Horizontal(this Vector2 vector)
         {
             vector.y = 0;
             return vector;

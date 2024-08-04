@@ -3,42 +3,10 @@ using PlotvaIzLodzya.KinematicMovement.CollisionCompute;
 using PlotvaIzLodzya.KinematicMovement.Platforms;
 using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 {
-    public interface IJumpState
-    {
-        bool IsOnPlatform { get; }
-        bool Grounded { get; }
-        bool IsJumping { get; }
-    }
-
-    public interface IMovementState
-    {
-        bool HaveWallCollision { get; }
-        bool CrashedIntoWall { get; }
-        bool IsJumping { get; }
-        bool LeftGround { get; }
-        bool Grounded { get; }
-        bool BecomeGrounded { get; }
-        bool OnTooSteepSlope { get; }
-        bool Ceiled { get; }
-        bool BecomeCeiled { get; }
-        Vector3 GroundNormal { get; }
-
-        bool Check(Vector3 velocity);
-        bool IsSlopeTooSteep(float angle);
-    }
-
-    public interface IExteranlMovementState
-    {
-        bool IsEnteredPlatform { get; }
-        bool IsOnPlatform { get; }
-        bool IsLeftPlatform { get; }
-
-        public bool TrySetOnPlatform(IPlatform platform);
-        public void LeavePlatform(IPlatform platform);
-    }
 
     [Serializable]
     public class MovementState : IMovementState, IExteranlMovementState, IJumpState
@@ -74,7 +42,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 
         public void Update(Vector3 movementDirection)
         {
-            bool haveWallCollision = Check(movementDirection);
+            bool haveWallCollision = CheckWall(movementDirection);
             bool velrGroundCheck = Check(movementDirection + Vector3.down, _body.Position);
             bool downCheck = Check(Vector3.down, _body.Position);
             bool upCheck = Check(Vector3.up, _body.Position);
@@ -113,6 +81,14 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
         public bool Check(Vector3 velocity)
         {
             return _collision.CheckDirection(velocity);
+        }
+
+        public bool CheckWall(Vector3 velocity)
+        {
+            _collision.CheckDirection(velocity, out HitInfo hit);
+            var angle = GetAngle(hit);
+
+            return IsSlopeTooSteep(angle);
         }
 
         public bool TrySetOnPlatform(IPlatform platform)
@@ -167,7 +143,11 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 
         public float GetGroundAngle()
         {
-            var hit = _groundHit;
+            return GetAngle(_groundHit);
+        }
+
+        public float GetAngle(HitInfo hit)
+        {
             float angle = Vector3.Angle(Vector3.up, hit.Normal);
 
             return angle;

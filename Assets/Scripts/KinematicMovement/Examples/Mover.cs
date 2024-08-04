@@ -1,7 +1,9 @@
-﻿using UnityEngine;
+﻿using PlotvaIzLodzya.KinematicMovement.Body;
+using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.Examples
 {
+
     public class Mover : MonoBehaviour
     {
         public Vector3 Vel;

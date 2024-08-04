@@ -18,7 +18,7 @@ namespace PlotvaIzLodzya.KinematicMovement
         private IVelocityCompute _velocityCompute;
         private VelocityHandler _velocityHandler;
         private SlideAlongSurface _slide;
-        private Camera _camera;
+
 
         public Vector3 Velocity { get; private set; }
         public Vector3 AngularVelocity { get; private set; }
@@ -30,7 +30,6 @@ namespace PlotvaIzLodzya.KinematicMovement
             var frameRate = 144;
             Application.targetFrameRate = frameRate;
             Time.fixedDeltaTime = 1f / frameRate;
-            _camera = Camera.main;
             _body = BodyBuilder.Create(gameObject);
             _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
             State = new MovementState(_body, _collision, MovementConfig);
@@ -40,37 +39,19 @@ namespace PlotvaIzLodzya.KinematicMovement
             _velocityCompute = _velocityHandler.GetVelocityCompute<VelocityCompute.VelocityCompute>();
         }
 
-        private void Update()
-        {
-            _direction = Vector2.zero;
-
-            if (Input.GetKey(KeyCode.D))
-                _direction += _camera.transform.right;
-
-            if (Input.GetKey(KeyCode.A))
-                _direction -= _camera.transform.right;
-
-            if (Input.GetKey(KeyCode.S))
-                _direction -= _camera.transform.forward;
-
-            if (Input.GetKey(KeyCode.W))
-                _direction += _camera.transform.forward;
-
-            if (Input.GetKeyDown(KeyCode.Space))
-                Jump(MovementConfig.JumpSpeed);
-
-            if (Input.GetKey(KeyCode.Q))
-                _body.Rotation *= Quaternion.Euler(Vector3.down * 90 * Time.deltaTime);
-            if (Input.GetKey(KeyCode.E))
-                _body.Rotation *= Quaternion.Euler(Vector3.up * 90 * Time.deltaTime);
-
-            if (_direction.sqrMagnitude > 0)
-                _direction = _direction.normalized;            
-        }
-
         private void FixedUpdate()
         {
             UpdateBody(Time.fixedDeltaTime);
+        }
+
+        public void Move(Vector3 direction)
+        {
+            _direction = direction;
+        }
+
+        public void Jump()
+        {
+            Jump(MovementConfig.JumpSpeed);
         }
 
         public void Jump(float speed)
@@ -86,6 +67,7 @@ namespace PlotvaIzLodzya.KinematicMovement
         private void UpdateBody(float deltaTime)
         {
             _body.Position = transform.position;
+            _body.Rotation = transform.rotation;
             _body.Position = HandleExternalMovement(_body.Position);
             _collision.Depenetrate();
             var velocity = CalculateVelocity(_body.Position, deltaTime);

@@ -1668,6 +1668,7 @@ GameObject:
   - component: {fileID: 1570390793}
   - component: {fileID: 1570390792}
   - component: {fileID: 1570390791}
+  - component: {fileID: 1570390796}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -1732,8 +1733,6 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
-  _platformJump: {fileID: 0}
-  test: 0
 --- !u!50 &1570390793
 Rigidbody2D:
   serializedVersion: 4
@@ -1830,6 +1829,19 @@ Transform:
   - {fileID: 360343227}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1570390796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1570390790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd13debb491a9847b3e6526e5b1a83e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _movement: {fileID: 1570390792}
 --- !u!1 &1902906500
 GameObject:
   m_ObjectHideFlags: 0
@@ -1991,6 +2003,7 @@ GameObject:
   - component: {fileID: 1920545088}
   - component: {fileID: 1920545087}
   - component: {fileID: 1920545086}
+  - component: {fileID: 1920545091}
   m_Layer: 0
   m_Name: Circle
   m_TagString: Untagged
@@ -2020,8 +2033,6 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 30
-  _platformJump: {fileID: 0}
-  test: 0
 --- !u!50 &1920545087
 Rigidbody2D:
   serializedVersion: 4
@@ -2153,6 +2164,19 @@ Transform:
   - {fileID: 458615415}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1920545091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920545085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd13debb491a9847b3e6526e5b1a83e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _movement: {fileID: 1920545086}
 --- !u!1 &2045369304
 GameObject:
   m_ObjectHideFlags: 0
@@ -2303,6 +2327,7 @@ GameObject:
   - component: {fileID: 2111494987}
   - component: {fileID: 2111494991}
   - component: {fileID: 2111494992}
+  - component: {fileID: 2111494993}
   m_Layer: 0
   m_Name: Square
   m_TagString: Untagged
@@ -2428,8 +2453,6 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
-  _platformJump: {fileID: 0}
-  test: 0
 --- !u!61 &2111494992
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2475,6 +2498,19 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &2111494993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2111494986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bd13debb491a9847b3e6526e5b1a83e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _movement: {fileID: 2111494991}
 --- !u!1 &2129655086
 GameObject:
   m_ObjectHideFlags: 0

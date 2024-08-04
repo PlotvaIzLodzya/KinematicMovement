@@ -4,16 +4,6 @@ using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 {
-    public interface IVelocityCompute
-    {
-        Vector3 Velocity { get; }
-
-        void Jump(float speed);
-        Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime);
-        float CalculateVerticalSpeed(float deltaTime);
-        void Exit();
-        void Enter(Vector3 currentVelocity);
-    }
 
     public class VelocityCompute : IVelocityCompute
     {
@@ -57,12 +47,12 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
                 _velocity = Vector3.zero;
                 return Vector3.zero;
             }
-
             var hor = _velocity.Horizontal();
             if (dir.sqrMagnitude > 0)
                 _velocity = Vector3.MoveTowards(hor, maxVel, MovementConfig.Acceleration * deltaTime);
             else
                 _velocity = Vector3.MoveTowards(hor, _minVelocity, MovementConfig.Decceleration * deltaTime);
+            Debug.Log(_velocity);
 
             return _velocity;
         }

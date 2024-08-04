@@ -41,7 +41,6 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
                 _current = _velocity;
             else if (_state.Grounded == false)
                 _current = _airborneVelocity;
-
             if (_current != prev)
             {
                 prev?.Exit();
