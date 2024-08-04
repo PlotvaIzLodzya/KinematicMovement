@@ -112,9 +112,6 @@ public class MovementState: IMovementState, IExteranlMovementState, IJumpState
 
     public bool TrySetOnPlatform(IPlatform platform)
     {
-        if (IsOnPlatform)
-            return false;
-
         if(CanSetOnPlatform(platform))
             IsOnPlatform = true;
 
@@ -123,7 +120,8 @@ public class MovementState: IMovementState, IExteranlMovementState, IJumpState
 
     public void LeavePlatform(IPlatform platform)
     {
-        //IsOnPlatform = false;
+        if(Grounded)
+            IsOnPlatform = false;
     }
 
     public bool CanSetOnPlatform( IPlatform platform)

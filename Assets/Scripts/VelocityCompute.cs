@@ -16,7 +16,7 @@ public class VelocityHandler
 {
     private MovementState _state;
     private VelocityCompute _velocity;
-    private KeepMomentumAirborneVelocity _airborneVelocity;
+    private AiborneVelocityCompute _airborneVelocity;
     private PlatformJumpVelocity _platformJumpVelocity;
     private IVelocityCompute _current;
 
@@ -24,7 +24,7 @@ public class VelocityHandler
     {
         _state = state;
         _velocity = new VelocityCompute(state, movementConfig);
-        _airborneVelocity = new KeepMomentumAirborneVelocity(_velocity, state);
+        _airborneVelocity = new FullControlAirborneVelocity(state, movementConfig);
         _platformJumpVelocity = new PlatformJumpVelocity(_airborneVelocity, provider, movementConfig);
     }
 
@@ -32,9 +32,9 @@ public class VelocityHandler
     {        
         return true switch
         {
-            true when typeof(T) == typeof(PlatformJumpVelocity) => _platformJumpVelocity,   
-            true when typeof(T) == typeof(KeepMomentumAirborneVelocity) => _airborneVelocity,   
             true when typeof(T) == typeof(VelocityCompute) => _velocity,
+            true when typeof(T) == typeof(PlatformJumpVelocity) => _platformJumpVelocity,   
+            true when typeof(T) == typeof(AiborneVelocityCompute) => _airborneVelocity,   
             _ => throw new System.NotImplementedException(),
         };
     }
@@ -49,7 +49,7 @@ public class VelocityHandler
             _current = _velocity;
         else if(_state.Grounded == false)
             _current = _airborneVelocity;
-
+        
         if (_current != prev)
         {
             prev?.Exit();
@@ -64,55 +64,36 @@ public class VelocityHandler
 public class PlatformJumpVelocity : IVelocityCompute
 {
     private IPlatformProvider _platformProvider;
-    private KeepMomentumAirborneVelocity _airborneVelocity;
-    private MovementConfig _config;
-    private Vector3 _velocity;
-    private float _maxMagnitude;
-    private Vector3 _minVelocity;
+    private AiborneVelocityCompute _airborneVelocity;
     
-    public Vector3 Velocity => _velocity;
+    public Vector3 Velocity => _airborneVelocity.Velocity;
 
-    public PlatformJumpVelocity(KeepMomentumAirborneVelocity airborneVelocity, IPlatformProvider platformProvider, MovementConfig config)
+    public PlatformJumpVelocity(AiborneVelocityCompute airborneVelocity, IPlatformProvider platformProvider, MovementConfig config)
     {
-        _minVelocity = Vector3.zero;
         _airborneVelocity = airborneVelocity;
         _platformProvider = platformProvider;
-        _config = config;
     }
-
 
     public Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
     {
-        var maxVel = dir * _maxMagnitude;
-        var vel = Velocity.Horizontal();
-
-        //if (dir.sqrMagnitude > 0)
-        //    _velocity = Vector3.MoveTowards(vel, maxVel, _config.Acceleration * deltaTime);
-        //else
-        //    _velocity = Vector3.MoveTowards(vel, _minVelocity, _config.Decceleration * deltaTime);
-
-        return _airborneVelocity.CalculateHorizontalSpeed(dir, deltaTime);
-        return vel;
+        return _airborneVelocity.CalculateHorizontalSpeed(dir, deltaTime);        
     }
 
     public float CalculateVerticalSpeed(float deltaTime)
     {
-        var vel = _velocity;
-        vel.y = _airborneVelocity.CalculateVerticalSpeed(deltaTime);
-        _velocity = vel;
-        return _velocity.y;
+        return _airborneVelocity.CalculateVerticalSpeed(deltaTime);
     }
 
     public void Enter(Vector3 currentVelocity)
     {
         var platformVelocity = _platformProvider.Platform.UnscaledVelocity;
-        _velocity = currentVelocity + platformVelocity;
-        _maxMagnitude = platformVelocity.magnitude + 15f;
+        _airborneVelocity.Enter(currentVelocity + platformVelocity);
+        _airborneVelocity.AddMaxHorSpeed(platformVelocity.magnitude);
     }
 
     public void Exit()
     {
-        _velocity = Vector3.zero;
+        _airborneVelocity.Exit();
     }
 
     public void Jump(float speed)
@@ -121,56 +102,64 @@ public class PlatformJumpVelocity : IVelocityCompute
     }
 }
 
-public class KeepMomentumAirborneVelocity : IVelocityCompute
+public class FullControlAirborneVelocity : AiborneVelocityCompute
 {
-    private VelocityCompute _velocity;
-    private IJumpState _state;
-
-    public Vector3 Velocity => _velocity.Velocity;
-
-    public KeepMomentumAirborneVelocity(VelocityCompute velocity, IJumpState state)
+    public FullControlAirborneVelocity(IMovementState state, MovementConfig movementConfig) : base(state, movementConfig)
     {
-        _velocity = velocity;
-        _state = state;
+    }
+}
+
+public class KeepMomentumAirborneVelocity : AiborneVelocityCompute
+{
+    public KeepMomentumAirborneVelocity(IMovementState state, MovementConfig movementConfig) : base(state, movementConfig)
+    {
     }
 
-    public Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
+    public override Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
     {
         if (dir.sqrMagnitude > 0)
-            return _velocity.CalculateHorizontalSpeed(dir, deltaTime);
+            return base.CalculateHorizontalSpeed(dir, deltaTime);
         else
-            return _velocity.Velocity.Horizontal();
-        //return _velocity.CalculateHorizontalSpeed(dir, deltaTime);
+            return Velocity.Horizontal();
+    }
+}
+
+public class AiborneVelocityCompute : VelocityCompute
+{
+    private float _addedSpeed;
+
+    protected override float MaxHorizontalSpeed => base.MaxHorizontalSpeed + _addedSpeed;
+
+    public AiborneVelocityCompute(IMovementState state, MovementConfig movementConfig) : base(state, movementConfig)
+    {
     }
 
-    public float CalculateVerticalSpeed(float deltaTime)
+    public void AddMaxHorSpeed(float maxHorSpeed)
     {
-        return _velocity.CalculateVerticalSpeed(deltaTime);
+        _addedSpeed = maxHorSpeed;
     }
 
-    public void Enter(Vector3 currentVelocity)
+    public override void Exit()
     {
-        
-    }
+        _addedSpeed = 0f;
+        if(Direction.sqrMagnitude == 0)
+            Velocity = Vector3.zero;
 
-    public void Exit()
-    {
-        
-    }
-
-    public void Jump(float speed)
-    {
-        _velocity.Jump(speed);
+        base.Exit();
     }
 }
 
 public class VelocityCompute: IVelocityCompute
 {
     private Vector3 _minVelocity;
+    private Vector3 _velocity;
     private IMovementState _state;
     private MovementConfig MovementConfig;
-    private Vector3 _velocity;
     private float _vertSpeed;
+
+    protected Vector3 Direction { get; set; }
+    protected virtual float MaxHorizontalSpeed => MovementConfig.Speed;
+
     public Vector3 Velocity
     {
         get
@@ -178,6 +167,11 @@ public class VelocityCompute: IVelocityCompute
             var totalVel = _velocity;
             totalVel.y = _vertSpeed;
             return totalVel;
+        }
+        protected set
+        {
+            _velocity = value;
+            _vertSpeed = value.y;
         }
     }
 
@@ -188,24 +182,25 @@ public class VelocityCompute: IVelocityCompute
         MovementConfig = movementConfig;
     }
 
-    public Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
+    public virtual Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
     {
-        var maxVel = dir * MovementConfig.Speed;
+        var maxVel = dir * MaxHorizontalSpeed;
+        Direction = dir;
         if (_state.CrashedIntoWall)
-        {            
+        {
             return Vector3.zero;
         }
-
+        Debug.Log(_state.HaveWallCollision);
         var hor = _velocity.Horizontal();
         if (dir.sqrMagnitude > 0)
             _velocity = Vector3.MoveTowards(hor, maxVel, MovementConfig.Acceleration * deltaTime);
         else
             _velocity = Vector3.MoveTowards(hor, _minVelocity, MovementConfig.Decceleration * deltaTime);
-
+        
         return _velocity;
     }
 
-    public float CalculateVerticalSpeed(float deltaTime)
+    public virtual float CalculateVerticalSpeed(float deltaTime)
     {
         var vertAccel = 0f;
         if (_state.Grounded == false || _state.OnTooSteepSlope)
@@ -229,17 +224,17 @@ public class VelocityCompute: IVelocityCompute
         return _vertSpeed;
     }
 
-    public void Enter(Vector3 currentVelocity)
+    public virtual void Enter(Vector3 currentVelocity)
     {
-        _velocity = currentVelocity;
+        Velocity = currentVelocity;
     }
 
-    public void Exit()
+    public virtual void Exit()
     {
-        
+        Direction = Vector3.zero;
     }
 
-    public void Jump(float speed)
+    public virtual void Jump(float speed)
     {
         _vertSpeed = speed;
     }

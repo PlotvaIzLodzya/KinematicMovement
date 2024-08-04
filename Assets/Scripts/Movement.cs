@@ -89,6 +89,7 @@ public class Movement : MonoBehaviour
         _body.Position = nextPos;
 
         _body.LocalScale = transform.localScale;
+
         _velocity = _velocityHandler.GetVelocityCompute();
         State.Update(_direction);
     }
@@ -111,18 +112,18 @@ public class Movement : MonoBehaviour
         totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
 
         if (totalVelocity.magnitude <= MovementConfig.MinDistanceTravel)
-            totalVelocity = Vector3.zero;   
+            totalVelocity = Vector3.zero;
 
         return totalVelocity;
     }
 
     private Vector3 CalculateHorizontalVelocity(Vector3 pos, float deltaTime)
     {
-        var horVelocity = _velocity.CalculateHorizontalSpeed(_direction, deltaTime) ;
+        var horVelocity = _velocity.CalculateHorizontalSpeed(_direction, deltaTime);
+        
         horVelocity *= deltaTime;
         var vel = _slide.SlideByMovement_recursive(horVelocity, pos);
         
-
         return vel;
     }
 

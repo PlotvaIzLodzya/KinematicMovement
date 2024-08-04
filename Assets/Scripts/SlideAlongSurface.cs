@@ -36,8 +36,9 @@ public class SlideAlongSurface
     }
 
     private (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) GetSlideData(Vector3 dir, Vector3 vel, Vector3 currentPos, Vector3 hitNormal, float hitDist)
-    {
-        var velToNextStep = dir * (hitDist - MovementConfig.ContactOffset);
+    { 
+        var dist = hitDist - MovementConfig.ContactOffset;       
+        var velToNextStep = dir * (dist);        
         var leftOverVel = vel - velToNextStep;
         var nextPos = currentPos + velToNextStep;
 

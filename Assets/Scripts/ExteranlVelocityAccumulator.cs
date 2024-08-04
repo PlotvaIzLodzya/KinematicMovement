@@ -48,7 +48,7 @@ public class ExteranlVelocityAccumulator: IPlatformProvider
     public bool TryRemove(IExteranlMovemnt m)
     {
         bool removed = false;
-        if(Platform != null && m == Platform)
+        if(m == Platform)
         {
             Platform = null;
             _state.LeavePlatform(m as IPlatform);
