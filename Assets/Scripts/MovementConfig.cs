@@ -4,7 +4,7 @@ using UnityEngine;
 [Serializable]
 public class MovementConfig: ILayerMaskProvider
 {
-    public const float ContactOffset = 0.015f;
+    public const float ContactOffset = 0.005f;
     public const float CollisionCheckDistance = ContactOffset * 1.2f;
     public const float MinDistanceTravel = 0.0001f;
 

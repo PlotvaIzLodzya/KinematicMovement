@@ -20,7 +20,7 @@ public class SlideAlongSurface
 
         if (isTooSteep)
         {
-            var dis = hit.ColliderDistance - MovementConfig.ContactOffset;
+            var dis = hit.ColliderDistance;
             vel = vel.normalized * dis;
         }
 
