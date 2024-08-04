@@ -1247,8 +1247,6 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
-  test: 0
-  Velocity: {x: 0, y: 0, z: 0}
 --- !u!23 &1291135669
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1772,7 +1770,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1604949999
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1795,8 +1793,6 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
-  test: 0
-  Velocity: {x: 0, y: 0, z: 0}
 --- !u!135 &1604950000
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -2293,7 +2289,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!136 &2095349034
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2366,8 +2362,6 @@ MonoBehaviour:
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
     <MaxSlopeAngle>k__BackingField: 45
-  test: 0
-  Velocity: {x: 0, y: 0, z: 0}
 --- !u!23 &2095349037
 MeshRenderer:
   m_ObjectHideFlags: 0
