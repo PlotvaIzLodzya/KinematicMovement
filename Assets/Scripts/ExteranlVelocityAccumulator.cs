@@ -1,16 +1,20 @@
 ﻿using System.Collections.Generic;
-using UnityEditor.Build;
 using UnityEngine;
 
-public class ExteranlVelocityAccumulator
+public interface IPlatformProvider
+{
+    IPlatform Platform { get;}
+}
+
+public class ExteranlVelocityAccumulator: IPlatformProvider
 {
     private List<IExteranlMovemnt> _movements;
 
-    private IPlatform _platform;
     private IExteranlMovementState _state;
+
+    public IPlatform Platform { get; private set; }
     public Vector3 TotalVelocity => GetTotalVelocity();
-    public Vector3 PlatformVelocity => _platform.Velocity;
-    private bool _haveRotation => _platform != null;
+    private bool _haveRotation => Platform != null;
 
     public ExteranlVelocityAccumulator(IExteranlMovementState state)
     {
@@ -29,7 +33,7 @@ public class ExteranlVelocityAccumulator
         {
             if (_state.TrySetOnPlatform(platform))
             {
-                _platform = platform;
+                Platform = platform;
                 return _movements.TryAdd(m);
             }
             else
@@ -44,9 +48,9 @@ public class ExteranlVelocityAccumulator
     public bool TryRemove(IExteranlMovemnt m)
     {
         bool removed = false;
-        if(_platform != null && m == _platform)
+        if(Platform != null && m == Platform)
         {
-            _platform = null;
+            Platform = null;
             _state.LeavePlatform(m as IPlatform);
             removed = true;
         }
@@ -64,7 +68,7 @@ public class ExteranlVelocityAccumulator
         if(_haveRotation == false)
             return currentPos;
 
-        return currentPos.RotateAroundPivot(_platform.Position, _platform.RotationVelocity);
+        return currentPos.RotateAroundPivot(Platform.Position, Platform.RotationVelocity);
     }
 
     private Vector3 GetTotalVelocity()

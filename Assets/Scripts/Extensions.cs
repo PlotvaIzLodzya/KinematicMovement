@@ -7,7 +7,7 @@ public static class Extensions
     public static float ScaledRadius(this SphereCollider sphereCollider)
     {
         return sphereCollider.radius * sphereCollider.transform.lossyScale.GetMax();
-    }
+    }    
 
     public static bool TryAdd<T>(this List<T> list, T item)
     {
@@ -27,6 +27,14 @@ public static class Extensions
         value.z = (float)Math.Round(value.z, digits);
 
         return value;
+    }
+
+    public static Vector3 GetAbsoluteValue(this Vector3 vector)
+    {
+        vector.x = Mathf.Abs(vector.x);
+        vector.y = Mathf.Abs(vector.y);
+        vector.z = Mathf.Abs(vector.z);
+        return vector;
     }
 
     public static float GetMax(this Vector3 vector)

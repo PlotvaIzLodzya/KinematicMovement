@@ -7,6 +7,7 @@ public interface IJumpState
     bool Grounded { get; }
     bool IsJumping { get; }
 }
+
 public interface IMovementState
 {    
     bool HaveWallCollision { get; }
@@ -92,8 +93,11 @@ public class MovementState: IMovementState, IExteranlMovementState, IJumpState
         LeftGround = wasGrounded && Grounded == false;
         _previousVelCheck = velrGroundCheck;
 
-        if(BecomeGrounded)
+        if (BecomeGrounded)
+        {
             IsJumping = false;
+            IsOnPlatform = false;
+        }
     }
 
     public void SetJumping(bool isJumping)
@@ -119,7 +123,7 @@ public class MovementState: IMovementState, IExteranlMovementState, IJumpState
 
     public void LeavePlatform(IPlatform platform)
     {
-        IsOnPlatform = false;
+        //IsOnPlatform = false;
     }
 
     public bool CanSetOnPlatform( IPlatform platform)

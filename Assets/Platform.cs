@@ -4,6 +4,7 @@ using UnityEngine;
 public interface IExteranlMovemnt
 {
     Vector3 Velocity { get; }
+    Vector3 UnscaledVelocity { get; }
 }
 
 public interface IPlatform: IExteranlMovemnt
@@ -21,8 +22,10 @@ public class Platform : MonoBehaviour, IPlatform
 
     public Vector3 Position => _rb.Position;
     public Vector3 Velocity { get; private set; }
+    public Vector3 UnscaledVelocity {get; private set; }
     public Vector3 CollisionPoint { get; private set; }
     public Quaternion RotationVelocity { get; private set; }
+
 
     private void Awake()
     {
@@ -93,6 +96,7 @@ public class Platform : MonoBehaviour, IPlatform
     {
         UpdateBody(_rb, deltaTime);
         Velocity = _rb.Position - _prevPosition;
+        UnscaledVelocity = Velocity / deltaTime;
         RotationVelocity = _rb.Rotation * Quaternion.Inverse(_prevRotation);
         _prevRotation = _rb.Rotation;
         _prevPosition = _rb.Position;
