@@ -18,6 +18,16 @@ namespace PlotvaIzLodzya.Extensions
             return capsuleCollider.radius * capsuleCollider.transform.lossyScale.GetMax();
         }
 
+        public static Vector3 ScaledSize(this BoxCollider boxCollider)
+        {
+            var size = boxCollider.size;
+            size.x *= boxCollider.transform.lossyScale.x;
+            size.y *= boxCollider.transform.lossyScale.y;
+            size.z *=boxCollider.transform.lossyScale.z;
+
+            return size;
+        }
+
         public static bool TryAdd<T>(this List<T> list, T item)
         {
             if (list.Contains(item) == false)

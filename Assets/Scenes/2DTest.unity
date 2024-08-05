@@ -1293,13 +1293,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948392621}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 0.9504652, w: 0.310831}
+  m_LocalRotation: {x: -0, y: -0, z: 0.9907042, w: 0.13603385}
   m_LocalPosition: {x: -3.28, y: -5.28, z: 0}
   m_LocalScale: {x: 32.0073, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 143.781}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 164.363}
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -2032,7 +2032,7 @@ MonoBehaviour:
     <DeccelerationTime>k__BackingField: 0.05
     <JumpHeight>k__BackingField: 2
     <JumpTime>k__BackingField: 0.2
-    <MaxSlopeAngle>k__BackingField: 30
+    <MaxSlopeAngle>k__BackingField: 10
 --- !u!50 &1920545087
 Rigidbody2D:
   serializedVersion: 4
@@ -2208,10 +2208,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c711eec3a8082284e8654b1e3472337f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _layerMask:
-    serializedVersion: 2
-    m_Bits: 64
-  _collider: {fileID: 2045369306}
 --- !u!58 &2045369306
 CircleCollider2D:
   m_ObjectHideFlags: 0

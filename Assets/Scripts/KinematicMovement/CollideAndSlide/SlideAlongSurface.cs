@@ -19,12 +19,12 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
         {
             if (currentDepth >= 5)
                 return Vector3.zero;
-
+            
             (var isTooSteep, var hit, var dir) = GetHitData(vel, currentPos);
 
             if (isTooSteep)
             {
-                var dis = hit.ColliderDistance - MovementConfig.ContactOffset;
+                var dis = Mathf.Clamp(hit.ColliderDistance, MovementConfig.CollisionCheckDistance, hit.ColliderDistance);
                 vel = vel.normalized * dis;
             }
 
@@ -39,15 +39,29 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             return vel;
         }
 
+        private (bool isTooSteep, HitInfo hit, Vector3 direction) GetHitData(Vector3 vel, Vector3 currentPos)
+        {
+            float dist = Mathf.Clamp(vel.magnitude, MovementConfig.ContactOffset, vel.magnitude);
+
+            var dir = vel.normalized;
+
+            var hit = _collision.GetHit(currentPos, dir, dist);
+            float angle = Vector3.Angle(Vector3.up, hit.Normal);
+            var tooSteep = _movementState.IsSlopeTooSteep(angle) && _movementState.Grounded;
+
+            return (tooSteep, hit, dir);
+        }
+
         private (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) GetSlideData(Vector3 dir, Vector3 vel, Vector3 currentPos, Vector3 hitNormal, float hitDist)
         {
             var dist = hitDist - MovementConfig.ContactOffset;
+            //Debug.Log(hitDist);
             var velToNextStep = dir * dist;
             var leftOverVel = vel - velToNextStep;
             var nextPos = currentPos + velToNextStep;
 
             var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hitNormal);
-
+            
             return (velToNextStep, projectedleftOverVel, nextPos);
         }
 
@@ -70,18 +84,6 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             }
 
             return vel;
-        }
-
-        private (bool isTooSteep, HitInfo hit, Vector3 direction) GetHitData(Vector3 vel, Vector3 currentPos)
-        {
-            float dist = vel.magnitude;
-            var dir = vel.normalized;
-
-            var hit = _collision.GetHit(currentPos, dir, dist);
-            float angle = Vector3.Angle(Vector3.up, hit.Normal);
-            var tooSteep = _movementState.IsSlopeTooSteep(angle) && _movementState.Grounded;
-
-            return (tooSteep, hit, dir);
         }
     }
 }

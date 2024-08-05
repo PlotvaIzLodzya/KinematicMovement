@@ -84,8 +84,10 @@ namespace PlotvaIzLodzya.KinematicMovement
         private Vector3 HandleExternalMovement(Vector3 position)
         {
             var prevPosition = position;
+
             if (State.IsOnTooSteepSlope() == false && State.Grounded)
                 position = ExteranalMovementAccumulator.GetPositionByRotation(position);
+
             AngularVelocity = position - prevPosition;
 
             position += ExteranalMovementAccumulator.TotalVelocity;

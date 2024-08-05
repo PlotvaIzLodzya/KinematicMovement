@@ -52,7 +52,6 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
                 _velocity = Vector3.MoveTowards(hor, maxVel, MovementConfig.Acceleration * deltaTime);
             else
                 _velocity = Vector3.MoveTowards(hor, _minVelocity, MovementConfig.Decceleration * deltaTime);
-            Debug.Log(_velocity);
 
             return _velocity;
         }

@@ -3,7 +3,6 @@ using PlotvaIzLodzya.KinematicMovement.CollisionCompute;
 using PlotvaIzLodzya.KinematicMovement.Platforms;
 using System;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 {
@@ -11,12 +10,12 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
     [Serializable]
     public class MovementState : IMovementState, IExteranlMovementState, IJumpState
     {
+        private bool _stickFromAnySide;
         private bool _previousVelCheck;
         private HitInfo _groundHit;
         private IBody _body;
         private ICollision _collision;
         private MovementConfig _movementConfig;
-        private bool _stickFromAnySide;
 
         public bool IsOnPlatform { get; private set; }
         public bool IsEnteredPlatform { get; private set; }

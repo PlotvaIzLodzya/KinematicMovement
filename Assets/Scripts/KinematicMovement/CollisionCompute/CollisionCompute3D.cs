@@ -38,13 +38,13 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
                 if (collider == null)
                     continue;
 
-                Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, Body.Position, Body.Rotation, out Vector3 dir, out float distance);
+                Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, position, Body.Rotation, out Vector3 dir, out float distance);
                 var dist = distance;
 
                 if (dist > closestDistance)
                 {
                     closestDistance = dist;
-                    var closestPosition = Body.Position - dir.normalized * closestDistance;
+                    var closestPosition = position - dir.normalized * closestDistance;
                     hitInfo = new HitInfo(closestPosition, dir.normalized, distance, closestDistance, true, collider.transform);
                 }
             }
