@@ -14,7 +14,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
 
         public override HitInfo GetHit(Vector3 pos, Vector3 dir, float dist)
         {
-            Physics.BoxCast(pos, Collider.bounds.extents, dir, out RaycastHit raycastHit, Body.Rotation, dist, CollisionMask);
+            Physics.BoxCast(pos, Collider.ScaledSize()*0.5f, dir, out RaycastHit raycastHit, Body.Rotation, dist, CollisionMask);
 
             return raycastHit.ToHitInfo();
         }
@@ -22,7 +22,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
         public override Collider[] Overlap(Vector3 pos)
         {
             Array.Clear(Colliders, 0, Colliders.Length);
-            Physics.OverlapBoxNonAlloc(pos, Collider.bounds.extents, Colliders, Body.Rotation, CollisionMask);
+            Physics.OverlapBoxNonAlloc(pos, Collider.ScaledSize()*0.5f, Colliders, Body.Rotation, CollisionMask);
 
             return Colliders;
         }
