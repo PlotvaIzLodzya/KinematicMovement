@@ -34,7 +34,7 @@ namespace PlotvaIzLodzya.KinematicMovement
             _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
             State = new MovementState(_body, _collision, MovementConfig);
             ExteranalMovementAccumulator = new(State);
-            _slide = new SlideAlongSurface2D(_collision, State);
+            _slide = SlideBuilder.Create(_body, _collision, State);
             _velocityHandler = new(State, MovementConfig, ExteranalMovementAccumulator);
             _velocityCompute = _velocityHandler.GetVelocityCompute<VelocityCompute.VelocityCompute>();
         }

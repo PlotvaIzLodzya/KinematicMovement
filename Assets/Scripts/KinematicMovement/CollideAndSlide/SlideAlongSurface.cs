@@ -10,12 +10,12 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
         public Vector3 SlideByGravity_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0);
     }
 
-    public class SlideAlongSurface:ISlide
+    public class SlideAlongSurface3D:ISlide
     {
         private ICollision _collision;
         private IMovementState _movementState;
 
-        public SlideAlongSurface(ICollision collision, IMovementState movementState)
+        public SlideAlongSurface3D(ICollision collision, IMovementState movementState)
         {
             _collision = collision;
             _movementState = movementState;
