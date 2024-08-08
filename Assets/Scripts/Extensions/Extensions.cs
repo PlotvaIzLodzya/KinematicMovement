@@ -128,6 +128,23 @@ namespace PlotvaIzLodzya.Extensions
 
     public static class VectorEnhance
     {
+
+        public static Vector2 PointOnBounds(Bounds bounds, Vector2 direction)
+        {
+            direction = direction.normalized;
+            var extents = bounds.extents;            
+            float y = extents.x * direction.y / direction.x;
+            if (Mathf.Abs(y) < extents.y)
+                return new Vector2(extents.x, y);
+            return new Vector2(extents.y * direction.x / direction.y, extents.y);
+        }
+
+        public static Vector2 PointOnBounds(this Bounds bounds, float angle)
+        {
+            float radAngle = angle * Mathf.Deg2Rad;
+            return (Vector2)bounds.center + PointOnBounds(bounds, new Vector2(Mathf.Cos(radAngle), Mathf.Sin(radAngle)));
+        }
+
         public static Vector3 SetHorizontal(this Vector3 v1, Vector3 v2)
         {
             v1.x = v2.x;

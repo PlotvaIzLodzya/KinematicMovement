@@ -17,7 +17,7 @@ namespace PlotvaIzLodzya.KinematicMovement
         private ICollision _collision;
         private IVelocityCompute _velocityCompute;
         private VelocityHandler _velocityHandler;
-        private SlideAlongSurface _slide;
+        private ISlide _slide;
 
 
         public Vector3 Velocity { get; private set; }
@@ -34,7 +34,7 @@ namespace PlotvaIzLodzya.KinematicMovement
             _collision = CollisionBuilder.Create(gameObject, _body, MovementConfig);
             State = new MovementState(_body, _collision, MovementConfig);
             ExteranalMovementAccumulator = new(State);
-            _slide = new SlideAlongSurface(_collision, State);
+            _slide = new SlideAlongSurface2D(_collision, State);
             _velocityHandler = new(State, MovementConfig, ExteranalMovementAccumulator);
             _velocityCompute = _velocityHandler.GetVelocityCompute<VelocityCompute.VelocityCompute>();
         }
