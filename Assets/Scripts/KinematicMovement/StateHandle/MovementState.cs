@@ -29,7 +29,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
         public bool OnTooSteepSlope { get; private set; }
         public bool Ceiled { get; private set; }
         public bool BecomeCeiled { get; private set; }
-        public Vector3 GroundNormal => _groundHit.Normal;
+        public Vector3 GroundNormal => _groundHit.HitNormal;
 
         public MovementState(IBody body, ICollision collision, MovementConfig movementConfig)
         {
@@ -48,6 +48,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
             var wasGrounded = _previousVelCheck || Grounded;
             var wasOnTooSteepSlope = OnTooSteepSlope;
 
+            //Debug.Log(haveWallCollision);
             CrashedIntoWall = haveWallCollision && HaveWallCollision == false;
             HaveWallCollision = haveWallCollision;
 
@@ -147,7 +148,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 
         public float GetAngle(HitInfo hit)
         {
-            float angle = Vector3.Angle(Vector3.up, hit.Normal);
+            float angle = Vector3.Angle(Vector3.up, hit.HitNormal);
 
             return angle;
         }

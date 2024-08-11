@@ -4,41 +4,36 @@ using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
 {
-    public interface ISlide
-    {
-        Vector3 SlideByMovement_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0);
-        public Vector3 SlideByGravity_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0);
-    }
-
-    public class SlideAlongSurface3D:ISlide
-    {
+    public abstract class SlideAlongSurface : ISlide
+    {        
         private ICollision _collision;
         private IMovementState _movementState;
 
-        public SlideAlongSurface3D(ICollision collision, IMovementState movementState)
+        public SlideAlongSurface(ICollision collision, IMovementState movementState)
         {
             _collision = collision;
             _movementState = movementState;
         }
 
+        protected abstract Vector3 GetSurfaceNormal(HitInfo hit, Vector3 direction);
+
         public Vector3 SlideByMovement_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0)
         {
             if (currentDepth >= 5)
                 return Vector3.zero;
-            
-            (var isTooSteep, var hit, var dir) = GetHitData(vel, currentPos);
+
+            (var isTooSteep, var hit, var dir) = GetHitData(vel, currentPos, MovementConfig.CollisionCheckDistance * 10);
 
             if (isTooSteep)
             {
-                var dis = Mathf.Clamp(hit.ColliderDistance, MovementConfig.CollisionCheckDistance, hit.ColliderDistance);
-                vel = dir.normalized * dis;
+                (dir, hit) = HandleSteepSlope(hit, dir, vel);
             }
 
             if (hit.HaveHit)
             {
-                (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) = GetSlideData(dir, vel, currentPos, hit.Normal, hit.Distance);
-
-                vel = velToNextStep + SlideByMovement_recursive(projectedleftOverVel, nextPos, ++currentDepth);
+                (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) slideData = GetSlideData(dir, vel, currentPos, hit.HitNormal, hit.Distance);
+                
+                vel = slideData.velToNextStep + SlideByMovement_recursive(slideData.projectedleftOverVel, slideData.nextPos, ++currentDepth);
 
                 return vel;
             }
@@ -46,15 +41,33 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             return vel;
         }
 
-        private (bool isTooSteep, HitInfo hit, Vector3 direction) GetHitData(Vector3 vel, Vector3 currentPos)
+        public Vector3 SlideByGravity_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0)
         {
-            float dist = Mathf.Clamp(vel.magnitude, MovementConfig.ContactOffset, vel.magnitude);
+            if (currentDepth >= 5)
+                return Vector3.zero;
 
+            (var isTooSteep, var hit, var dir) = GetHitData(vel, currentPos, vel.magnitude);
+
+            if (isTooSteep == false)
+                currentDepth = 5;
+
+            if (hit.HaveHit)
+            {
+                (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) = GetSlideData(dir, vel, currentPos, hit.HitNormal, hit.Distance);
+                vel = velToNextStep + SlideByGravity_recursive(projectedleftOverVel, nextPos, ++currentDepth);
+
+                return vel;
+            }
+
+            return vel;
+        }
+
+        private (bool isTooSteep, HitInfo hit, Vector3 direction) GetHitData(Vector3 vel, Vector3 currentPos, float dist)
+        {
             var dir = vel.normalized;
 
-            var hit = _collision.GetHit(currentPos, dir, MovementConfig.ContactOffset*10);
-            float angle = Vector3.Angle(Vector3.up, hit.Normal);
-            
+            var hit = _collision.GetHit(currentPos, dir, dist);
+            float angle = Vector3.Angle(Vector3.up, hit.HitNormal);
             var tooSteep = _movementState.IsSlopeTooSteep(angle) && _movementState.Grounded;
 
             return (tooSteep, hit, dir);
@@ -72,46 +85,21 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             return (velToNextStep, projectedleftOverVel, nextPos);
         }
 
-        private (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) GetSlideData2(Vector3 dir, Vector3 vel, Vector3 currentPos, Vector3 hitNormal, float hitDist)
+        private (Vector3 dir, HitInfo hit) HandleSteepSlope(HitInfo hit, Vector3 dir, Vector3 vel)
         {
-            var dist = hitDist - MovementConfig.ContactOffset;
-            //Debug.Log(hitDist);
-            var velToNextStep = dir * dist;
-            var leftOverVel = vel - velToNextStep;
-            var nextPos = currentPos + velToNextStep;
+            var surfaceNormal = GetSurfaceNormal(hit, dir);
+            var angle = Vector3.Angle(Vector3.up, surfaceNormal);
+            var multiplier = Mathf.Lerp(20, 1, angle / 90);
+            surfaceNormal.y = 0f;
+            hit.HitNormal = surfaceNormal.normalized;
+            hit.Distance = Mathf.Clamp(hit.Distance, MovementConfig.ContactOffset, vel.magnitude + MovementConfig.ContactOffset);
 
-            var projectedleftOverVel = Vector3.ProjectOnPlane(leftOverVel, hitNormal);
-            var hit = _collision.GetHit(currentPos, dir, MovementConfig.ContactOffset*2);
-            float angle = Vector3.Angle(Vector3.up, hit.Normal);
-            if (_movementState.IsSlopeTooSteep(angle))
+            if (hit.Distance <= MovementConfig.ContactOffset * multiplier)
             {
-                velToNextStep = Vector3.zero;
-                projectedleftOverVel = Vector3.zero;
-                nextPos = currentPos;
+                dir = Vector3.ProjectOnPlane(dir.normalized, surfaceNormal).normalized;
             }
 
-            return (velToNextStep, projectedleftOverVel, nextPos);
-        }
-
-        public Vector3 SlideByGravity_recursive(Vector3 vel, Vector3 currentPos, int currentDepth = 0)
-        {
-            if (currentDepth >= 5)
-                return Vector3.zero;
-
-            (var isTooSteep, var hit, var dir) = GetHitData(vel, currentPos);
-
-            if (isTooSteep == false)
-                currentDepth = 5;
-
-            if (hit.HaveHit)
-            {
-                (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) = GetSlideData(dir, vel, currentPos, hit.Normal, hit.Distance);
-                vel = velToNextStep + SlideByGravity_recursive(projectedleftOverVel, nextPos, ++currentDepth);
-
-                return vel;
-            }
-
-            return vel;
-        }
+            return (dir, hit);
+        }        
     }
 }

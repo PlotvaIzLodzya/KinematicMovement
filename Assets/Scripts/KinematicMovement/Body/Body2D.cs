@@ -38,6 +38,8 @@ namespace PlotvaIzLodzya.KinematicMovement.Body
             }
         }
 
+        public Vector3 Velocity { get => _rigidbody.velocity; set => _rigidbody.velocity = value; }
+
         public Body2D(Rigidbody2D rigidbody)
         {
             _rigidbody = rigidbody;

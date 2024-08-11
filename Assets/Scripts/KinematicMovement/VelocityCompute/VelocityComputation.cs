@@ -5,7 +5,7 @@ using UnityEngine;
 namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 {
 
-    public class VelocityCompute : IVelocityCompute
+    public class VelocityComputation : IVelocityCompute
     {
         private Vector3 _minVelocity;
         private Vector3 _velocity;
@@ -31,7 +31,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
             }
         }
 
-        public VelocityCompute(IMovementState state, MovementConfig movementConfig)
+        public VelocityComputation(IMovementState state, MovementConfig movementConfig)
         {
             _state = state;
             _minVelocity = Vector3.zero;
@@ -42,6 +42,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         {
             var maxVel = dir * MaxHorizontalSpeed;
             Direction = dir;
+
             if (_state.CrashedIntoWall)
             {
                 _velocity = Vector3.zero;

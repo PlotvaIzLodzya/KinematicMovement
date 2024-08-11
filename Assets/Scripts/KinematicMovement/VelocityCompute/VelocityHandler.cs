@@ -7,7 +7,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
     public class VelocityHandler
     {
         private MovementState _state;
-        private VelocityCompute _velocity;
+        private VelocityComputation _velocity;
         private AirborneVelocityCompute _airborneVelocity;
         private PlatformJumpVelocity _platformJumpVelocity;
         private IVelocityCompute _current;
@@ -15,7 +15,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         public VelocityHandler(MovementState state, MovementConfig movementConfig, IPlatformProvider provider)
         {
             _state = state;
-            _velocity = new VelocityCompute(state, movementConfig);
+            _velocity = new VelocityComputation(state, movementConfig);
             _airborneVelocity = new FullControlAirborneVelocity(state, movementConfig);
             _platformJumpVelocity = new PlatformJumpVelocity(_airborneVelocity, provider, movementConfig);
         }
@@ -24,7 +24,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         {
             return true switch
             {
-                true when typeof(T) == typeof(VelocityCompute) => _velocity,
+                true when typeof(T) == typeof(VelocityComputation) => _velocity,
                 true when typeof(T) == typeof(PlatformJumpVelocity) => _platformJumpVelocity,
                 true when typeof(T) == typeof(AirborneVelocityCompute) => _airborneVelocity,
                 _ => throw new System.NotImplementedException(),

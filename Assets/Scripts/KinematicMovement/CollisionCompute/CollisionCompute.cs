@@ -33,7 +33,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
         public Vector3 GetDeltaPositionToHit(HitInfo hit)
         {
             var hitDist = hit.ColliderDistance;
-            var deltaPos = hit.Normal * hitDist;
+            var deltaPos = hit.HitNormal * hitDist;
 
             return deltaPos;
         }
@@ -82,12 +82,12 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
 
         public bool CheckDirection(Vector3 direction)
         {
-            return TryGetHit(Body.Position, direction, MovementConfig.ContactOffset, out var hit);
+            return CheckDirection(direction, out var hit);
         }
 
         public bool CheckDirection(Vector3 direction, out HitInfo hit)
         {
-            return TryGetHit(Body.Position, direction, MovementConfig.ContactOffset, out hit);
+            return TryGetHit(Body.Position, direction, MovementConfig.ContactOffset*2, out hit);
         }
     }
 }

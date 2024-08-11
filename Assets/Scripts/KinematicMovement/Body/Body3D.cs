@@ -42,6 +42,7 @@ namespace PlotvaIzLodzya.KinematicMovement.Body
             _rigidbody = rigidbody;
             _previousScale = rigidbody.transform.localScale;
         }
+        public Vector3 Velocity { get => _rigidbody.velocity; set => _rigidbody.velocity = value; }
 
         public void MovePosition(Vector3 position)
         {

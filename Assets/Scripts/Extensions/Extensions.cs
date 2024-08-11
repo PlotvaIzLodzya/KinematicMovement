@@ -2,6 +2,7 @@
 using PlotvaIzLodzya.KinematicMovement.CollisionCompute;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Extensions
@@ -100,7 +101,7 @@ namespace PlotvaIzLodzya.Extensions
             var hitInfo = new HitInfo()
             {
                 Point = hit.point,
-                Normal = hit.normal,
+                HitNormal = hit.normal,
                 Distance = dist,
                 HaveHit = haveHit,
                 Transform = hit.transform,
@@ -115,7 +116,7 @@ namespace PlotvaIzLodzya.Extensions
             var hitInfo = new HitInfo()
             {
                 Point = hit.point,
-                Normal = hit.normal,
+                HitNormal = hit.normal,
                 Distance = hit.distance,
                 ColliderDistance = hit.distance + MovementConfig.ContactOffset,
                 HaveHit = hit.collider != null,
@@ -128,21 +129,60 @@ namespace PlotvaIzLodzya.Extensions
 
     public static class VectorEnhance
     {
+        //need to rework
+        //public static Vector2 PointOnBounds(Bounds bounds, Vector2 direction)
+        //{
+        //    direction = direction.normalized;
+        //    var extents = bounds.extents;            
+        //    float y = extents.x * direction.y / direction.x;
+        //    if (Mathf.Abs(y) < extents.y)
+        //        return new Vector2(extents.x, y);
+        //    return new Vector2(extents.y * direction.x / direction.y, extents.y);
+        //}
 
-        public static Vector2 PointOnBounds(Bounds bounds, Vector2 direction)
-        {
-            direction = direction.normalized;
-            var extents = bounds.extents;            
-            float y = extents.x * direction.y / direction.x;
-            if (Mathf.Abs(y) < extents.y)
-                return new Vector2(extents.x, y);
-            return new Vector2(extents.y * direction.x / direction.y, extents.y);
-        }
+        //public static Vector2 PointOnBounds(this Bounds bounds, float angle)
+        //{
+        //    float radAngle = angle * Mathf.Deg2Rad;            
+        //    return (Vector2)bounds.center + PointOnBounds(bounds, new Vector2(Mathf.Cos(radAngle), Mathf.Sin(radAngle)));
+        //}
 
-        public static Vector2 PointOnBounds(this Bounds bounds, float angle)
+        public static Vector2 FindIntersectionPoint(float width, float height, float centerX, float centerY, float angleDegrees)
         {
-            float radAngle = angle * Mathf.Deg2Rad;
-            return (Vector2)bounds.center + PointOnBounds(bounds, new Vector2(Mathf.Cos(radAngle), Mathf.Sin(radAngle)));
+            float angleRadians = Mathf.PI * angleDegrees / 180f; // Convert angle to radians
+            float tanAngle = Mathf.Tan(angleRadians);
+
+            float x, y;
+
+            // Right edge intersection
+            if (angleDegrees >= 0 && angleDegrees <= 90)
+            {
+                y = tanAngle * width / 2;
+                x = width / 2;
+            }
+            // Top edge intersection
+            else if (angleDegrees > 90 && angleDegrees <= 180)
+            {
+                x = width / 2 / tanAngle;
+                y = height / 2;
+            }
+            // Left edge intersection
+            else if (angleDegrees > 180 && angleDegrees <= 270)
+            {
+                y = -tanAngle * width / 2;
+                x = -width / 2;
+            }
+            // Bottom edge intersection
+            else
+            {
+                x = -width / 2 / tanAngle;
+                y = -height / 2;
+            }
+
+            // Offset by rectangle center
+            x += centerX;
+            y += centerY;
+
+            return new Vector2(x, y);
         }
 
         public static Vector3 SetHorizontal(this Vector3 v1, Vector3 v2)

@@ -5,7 +5,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
     public struct HitInfo
     {
         public Vector3 Point;
-        public Vector3 Normal;
+        public Vector3 HitNormal;
         public float Distance;
         public float ColliderDistance;
         public bool HaveHit;
@@ -14,7 +14,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
         public HitInfo(Vector3 point, Vector3 normal, float distance, float colliderDistance, bool haveHit, Transform transform)
         {
             Point = point;
-            Normal = normal;
+            HitNormal = normal;
             Distance = distance;
             ColliderDistance = colliderDistance + MovementConfig.ContactOffset;
             HaveHit = haveHit;

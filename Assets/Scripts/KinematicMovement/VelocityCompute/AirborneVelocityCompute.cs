@@ -3,7 +3,7 @@ using PlotvaIzLodzya.KinematicMovement.StateHandle;
 
 namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 {
-    public class AirborneVelocityCompute : VelocityCompute
+    public class AirborneVelocityCompute : VelocityComputation
     {
         private float _addedSpeed;
 

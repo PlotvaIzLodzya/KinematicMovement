@@ -20,7 +20,7 @@ namespace PlotvaIzLodzya.KinematicMovement.Examples
         private void Update()
         {
             _direction = Vector2.zero;
-            //HandleRotation();
+            HandleRotation();
 
             if (Input.GetKey(KeyCode.D))
                 _direction += _camera.transform.right;

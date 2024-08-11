@@ -5,6 +5,7 @@ namespace PlotvaIzLodzya.KinematicMovement.Body
 {
     public interface IBody
     {
+        Vector3 Velocity { get; set; }
         Quaternion Rotation { get; set; }
         Quaternion LocalRotation { get; set; }
         Vector3 LocalScale { get; set; }
