@@ -52,6 +52,7 @@ namespace PlotvaIzLodzya.KinematicMovement
 
         public void Move(Vector3 direction)
         {
+            _slide.SetDesireDir(direction);
             _direction = direction;
         }
 
@@ -116,9 +117,9 @@ namespace PlotvaIzLodzya.KinematicMovement
         private Vector3 CalculateHorizontalVelocity(Vector3 pos, float deltaTime)
         {
             var horVelocity = _velocityCompute.CalculateHorizontalSpeed(_direction, deltaTime);
-
             horVelocity *= deltaTime;
             var vel = _slide.SlideByMovement_recursive(horVelocity, pos);
+            //Debug.Log(vel);
 
             return vel;
         }

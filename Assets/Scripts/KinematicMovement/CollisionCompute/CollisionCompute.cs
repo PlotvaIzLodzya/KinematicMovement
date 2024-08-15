@@ -80,14 +80,22 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
             return hit.HaveHit;
         }
 
-        public bool CheckDirection(Vector3 direction)
+        public bool CheckForSurface(Vector3 direction)
         {
-            return CheckDirection(direction, out var hit);
+            return CheckForSurface(direction, out var hit);
         }
 
-        public bool CheckDirection(Vector3 direction, out HitInfo hit)
+        public bool CheckForSurface(Vector3 direction, out HitInfo hit)
         {
-            return TryGetHit(Body.Position, direction, MovementConfig.ContactOffset*2, out hit);
+            var haveHit = TryGetHit(Body.Position, direction, MovementConfig.ContactOffset * 2, out hit);
+            hit.HitNormal = GetSurfaceNormal(hit, direction);
+            return haveHit;
+        }
+
+        protected Vector3 GetSurfaceNormal(HitInfo hit, Vector3 direction)
+        {
+            Physics.Raycast(new Ray(hit.Point - direction * 0.01f, direction), out var result, 0.011f);
+            return result.normal;
         }
     }
 }

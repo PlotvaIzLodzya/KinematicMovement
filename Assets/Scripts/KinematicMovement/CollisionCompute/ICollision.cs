@@ -8,8 +8,8 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
         bool TryGetHit(Vector3 pos, Vector3 dir, float dist, out HitInfo hit);
         bool TryGetHit(out HitInfo hit);
         HitInfo GetHit(Vector3 pos, Vector3 dir, float dist);
-        bool CheckDirection(Vector3 direction);
-        bool CheckDirection(Vector3 direction, out HitInfo hit);
+        bool CheckForSurface(Vector3 direction);
+        bool CheckForSurface(Vector3 direction, out HitInfo hit);
         HitInfo GetHit(Vector3 position);
         HitInfo GetHit();
         Vector3 GetClosestPositionTo(HitInfo hitInfo);

@@ -13,6 +13,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
         private bool _stickFromAnySide;
         private bool _previousVelCheck;
         private HitInfo _groundHit;
+        private HitInfo _wallHit;
         private IBody _body;
         private ICollision _collision;
         private MovementConfig _movementConfig;
@@ -30,6 +31,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
         public bool Ceiled { get; private set; }
         public bool BecomeCeiled { get; private set; }
         public Vector3 GroundNormal => _groundHit.HitNormal;
+        public Vector3 WallNormal => _wallHit.HitNormal;
 
         public MovementState(IBody body, ICollision collision, MovementConfig movementConfig)
         {
@@ -80,15 +82,17 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 
         public bool Check(Vector3 velocity)
         {
-            return _collision.CheckDirection(velocity);
+            return _collision.CheckForSurface(velocity);
         }
 
         public bool CheckWall(Vector3 velocity)
         {
-            _collision.CheckDirection(velocity, out HitInfo hit);
+            _collision.CheckForSurface(velocity, out HitInfo hit);
             var angle = GetAngle(hit);
-
-            return IsSlopeTooSteep(angle);
+            var isWall = IsSlopeTooSteep(angle);
+            if (isWall)
+                _wallHit = hit;
+            return isWall;
         }
 
         public bool TrySetOnPlatform(IPlatform platform)

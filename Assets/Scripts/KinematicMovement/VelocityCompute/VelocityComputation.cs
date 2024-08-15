@@ -42,12 +42,20 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         {
             var maxVel = dir * MaxHorizontalSpeed;
             Direction = dir;
-
+            _velocity = maxVel;
+            return maxVel;
             if (_state.CrashedIntoWall)
             {
                 _velocity = Vector3.zero;
                 return Vector3.zero;
             }
+
+            //if (_state.HaveWallCollision)
+            //{
+            //    //_velocity = Vector3.zero;
+            //    _velocity = Vector3.ProjectOnPlane(_velocity, _state.WallNormal);
+                
+            //}
             var hor = _velocity.Horizontal();
             if (dir.sqrMagnitude > 0)
                 _velocity = Vector3.MoveTowards(hor, maxVel, MovementConfig.Acceleration * deltaTime);

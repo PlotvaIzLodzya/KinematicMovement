@@ -7,6 +7,7 @@ namespace PlotvaIzLodzya.KinematicMovement.Examples
     {
         [SerializeField] private Movement _movement;
         [SerializeField] private float _sensitivity = 5f;
+        [SerializeField] CharacterController _charasd;
 
         private Camera _camera;
         private Vector3 _direction;
@@ -20,7 +21,7 @@ namespace PlotvaIzLodzya.KinematicMovement.Examples
         private void Update()
         {
             _direction = Vector2.zero;
-            HandleRotation();
+            //HandleRotation();
 
             if (Input.GetKey(KeyCode.D))
                 _direction += _camera.transform.right;
@@ -38,6 +39,8 @@ namespace PlotvaIzLodzya.KinematicMovement.Examples
                 _movement.Jump();
 
             _direction = _direction.Horizontal().normalized;
+            if(_charasd != null)
+            _charasd.Move(_direction * 15f * Time.deltaTime);
             _movement.Move(_direction);
         }
 

@@ -14,6 +14,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
         bool Ceiled { get; }
         bool BecomeCeiled { get; }
         Vector3 GroundNormal { get; }
+        Vector3 WallNormal { get; }
 
         bool Check(Vector3 velocity);
         bool IsSlopeTooSteep(float angle);

@@ -21,7 +21,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
 
         public override HitInfo GetHit(Vector3 pos)
         {
-            var colliders = Overlap(pos);
+            var colliders = Overlap(pos);            
             var hitInfo = GetClosestHitPosition(colliders, pos);
 
             return hitInfo;
@@ -37,7 +37,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
             {
                 if (collider == null)
                     continue;
-
+                
                 Physics.ComputePenetration(collider, collider.transform.position, collider.transform.rotation, Collider, position, Body.Rotation, out Vector3 dir, out float distance);
                 var dist = distance;
 
