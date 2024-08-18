@@ -6,6 +6,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
 {
     public class SlideAlongSurface2D : SlideAlongSurface
     {
+
         //private ICollision _collision;
         //private IMovementState _movementState;
 

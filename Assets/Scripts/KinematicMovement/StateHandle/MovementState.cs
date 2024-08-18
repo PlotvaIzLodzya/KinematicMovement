@@ -1,4 +1,5 @@
-﻿using PlotvaIzLodzya.KinematicMovement.Body;
+﻿using PlotvaIzLodzya.Extensions;
+using PlotvaIzLodzya.KinematicMovement.Body;
 using PlotvaIzLodzya.KinematicMovement.CollisionCompute;
 using PlotvaIzLodzya.KinematicMovement.Platforms;
 using System;
@@ -41,7 +42,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
             _movementConfig = movementConfig;
         }
 
-        public void Update(Vector3 movementDirection)
+        public void Update(Vector3 movementDirection, Vector3 velocity)
         {
             bool haveWallCollision = CheckWall(movementDirection);
             bool velrGroundCheck = Check(movementDirection + Vector3.down, _body.Position);
@@ -49,9 +50,9 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
             bool upCheck = Check(Vector3.up, _body.Position);
             var wasGrounded = _previousVelCheck || Grounded;
             var wasOnTooSteepSlope = OnTooSteepSlope;
-
-            //Debug.Log(haveWallCollision);
-            CrashedIntoWall = haveWallCollision && HaveWallCollision == false;
+            
+            CrashedIntoWall = IsSpeedEnoughForCrash(velocity) && haveWallCollision && HaveWallCollision == false;
+            
             HaveWallCollision = haveWallCollision;
 
             if (BecomeCeiled && IsJumping)
@@ -92,6 +93,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
             var isWall = IsSlopeTooSteep(angle);
             if (isWall)
                 _wallHit = hit;
+
             return isWall;
         }
 
@@ -115,6 +117,11 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
             bool isCollide = heightDiffrence <= MovementConfig.CollisionCheckDistance && heightDiffrence > 0;
 
             return _stickFromAnySide || isCollide;
+        }
+
+        private bool IsSpeedEnoughForCrash(Vector3 velocity)
+        {
+            return (_movementConfig.Speed - velocity.GetHorizontal().magnitude) <=3;
         }
 
         private bool Check(Vector3 dir, Vector3 currentPos)

@@ -261,7 +261,6 @@ namespace PlotvaIzLodzya.Extensions
             return vector;
         }
 
-
         public static Vector3 SetHorizontalToZero(this Vector3 vector)
         {
             vector.x = 0;
@@ -269,9 +268,16 @@ namespace PlotvaIzLodzya.Extensions
             return vector;
         }
 
-        public static Vector3 Horizontal(this Vector3 vector)
+        public static Vector3 GetHorizontal(this Vector3 vector)
         {
             vector.y = 0;
+            return vector;
+        }
+
+        public static Vector3 GetVertical(this Vector3 vector)
+        {
+            vector.z = 0;
+            vector.x = 0f;
             return vector;
         }
 

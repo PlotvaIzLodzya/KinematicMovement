@@ -38,7 +38,7 @@ namespace PlotvaIzLodzya.KinematicMovement.Examples
             if (Input.GetKeyDown(KeyCode.Space))
                 _movement.Jump();
 
-            _direction = _direction.Horizontal().normalized;
+            _direction = _direction.GetHorizontal().normalized;
             if(_charasd != null)
             _charasd.Move(_direction * 15f * Time.deltaTime);
             _movement.Move(_direction);

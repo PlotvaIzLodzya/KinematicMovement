@@ -94,8 +94,14 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
 
         protected Vector3 GetSurfaceNormal(HitInfo hit, Vector3 direction)
         {
-            Physics.Raycast(new Ray(hit.Point - direction * 0.01f, direction), out var result, 0.011f);
+            var ray = new Ray(hit.Point + Vector3.down * 0.001f - direction * 0.01f, direction);
+            Physics.Raycast(ray, out var result, 0.011f);
             return result.normal;
+        }
+
+        public virtual float GetDistanceToBounds(HitInfo hitInfo)
+        {
+            return 0f;
         }
     }
 }

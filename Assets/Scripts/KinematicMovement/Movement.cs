@@ -52,7 +52,6 @@ namespace PlotvaIzLodzya.KinematicMovement
 
         public void Move(Vector3 direction)
         {
-            _slide.SetDesireDir(direction);
             _direction = direction;
         }
 
@@ -79,14 +78,14 @@ namespace PlotvaIzLodzya.KinematicMovement
             _collision.Depenetrate();
             var velocity = CalculateVelocity(_body.Position, deltaTime);
             var nextPos = _body.Position + velocity;
+            
             _body.Position = nextPos;
-            //_body.Velocity = velocity / deltaTime;
 
             _body.LocalScale = transform.localScale;
 
             _velocityCompute = _velocityHandler.GetVelocityCompute();
             Velocity = _velocityCompute.Velocity;
-            State.Update(_direction);
+            State.Update(_direction, Velocity);
         }
 
         private Vector3 HandleExternalMovement(Vector3 position)
@@ -118,8 +117,7 @@ namespace PlotvaIzLodzya.KinematicMovement
         {
             var horVelocity = _velocityCompute.CalculateHorizontalSpeed(_direction, deltaTime);
             horVelocity *= deltaTime;
-            var vel = _slide.SlideByMovement_recursive(horVelocity, pos);
-            //Debug.Log(vel);
+            var vel = _slide.SlideByMovement_recursive(horVelocity, _direction, pos);
 
             return vel;
         }

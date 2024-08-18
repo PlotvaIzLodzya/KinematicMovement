@@ -7,11 +7,12 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 
     public class VelocityComputation : IVelocityCompute
     {
-        private Vector3 _minVelocity;
+        private float _minHorSpeed;
         private Vector3 _velocity;
         private IMovementState _state;
         private MovementConfig MovementConfig;
         private float _vertSpeed;
+        private float _horSpeed;
 
         protected Vector3 Direction { get; set; }
         protected virtual float MaxHorizontalSpeed => MovementConfig.Speed;
@@ -34,34 +35,25 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         public VelocityComputation(IMovementState state, MovementConfig movementConfig)
         {
             _state = state;
-            _minVelocity = Vector3.zero;
+            _minHorSpeed = 0;
             MovementConfig = movementConfig;
         }
 
         public virtual Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
         {
-            var maxVel = dir * MaxHorizontalSpeed;
             Direction = dir;
-            _velocity = maxVel;
-            return maxVel;
             if (_state.CrashedIntoWall)
             {
                 _velocity = Vector3.zero;
                 return Vector3.zero;
             }
 
-            //if (_state.HaveWallCollision)
-            //{
-            //    //_velocity = Vector3.zero;
-            //    _velocity = Vector3.ProjectOnPlane(_velocity, _state.WallNormal);
-                
-            //}
-            var hor = _velocity.Horizontal();
-            if (dir.sqrMagnitude > 0)
-                _velocity = Vector3.MoveTowards(hor, maxVel, MovementConfig.Acceleration * deltaTime);
+            if (Direction.sqrMagnitude > 0)
+                _horSpeed = Mathf.MoveTowards(_horSpeed, MaxHorizontalSpeed , MovementConfig.Acceleration * deltaTime);
             else
-                _velocity = Vector3.MoveTowards(hor, _minVelocity, MovementConfig.Decceleration * deltaTime);
+                _horSpeed = Mathf.MoveTowards(_horSpeed, _minHorSpeed, MovementConfig.Decceleration * deltaTime);
 
+            _velocity = Direction.GetHorizontal() * _horSpeed;
             return _velocity;
         }
 

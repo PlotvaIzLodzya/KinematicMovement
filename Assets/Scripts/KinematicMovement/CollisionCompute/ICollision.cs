@@ -13,5 +13,6 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
         HitInfo GetHit(Vector3 position);
         HitInfo GetHit();
         Vector3 GetClosestPositionTo(HitInfo hitInfo);
+        float GetDistanceToBounds(HitInfo hitInfo);
     }
 }

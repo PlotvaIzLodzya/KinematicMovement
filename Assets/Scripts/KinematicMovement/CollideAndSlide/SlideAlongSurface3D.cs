@@ -12,9 +12,8 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
 
         protected override Vector3 GetSurfaceNormal(HitInfo hit, Vector3 direction)
         {
-            var ray = new Ray(hit.Point + Vector3.down*0.001f - direction * 0.01f, direction);
-            Debug.DrawRay(hit.Point - direction * 0.01f, direction, Color.red);
-            Physics.Raycast(ray, out var result, 0.011f);
+            var ray = new Ray(hit.Point + Vector3.down * 0.001f  - direction * 0.01f, direction);
+            Physics.Raycast(ray, out var result, 0.1f);
             return result.normal;
         }
     }

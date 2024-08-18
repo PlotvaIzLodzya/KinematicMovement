@@ -15,7 +15,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
             if (dir.sqrMagnitude > 0)
                 return base.CalculateHorizontalSpeed(dir, deltaTime);
             else
-                return Velocity.Horizontal();
+                return Velocity.GetHorizontal();
         }
     }
 }

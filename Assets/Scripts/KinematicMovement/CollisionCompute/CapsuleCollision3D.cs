@@ -2,6 +2,7 @@
 using PlotvaIzLodzya.KinematicMovement.Body;
 using PlotvaIzLodzya.KinematicMovement.StateHandle;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
@@ -20,7 +21,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
         {
             (var p1, var p2) = GetCapsulePoints(pos);
             Physics.CapsuleCast(p1, p2, Collider.ScaledRadius(), dir, out RaycastHit raycastHit, dist, CollisionMask);
-
+           
             return raycastHit.ToHitInfo();
         }
 

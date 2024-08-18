@@ -27,6 +27,11 @@ namespace PlotvaIzLodzya.KinematicMovement.CollisionCompute
             return hitInfo;
         }
 
+        public override float GetDistanceToBounds(HitInfo hitInfo)
+        {
+            return Vector3.Distance(Collider.ClosestPoint(hitInfo.Point),hitInfo.Point);
+        }
+
         public HitInfo GetClosestHitPosition(Collider[] colliders, Vector3 position)
         {
             var closestDistance = float.MinValue;
