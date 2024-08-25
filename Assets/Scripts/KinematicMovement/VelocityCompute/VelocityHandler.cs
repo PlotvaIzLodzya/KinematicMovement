@@ -4,13 +4,15 @@ using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 {
-    public class VelocityHandler
+
+    public class VelocityHandler : IVeloictyComputeProvider
     {
         private MovementState _state;
         private VelocityComputation _velocity;
         private AirborneVelocityCompute _airborneVelocity;
         private PlatformJumpVelocity _platformJumpVelocity;
-        private IVelocityCompute _current;
+
+        public IVelocityCompute Current { get; private set; }
 
         public VelocityHandler(MovementState state, MovementConfig movementConfig, IPlatformProvider provider)
         {
@@ -33,22 +35,22 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 
         public IVelocityCompute GetVelocityCompute()
         {
-            var prev = _current;
+            var prev = Current;
 
             if (_state.IsOnPlatform && _state.IsJumping)
-                _current = _platformJumpVelocity;
+                Current = _platformJumpVelocity;
             else if (_state.Grounded)
-                _current = _velocity;
+                Current = _velocity;
             else if (_state.Grounded == false)
-                _current = _airborneVelocity;
-            if (_current != prev)
+                Current = _airborneVelocity;
+            if (Current != prev)
             {
                 prev?.Exit();
                 var prevVel = prev == null ? Vector3.zero : prev.Velocity;
-                _current.Enter(prevVel);
+                Current.Enter(prevVel);
             }
 
-            return _current;
+            return Current;
         }
     }
 }

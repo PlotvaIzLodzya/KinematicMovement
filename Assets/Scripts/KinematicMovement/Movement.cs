@@ -3,6 +3,7 @@ using PlotvaIzLodzya.KinematicMovement.Body;
 using PlotvaIzLodzya.KinematicMovement.CollideAndSlide;
 using PlotvaIzLodzya.KinematicMovement.CollisionCompute;
 using PlotvaIzLodzya.KinematicMovement.ExternalMovement;
+using PlotvaIzLodzya.KinematicMovement.Jump;
 using PlotvaIzLodzya.KinematicMovement.StateHandle;
 using PlotvaIzLodzya.KinematicMovement.VelocityCompute;
 using UnityEngine;
@@ -12,12 +13,13 @@ namespace PlotvaIzLodzya.KinematicMovement
     public class Movement : MonoBehaviour
     {
         [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
-        
+        [SerializeReference] private IJumpBehaviour _test;
         private Vector3 _direction;
         private IBody _body;
         private ICollision _collision;
         private IVelocityCompute _velocityCompute;
         private ISlide _slide;
+        private IJumpBehaviour _jumpBehaviour;
         private VelocityHandler _velocityHandler;
 
         public Vector3 Velocity { get; private set; }
@@ -38,6 +40,7 @@ namespace PlotvaIzLodzya.KinematicMovement
             _slide = SlideBuilder.Create(_body, _collision, State);
             _velocityHandler = new(State, MovementConfig, ExteranalMovementAccumulator);
             _velocityCompute = _velocityHandler.GetVelocityCompute<VelocityComputation>();
+            _jumpBehaviour = new CancelableJumpBehaviour(_velocityHandler);
         }
 
         private void FixedUpdate()
@@ -57,12 +60,7 @@ namespace PlotvaIzLodzya.KinematicMovement
 
         public void CancelJump()
         {
-            if(_velocityCompute.Velocity.y > 0)
-            {
-                var vel = _velocityCompute.Velocity;
-                vel.y *= 0.25f;
-                _velocityCompute.SetVelocity(vel);
-            }
+            _jumpBehaviour.CancelJump();
         }
 
         public void Jump(float speed)
@@ -70,7 +68,7 @@ namespace PlotvaIzLodzya.KinematicMovement
             if (State.Ceiled)
                 return;
 
-            _velocityCompute.Jump(speed);
+            _jumpBehaviour.Jump(speed);
 
             State.SetJumping(true);
         }

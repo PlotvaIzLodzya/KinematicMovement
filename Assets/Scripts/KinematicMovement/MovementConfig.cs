@@ -27,11 +27,9 @@ namespace PlotvaIzLodzya.KinematicMovement
         public float Decceleration => Speed / DeccelerationTime;
         public float VerticalAcceleration => JumpHeight / (JumpTime * JumpTime);
         public float JumpSpeed => Mathf.Sqrt(2 * VerticalAcceleration * JumpHeight);
-
-        public static MovementConfig Instance;
+        
         public MovementConfig()
         {
-            Instance = this;
             Speed = 15f;
             JumpHeight = 2f;
             JumpTime = 0.2f;
