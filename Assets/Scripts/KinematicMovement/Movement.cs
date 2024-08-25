@@ -100,7 +100,6 @@ namespace PlotvaIzLodzya.KinematicMovement
             var totalVelocity = CalculateHorizontalVelocity(pos, deltaTime);
             var nextPosAlongSurface = pos + totalVelocity;
             totalVelocity += CalculateVerticalVelocity(nextPosAlongSurface, deltaTime);
-
             if (totalVelocity.magnitude <= MovementConfig.MinDistanceTravel)
                 totalVelocity = Vector3.zero;
 

@@ -35,24 +35,35 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
                     return Vector3.zero;
                 }
             }
-            (vel, dir, hit.HitNormal) = HandleStep(vel, dir, currentPos, hit, surfaceAngle);
-
+            bool isStep = false;
+            (vel, dir, hit.HitNormal, isStep) = HandleStep(vel, dir, currentPos, hit, surfaceAngle);
             if (hit.HaveHit)
             {
                 var dist = hit.Distance - MovementConfig.ContactOffset;
                 dist = Mathf.Clamp(dist, 0, Mathf.Abs(dist));
 
                 (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) slideData = GetSlideData(dir, vel, currentPos, hit.HitNormal, dist);
+
                 if (IsOnTooSteep(slideData.nextPos) && _movementState.OnTooSteepSlope == false)
                 {
                     vel = AdjustVelocityToSoroundings(slideData.velToNextStep, currentPos, _foreseeDistance);
                     return vel;
                 }
-
+                var projectedHit = _collision.GetHit(currentPos, slideData.velToNextStep, _foreseeDistance);
+                var angle = Vector3.Angle(Vector3.up, projectedHit.HitNormal); 
+                var lowestPoint = currentPos + Vector3.down;
+                var stepHeight = hit.Point.y - lowestPoint.y;
+                var maxStepHeight = 0.1f + MovementConfig.ContactOffset;
+                if (_movementState.OnTooSteepSlope && _movementState.IsSlopeTooSteep(angle) && stepHeight>maxStepHeight)
+                {
+                    slideData.velToNextStep = Vector3.zero;
+                }
                 vel = slideData.velToNextStep + SlideByMovement_recursive(slideData.projectedleftOverVel, desiredDirection, slideData.nextPos, ++currentDepth);
+                
 
                 return vel;
             }
+
             return vel;
         }
 
@@ -70,9 +81,9 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
         {
             if (currentDepth >= 5)
                 return Vector3.zero;
-
+            
             (var isTooSteep, var hit, var dir, var surfaceAngle) = GetHitData(vel.normalized, currentPos, vel.magnitude);
-
+            
             if (isTooSteep == false)
                 currentDepth = 5;
 
@@ -81,11 +92,12 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
                 var dist = hit.Distance - MovementConfig.ContactOffset;
 
                 (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) = GetSlideData(dir, vel, currentPos, hit.HitNormal, dist);
-                var hit2 = _collision.GetHit(currentPos, projectedleftOverVel, _foreseeDistance);
-                var angle = Vector3.Angle(Vector3.up, hit2.HitNormal);
+                var projectedHit = _collision.GetHit(currentPos, projectedleftOverVel, _foreseeDistance);
+                var angle = Vector3.Angle(Vector3.up, projectedHit.HitNormal);
+
                 if (_movementState.IsSlopeTooSteep(angle))
                 {
-                    projectedleftOverVel = Vector3.ClampMagnitude(projectedleftOverVel, hit2.Distance- MovementConfig.ContactOffset);
+                    projectedleftOverVel = Vector3.ClampMagnitude(projectedleftOverVel, projectedHit.Distance - MovementConfig.ContactOffset);
                 }
 
                 vel = velToNextStep + SlideByGravity_recursive(projectedleftOverVel, nextPos, ++currentDepth);
@@ -137,17 +149,6 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             return tooSteep;
         }    
 
-        private (bool isTooSteep, HitInfo hit, Vector3 direction, float angle) GetHitData2(Vector3 dir, Vector3 currentPos, float dist)
-        {
-            var hit = _collision.GetHit(currentPos, dir, dist);
-
-            var surfaceNormal = GetSurfaceNormal(hit, dir);
-            float angle = Vector3.Angle(Vector3.up, surfaceNormal);
-            var tooSteep = _movementState.IsSlopeTooSteep(angle) && _movementState.Grounded;
-                     
-            return (tooSteep, hit, dir, angle);
-        }
-
         private (bool isTooSteep, HitInfo hit, Vector3 direction, float angle) GetHitData(Vector3 dir, Vector3 currentPos, float dist)
         {
             var hit = _collision.GetHit(currentPos, dir, dist);
@@ -185,19 +186,21 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             return (dir, hit,vel);
         }
 
-        private (Vector3 velocity, Vector3 direction, Vector3 hitNormal) HandleStep(Vector3 vel, Vector3 dir, Vector3 currentPos, HitInfo hit, float surfaceAngle)
+        private (Vector3 velocity, Vector3 direction, Vector3 hitNormal, bool isStep) HandleStep(Vector3 vel, Vector3 dir, Vector3 currentPos, HitInfo hit, float surfaceAngle)
         {
             var lowestPoint = currentPos + Vector3.down;
             var stepHeight = hit.Point.y - lowestPoint.y;
             var maxStepHeight = 0.1f + MovementConfig.ContactOffset;
+            bool isStep = false;
             if (stepHeight > maxStepHeight && surfaceAngle >= 90)
             {
                 vel = vel.GetHorizontal();
                 dir = dir.GetHorizontal().normalized;
                 hit.HitNormal = hit.HitNormal.GetHorizontal().normalized;
+                isStep = true;
             }
 
-            return (vel, dir, hit.HitNormal);
+            return (vel, dir, hit.HitNormal, isStep);
         }
 
         private bool IsSameDirection(Vector3 dir, Vector3 desiredDirection)
