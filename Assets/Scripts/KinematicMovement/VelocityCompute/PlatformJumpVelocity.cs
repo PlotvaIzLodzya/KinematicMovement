@@ -42,5 +42,10 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         {
             _airborneVelocity.Jump(speed);
         }
+
+        public void SetVelocity(Vector3 velocity)
+        {
+            _airborneVelocity.SetVelocity(velocity);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using PlotvaIzLodzya.Extensions;
 using PlotvaIzLodzya.KinematicMovement.Body;
 using PlotvaIzLodzya.KinematicMovement.CollideAndSlide;
 using PlotvaIzLodzya.KinematicMovement.CollisionCompute;
@@ -52,6 +53,16 @@ namespace PlotvaIzLodzya.KinematicMovement
         public void Jump()
         {
             Jump(MovementConfig.JumpSpeed);
+        }
+
+        public void CancelJump()
+        {
+            if(_velocityCompute.Velocity.y > 0)
+            {
+                var vel = _velocityCompute.Velocity;
+                vel.y *= 0.25f;
+                _velocityCompute.SetVelocity(vel);
+            }
         }
 
         public void Jump(float speed)

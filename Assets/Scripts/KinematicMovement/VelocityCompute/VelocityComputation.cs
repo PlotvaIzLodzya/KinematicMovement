@@ -95,5 +95,10 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         {
             _vertSpeed = speed;
         }
+
+        public void SetVelocity(Vector3 velocity)
+        {
+            Velocity = velocity;
+        }
     }
 }

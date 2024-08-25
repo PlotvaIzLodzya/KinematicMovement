@@ -35,6 +35,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
                     return Vector3.zero;
                 }
             }
+
             bool isStep = false;
             (vel, dir, hit.HitNormal, isStep) = HandleStep(vel, dir, currentPos, hit, surfaceAngle);
             if (hit.HaveHit)
@@ -49,18 +50,13 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
                     vel = AdjustVelocityToSoroundings(slideData.velToNextStep, currentPos, _foreseeDistance);
                     return vel;
                 }
-                var projectedHit = _collision.GetHit(currentPos, slideData.velToNextStep, _foreseeDistance);
-                var angle = Vector3.Angle(Vector3.up, projectedHit.HitNormal); 
-                var lowestPoint = currentPos + Vector3.down;
-                var stepHeight = hit.Point.y - lowestPoint.y;
-                var maxStepHeight = 0.1f + MovementConfig.ContactOffset;
-                if (_movementState.OnTooSteepSlope && _movementState.IsSlopeTooSteep(angle) && stepHeight>maxStepHeight)
+                var projectedHit = _collision.GetHit(currentPos, slideData.velToNextStep, _foreseeDistance);                
+                if (_movementState.OnTooSteepSlope && IsSurfaceTooSteep(projectedHit.HitNormal) && isStep == false)
                 {
                     slideData.velToNextStep = Vector3.zero;
                 }
                 vel = slideData.velToNextStep + SlideByMovement_recursive(slideData.projectedleftOverVel, desiredDirection, slideData.nextPos, ++currentDepth);
                 
-
                 return vel;
             }
 
@@ -70,9 +66,8 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
         private bool IsOnTooSteep(Vector3 pos)
         {
             var hit = _collision.GetHit(pos, Vector3.down, MovementConfig.CollisionCheckDistance);
-            var surfaceNormal = GetSurfaceNormal(hit, Vector3.down);
-            float angle = Vector3.Angle(Vector3.up, surfaceNormal);            
-            var tooSteep = _movementState.IsSlopeTooSteep(angle);
+            var surfaceNormal = GetSurfaceNormal(hit, Vector3.down);            
+            var tooSteep = IsSurfaceTooSteep(surfaceNormal);
 
             return tooSteep;
         }
@@ -93,9 +88,8 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
 
                 (Vector3 velToNextStep, Vector3 projectedleftOverVel, Vector3 nextPos) = GetSlideData(dir, vel, currentPos, hit.HitNormal, dist);
                 var projectedHit = _collision.GetHit(currentPos, projectedleftOverVel, _foreseeDistance);
-                var angle = Vector3.Angle(Vector3.up, projectedHit.HitNormal);
 
-                if (_movementState.IsSlopeTooSteep(angle))
+                if (IsSurfaceTooSteep(projectedHit.HitNormal))
                 {
                     projectedleftOverVel = Vector3.ClampMagnitude(projectedleftOverVel, projectedHit.Distance - MovementConfig.ContactOffset);
                 }
@@ -135,8 +129,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
         private bool IsSurfaceTooSteep(HitInfo hit, Vector3 dir)
         {
             var surfaceNormal = GetSurfaceNormal(hit, dir);
-            float angle = Vector3.Angle(Vector3.up, surfaceNormal);
-            var tooSteep = _movementState.IsSlopeTooSteep(angle) && _movementState.Grounded;
+            var tooSteep = IsSurfaceTooSteep(surfaceNormal);
 
             return tooSteep;
         }
@@ -154,7 +147,7 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             var hit = _collision.GetHit(currentPos, dir, dist);
             var surfaceNormal = GetSurfaceNormal(hit, dir);
             float angle = Vector3.Angle(Vector3.up, surfaceNormal);
-            var tooSteep = _movementState.IsSlopeTooSteep(angle) && _movementState.Grounded;
+            var tooSteep = IsSurfaceTooSteep(surfaceNormal);
 
             return (tooSteep, hit, dir, angle);
         }
@@ -191,13 +184,12 @@ namespace PlotvaIzLodzya.KinematicMovement.CollideAndSlide
             var lowestPoint = currentPos + Vector3.down;
             var stepHeight = hit.Point.y - lowestPoint.y;
             var maxStepHeight = 0.1f + MovementConfig.ContactOffset;
-            bool isStep = false;
-            if (stepHeight > maxStepHeight && surfaceAngle >= 90)
+            bool isStep = stepHeight < maxStepHeight;
+            if (isStep && surfaceAngle >= 90)
             {
                 vel = vel.GetHorizontal();
                 dir = dir.GetHorizontal().normalized;
                 hit.HitNormal = hit.HitNormal.GetHorizontal().normalized;
-                isStep = true;
             }
 
             return (vel, dir, hit.HitNormal, isStep);
