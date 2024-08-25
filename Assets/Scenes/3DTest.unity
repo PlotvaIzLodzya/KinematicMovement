@@ -1351,6 +1351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7832ac73c2004d489ce0c129baa8103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _jumpBehaviour: {fileID: 0}
   <MovementConfig>k__BackingField:
     <GroundMask>k__BackingField:
       serializedVersion: 2
@@ -2046,6 +2047,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7832ac73c2004d489ce0c129baa8103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _jumpBehaviour: {fileID: 0}
   <MovementConfig>k__BackingField:
     <GroundMask>k__BackingField:
       serializedVersion: 2
@@ -3392,6 +3394,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7832ac73c2004d489ce0c129baa8103, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _jumpBehaviour: {fileID: 11400000, guid: c0bdd3ad39924224ba82516f81dc6a9e, type: 2}
   <MovementConfig>k__BackingField:
     <GroundMask>k__BackingField:
       serializedVersion: 2

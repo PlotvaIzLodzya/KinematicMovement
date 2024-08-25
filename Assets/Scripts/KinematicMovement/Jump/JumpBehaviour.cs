@@ -1,19 +1,29 @@
-﻿using PlotvaIzLodzya.KinematicMovement.Jump;
+﻿using PlotvaIzLodzya.Extensions;
+using PlotvaIzLodzya.KinematicMovement.Jump;
 using PlotvaIzLodzya.KinematicMovement.VelocityCompute;
+using System.Collections;
+using Unity.VisualScripting;
+using UnityEngine;
 
-namespace PlotvaIzLodzya.KinematicMovement
+namespace PlotvaIzLodzya.KinematicMovement.Jump
 {
-    public abstract class JumpBehaviour : IJumpBehaviour
+    public abstract class JumpBehaviour :ScriptableObject, IJumpBehaviour
     {
         private IVeloictyComputeProvider _velocityProvider;
-        protected IVelocityCompute Velocity => _velocityProvider.Current;
+        private ICoroutineRunner _coroutineRunner;
+        protected IVelocityCompute VelocityCompute => _velocityProvider.Current;
 
-        protected JumpBehaviour(IVeloictyComputeProvider velocityProvider)
+        public virtual JumpBehaviour Init(IVeloictyComputeProvider velocityProvider, ICoroutineRunner coroutineRunner)
         {
             _velocityProvider = velocityProvider;
+            _coroutineRunner = coroutineRunner;
+            return this;
         }
 
         public abstract void CancelJump();
         public abstract void Jump(float speed);
+
+        public Coroutine StartCoroutine(IEnumerator coroutine) => _coroutineRunner.StartCoroutine(coroutine);
+        public void StopCoroutine(Coroutine coroutine) => _coroutineRunner.StopCoroutine(coroutine);
     }
 }

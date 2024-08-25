@@ -10,23 +10,23 @@ using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement
 {
-    public class Movement : MonoBehaviour
+    public class Movement : MonoBehaviour, ICoroutineRunner
     {
+        [SerializeField] private JumpBehaviour _jumpBehaviour;
+
         [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
-        [SerializeReference] private IJumpBehaviour _test;
+
         private Vector3 _direction;
         private IBody _body;
         private ICollision _collision;
         private IVelocityCompute _velocityCompute;
         private ISlide _slide;
-        private IJumpBehaviour _jumpBehaviour;
         private VelocityHandler _velocityHandler;
 
         public Vector3 Velocity { get; private set; }
         public Vector3 AngularVelocity { get; private set; }
         public MovementState State { get; private set; }
         public ExteranlVelocityAccumulator ExteranalMovementAccumulator { get; private set; }
-
 
         private void Awake()
         {
@@ -40,7 +40,7 @@ namespace PlotvaIzLodzya.KinematicMovement
             _slide = SlideBuilder.Create(_body, _collision, State);
             _velocityHandler = new(State, MovementConfig, ExteranalMovementAccumulator);
             _velocityCompute = _velocityHandler.GetVelocityCompute<VelocityComputation>();
-            _jumpBehaviour = new CancelableJumpBehaviour(_velocityHandler);
+            _jumpBehaviour = JumpBuilder.Create(_jumpBehaviour, _velocityHandler, this);
         }
 
         private void FixedUpdate()

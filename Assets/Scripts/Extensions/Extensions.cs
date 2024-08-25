@@ -1,12 +1,19 @@
 ﻿using PlotvaIzLodzya.KinematicMovement;
 using PlotvaIzLodzya.KinematicMovement.CollisionCompute;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.Extensions
 {
+    public interface ICoroutineRunner
+    {
+        public Coroutine StartCoroutine(IEnumerator coroutine);
+        public void StopCoroutine(Coroutine coroutine);
+    }
+
     public static class Extensions
     {
         public static float ScaledRadius(this SphereCollider sphereCollider)
