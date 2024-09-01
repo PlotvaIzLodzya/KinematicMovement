@@ -192,6 +192,12 @@ namespace PlotvaIzLodzya.Extensions
             return new Vector2(x, y);
         }
 
+        public static Vector3 SetVertical(this Vector3 v, float y)
+        {
+            v.y = y;
+            return v;
+        }
+
         public static Vector3 SetHorizontal(this Vector3 v1, Vector3 v2)
         {
             v1.x = v2.x;

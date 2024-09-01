@@ -1,11 +1,9 @@
-﻿using PlotvaIzLodzya.KinematicMovement.StateHandle;
+﻿using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 {
+    [CreateAssetMenu(fileName = nameof(FullControlAirborneVelocity), menuName = "SO/" + nameof(VelocityComputation) + "/" + nameof(FullControlAirborneVelocity), order = 2)]
     public class FullControlAirborneVelocity : AirborneVelocityCompute
     {
-        public FullControlAirborneVelocity(IMovementState state, MovementConfig movementConfig) : base(state, movementConfig)
-        {
-        }
     }
 }

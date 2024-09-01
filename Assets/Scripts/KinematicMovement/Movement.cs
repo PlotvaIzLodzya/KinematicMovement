@@ -6,6 +6,7 @@ using PlotvaIzLodzya.KinematicMovement.ExternalMovement;
 using PlotvaIzLodzya.KinematicMovement.Jump;
 using PlotvaIzLodzya.KinematicMovement.StateHandle;
 using PlotvaIzLodzya.KinematicMovement.VelocityCompute;
+using System;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement
@@ -13,6 +14,7 @@ namespace PlotvaIzLodzya.KinematicMovement
     public class Movement : MonoBehaviour, ICoroutineRunner
     {
         [SerializeField] private JumpBehaviour _jumpBehaviour;
+        [SerializeField] private VelocityHandler _velocityHandler;
 
         [field: SerializeField] public MovementConfig MovementConfig { get; private set; }
 
@@ -21,8 +23,7 @@ namespace PlotvaIzLodzya.KinematicMovement
         private ICollision _collision;
         private IVelocityCompute _velocityCompute;
         private ISlide _slide;
-        private VelocityHandler _velocityHandler;
-
+        private float elapsedTime;
         public Vector3 Velocity { get; private set; }
         public Vector3 AngularVelocity { get; private set; }
         public MovementState State { get; private set; }
@@ -38,8 +39,8 @@ namespace PlotvaIzLodzya.KinematicMovement
             State = new MovementState(_body, _collision, MovementConfig);
             ExteranalMovementAccumulator = new(State);
             _slide = SlideBuilder.Create(_body, _collision, State);
-            _velocityHandler = new(State, MovementConfig, ExteranalMovementAccumulator);
-            _velocityCompute = _velocityHandler.GetVelocityCompute<VelocityComputation>();
+            _velocityHandler = VelocityHandlerBuilder.Create(_velocityHandler, MovementConfig, State, ExteranalMovementAccumulator);
+            _velocityCompute = _velocityHandler.GetVelocityCompute<GroundVelocity>();
             _jumpBehaviour = JumpBuilder.Create(_jumpBehaviour, _velocityHandler, this);
         }
 
@@ -67,14 +68,22 @@ namespace PlotvaIzLodzya.KinematicMovement
         {
             if (State.Ceiled)
                 return;
-
-            _jumpBehaviour.Jump(speed);
+            try
+            {
+                _jumpBehaviour.Jump(speed);
+            }
+            catch (NullReferenceException)
+            {
+                Debug.LogError($"Perhaps {_jumpBehaviour.GetType().Name} was not initialized properly");
+                _jumpBehaviour = JumpBuilder.Create(_jumpBehaviour, _velocityHandler, this);
+            }
 
             State.SetJumping(true);
         }
 
         private void UpdateBody(float deltaTime)
         {
+            _velocityCompute = _velocityHandler.GetVelocityCompute();
             _body.Position = transform.position;
             _body.Rotation = transform.rotation;
             _body.Position = HandleExternalMovement(_body.Position);
@@ -86,9 +95,16 @@ namespace PlotvaIzLodzya.KinematicMovement
 
             _body.LocalScale = transform.localScale;
 
-            _velocityCompute = _velocityHandler.GetVelocityCompute();
             Velocity = _velocityCompute.Velocity;
             State.Update(_direction, Velocity);
+
+            if(State.LeftGround)
+            {
+                elapsedTime = 0f;
+            }
+            elapsedTime += deltaTime;
+            if (State.BecomeGrounded)
+                Debug.Log(elapsedTime);
         }
 
         private Vector3 HandleExternalMovement(Vector3 position)

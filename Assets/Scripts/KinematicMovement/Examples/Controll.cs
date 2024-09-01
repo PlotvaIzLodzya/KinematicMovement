@@ -35,11 +35,12 @@ namespace PlotvaIzLodzya.KinematicMovement.Examples
             if (Input.GetKey(KeyCode.W))
                 _direction += _camera.transform.forward;
 
+            if (Input.GetKeyUp(KeyCode.Space))
+                _movement.CancelJump();
+
             if (Input.GetKeyDown(KeyCode.Space))
                 _movement.Jump();
 
-            if (Input.GetKeyUp(KeyCode.Space))
-                _movement.CancelJump();
 
             _direction = _direction.GetHorizontal().normalized;
             if(_charasd != null)

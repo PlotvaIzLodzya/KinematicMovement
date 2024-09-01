@@ -1,15 +1,11 @@
 ﻿using PlotvaIzLodzya.Extensions;
-using PlotvaIzLodzya.KinematicMovement.StateHandle;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
 {
+    [CreateAssetMenu(fileName = nameof(KeepMomentumAirborneVelocity), menuName = "SO/" + nameof(VelocityComputation) + "/" + nameof(KeepMomentumAirborneVelocity), order = 2)]
     public class KeepMomentumAirborneVelocity : AirborneVelocityCompute
     {
-        public KeepMomentumAirborneVelocity(IMovementState state, MovementConfig movementConfig) : base(state, movementConfig)
-        {
-        }
-
         public override Vector3 CalculateHorizontalSpeed(Vector3 dir, float deltaTime)
         {
             if (dir.sqrMagnitude > 0)

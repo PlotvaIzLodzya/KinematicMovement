@@ -1,13 +1,11 @@
 ﻿using PlotvaIzLodzya.Extensions;
-using PlotvaIzLodzya.KinematicMovement.Jump;
 using PlotvaIzLodzya.KinematicMovement.VelocityCompute;
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.Jump
 {
-    public abstract class JumpBehaviour :ScriptableObject, IJumpBehaviour
+    public abstract class JumpBehaviour : ScriptableObject, IJumpBehaviour
     {
         private IVeloictyComputeProvider _velocityProvider;
         private ICoroutineRunner _coroutineRunner;

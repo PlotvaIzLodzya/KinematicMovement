@@ -1,6 +1,4 @@
-﻿using PlotvaIzLodzya.Extensions;
-using PlotvaIzLodzya.KinematicMovement.VelocityCompute;
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.Jump
@@ -12,25 +10,20 @@ namespace PlotvaIzLodzya.KinematicMovement.Jump
 
         private Coroutine _canceling;
 
-        public override JumpBehaviour Init(IVeloictyComputeProvider velocityProvider, ICoroutineRunner coroutineRunner)
-        {
-            return base.Init(velocityProvider, coroutineRunner);
-        }
-
         public override void Jump(float speed)
         {
-            VelocityCompute.Jump(speed);
             if(_canceling != null)
             {
                 StopCoroutine(_canceling);
             }
+            VelocityCompute.Jump(speed);
         }
 
         public override void CancelJump()
         {
             if (VelocityCompute.Velocity.y > 0)
             {
-                StartCoroutine(Canceling(_cancelDuration));
+                _canceling = StartCoroutine(Canceling(_cancelDuration));
             }
         }
 

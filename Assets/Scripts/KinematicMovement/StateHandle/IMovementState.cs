@@ -4,6 +4,7 @@ namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 {
     public interface IMovementState
     {
+        bool IsOnPlatform { get; }
         bool HaveWallCollision { get; }
         bool CrashedIntoWall { get; }
         bool IsJumping { get; }

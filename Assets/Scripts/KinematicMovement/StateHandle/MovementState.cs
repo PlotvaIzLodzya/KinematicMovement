@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace PlotvaIzLodzya.KinematicMovement.StateHandle
 {
-
     [Serializable]
     public class MovementState : IMovementState, IExteranlMovementState, IJumpState
     {
