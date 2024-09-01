@@ -25,9 +25,9 @@ namespace PlotvaIzLodzya.KinematicMovement
 
         public float Acceleration => Speed / AccelerationTime;
         public float Decceleration => Speed / DeccelerationTime;
-        public float VerticalAcceleration => JumpHeight / (JumpTime * JumpTime);
-        public float JumpSpeed => Mathf.Sqrt(2 * VerticalAcceleration * JumpHeight);
-        
+        public float VerticalAcceleration => 2*JumpHeight / (JumpTime * JumpTime);
+        public float JumpSpeed => VerticalAcceleration * JumpTime;
+
         public MovementConfig()
         {
             Speed = 15f;
