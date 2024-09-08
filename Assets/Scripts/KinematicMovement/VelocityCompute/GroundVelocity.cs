@@ -33,7 +33,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
         protected Vector3 Direction { get; set; }
         protected virtual float MaxHorizontalSpeed => MovementConfig.Speed;
 
-        public void Init(IMovementState state, MovementConfig movementConfig)
+        public virtual void Init(IMovementState state, MovementConfig movementConfig)
         {
             State = state;
             _vertSpeed = 0f;

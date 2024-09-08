@@ -23,7 +23,6 @@ namespace PlotvaIzLodzya.KinematicMovement
         private ICollision _collision;
         private IVelocityCompute _velocityCompute;
         private ISlide _slide;
-        private float elapsedTime;
         public Vector3 Velocity { get; private set; }
         public Vector3 AngularVelocity { get; private set; }
         public MovementState State { get; private set; }
@@ -83,7 +82,6 @@ namespace PlotvaIzLodzya.KinematicMovement
 
         private void UpdateBody(float deltaTime)
         {
-            _velocityCompute = _velocityHandler.GetVelocityCompute();
             _body.Position = transform.position;
             _body.Rotation = transform.rotation;
             _body.Position = HandleExternalMovement(_body.Position);
@@ -96,15 +94,8 @@ namespace PlotvaIzLodzya.KinematicMovement
             _body.LocalScale = transform.localScale;
 
             Velocity = _velocityCompute.Velocity;
-            State.Update(_direction, Velocity);
-
-            if(State.LeftGround)
-            {
-                elapsedTime = 0f;
-            }
-            elapsedTime += deltaTime;
-            if (State.BecomeGrounded)
-                Debug.Log(elapsedTime);
+            State.Update(_direction, Velocity);          
+            _velocityCompute = _velocityHandler.GetVelocityCompute();
         }
 
         private Vector3 HandleExternalMovement(Vector3 position)

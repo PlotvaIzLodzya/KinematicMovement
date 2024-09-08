@@ -82,7 +82,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
             Action initizalization = null;
             initizalization = velocity switch
             {
-                PlatformJumpVelocity platformJump => () => platformJump.Init(_state, _movementConfig),
+                PlatformJumpVelocity platformJump => () => platformJump.Init(_platformProvider, _state, _movementConfig),
                 AirborneVelocityCompute air => () => air.Init(_state, _movementConfig),
                 GroundVelocity ground => () => ground.Init(_state, _movementConfig),
                 _ => throw new MissingReferenceException($"No matching pattern for initizalization {velocity.GetType().Name}")
