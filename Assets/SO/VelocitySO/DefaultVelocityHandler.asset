@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: DefaultVelocityHandler
   m_EditorClassIdentifier: 
   _defaultVelocitys:
+  - {fileID: 11400000, guid: 6af0517f156ed064cad7aef28dbc42f3, type: 2}
   - {fileID: 11400000, guid: 0b44299e154dcd34baaafd2d6212a6bc, type: 2}
   - {fileID: 11400000, guid: e0f72e85dab71a748a58d409d9183e10, type: 2}
-  - {fileID: 11400000, guid: 6af0517f156ed064cad7aef28dbc42f3, type: 2}
