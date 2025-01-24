@@ -28,7 +28,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
             _movementConfig = movementConfig;
             _state = state;
             _velocityComputations = CreateRuntimeComputations();
-            Initialize();
+            InitializeComputations();
             _defaultVelocity = GetVelocityCompute<GroundVelocity>();
         }
 
@@ -66,29 +66,36 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
             {
                 current = _velocityComputations.FirstOrDefault(v => v.CanTransit);
             }
-            catch (NullReferenceException)
+            catch (NullReferenceException ex)
             {
-                Initialize();
-                Debug.LogError($"{current.GetType().Name} probably was not initialized properly");
+                InitializeComputations();
+                Debug.LogError($"{nameof(VelocityComputation)} probably was not initialized properly. Message: {ex.Message}");
             }
             current ??= _defaultVelocity;
             return current;
         }
 
-        private void Initialize() => _velocityComputations.ForEach(Initialize);
+        private void InitializeComputations() => _velocityComputations.ForEach(Initialize);
 
         private void Initialize(VelocityComputation velocity)
         {
-            Action initizalization = null;
-            initizalization = velocity switch
+            Action initialization = null;
+            initialization = velocity switch
             {
-                PlatformJumpVelocity platformJump => () => platformJump.Init(_platformProvider, _state, _movementConfig),
                 AirborneVelocityCompute air => () => air.Init(_state, _movementConfig),
+                PlatformJumpVelocity platformJump => () =>
+                {
+                    var airborneVelocity = _velocityComputations.First(velocity => velocity is AirborneVelocityCompute 
+                                                                        && velocity is not PlatformJumpVelocity) 
+                                                                        ?? throw new MissingComponentException($"Platform jump requires airborne velocity");
+                    
+                    platformJump.Init(_state, _platformProvider, airborneVelocity as AirborneVelocityCompute);
+                },
                 GroundVelocity ground => () => ground.Init(_state, _movementConfig),
-                _ => throw new MissingReferenceException($"No matching pattern for initizalization {velocity.GetType().Name}")
+                _ => throw new MissingReferenceException($"No matching pattern for initialization {velocity.GetType().Name}")
             };
 
-            initizalization?.Invoke();
+            initialization?.Invoke();
         }
 
         private List<VelocityComputation> CreateRuntimeComputations()
@@ -104,6 +111,7 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
             var defaultVelocity = CreateInstance<GroundVelocity>();
             defaultVelocity.Init(_state, _movementConfig);
             _defaultVelocitys.Add(defaultVelocity);
+
             Debug.LogError($"{nameof(VelocityHandler)} default velocity was empty, created default version of {nameof(GroundVelocity)}");
 
             return _defaultVelocitys;
