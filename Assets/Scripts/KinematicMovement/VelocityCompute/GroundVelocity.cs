@@ -52,15 +52,21 @@ namespace PlotvaIzLodzya.KinematicMovement.VelocityCompute
             if (State.CrashedIntoWall)
             {
                 _velocity = Vector3.zero;
+                _horSpeed = 0f;
                 return Vector3.zero;
             }
 
             if (Direction.sqrMagnitude > 0)
-                _horSpeed = Mathf.MoveTowards(_horSpeed, MaxHorizontalSpeed , MovementConfig.Acceleration * deltaTime);
+            {
+                _horSpeed = Mathf.MoveTowards(_horSpeed, MaxHorizontalSpeed, MovementConfig.Acceleration * deltaTime);
+                _velocity = Direction.GetHorizontal() * _horSpeed;
+            }
             else
+            {
                 _horSpeed = Mathf.MoveTowards(_horSpeed, _minHorSpeed, MovementConfig.Decceleration * deltaTime);
-
-            _velocity = Direction.GetHorizontal() * _horSpeed;
+                _velocity = _velocity.GetHorizontal().ClampMagnitude(0, _horSpeed);
+            }
+            
             return _velocity;
         }
 
